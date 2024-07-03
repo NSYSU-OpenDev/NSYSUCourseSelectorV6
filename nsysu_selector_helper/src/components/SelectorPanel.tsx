@@ -16,12 +16,6 @@ type SelectorPanelProps = {
 const SelectorPanel: React.FC<SelectorPanelProps> = ({
   selectedTabKeys,
   courses,
-  selectedCourses,
-  onSelectCourse,
-  onClearAllSelectedCourses,
-  hoveredCourseId,
-  onHoverCourse,
-  availableSemesters,
 }) => {
   return (
     <div>
