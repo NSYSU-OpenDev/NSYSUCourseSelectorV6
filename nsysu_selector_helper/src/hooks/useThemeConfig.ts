@@ -3,7 +3,10 @@ import { theme, ThemeConfig } from 'antd';
 
 type AlgorithmType = 'defaultAlgorithm' | 'darkAlgorithm' | 'compactAlgorithm';
 
-export const useThemeConfig = (): [ThemeConfig, (config: Partial<ThemeConfig & { algorithm: AlgorithmType }>) => void] => {
+export const useThemeConfig = (): [
+  ThemeConfig,
+  (config: Partial<ThemeConfig & { algorithm: AlgorithmType }>) => void,
+] => {
   const [primaryColor, setPrimaryColor] = useState('rgb(0, 158, 150)');
   const [algorithm, setAlgorithm] = useState<AlgorithmType>('defaultAlgorithm');
   const [borderRadius, setBorderRadius] = useState(4);
@@ -21,7 +24,9 @@ export const useThemeConfig = (): [ThemeConfig, (config: Partial<ThemeConfig & {
     fetchSettings();
   }, []);
 
-  const saveSettings = (config: Partial<ThemeConfig & { algorithm: AlgorithmType }>) => {
+  const saveSettings = (
+    config: Partial<ThemeConfig & { algorithm: AlgorithmType }>,
+  ) => {
     if (config.token?.colorPrimary) {
       localStorage.setItem('primaryColor', config.token.colorPrimary);
       setPrimaryColor(config.token.colorPrimary);
@@ -31,7 +36,10 @@ export const useThemeConfig = (): [ThemeConfig, (config: Partial<ThemeConfig & {
       setAlgorithm(config.algorithm);
     }
     if (config.token?.borderRadius) {
-      localStorage.setItem('borderRadius', config.token.borderRadius.toString());
+      localStorage.setItem(
+        'borderRadius',
+        config.token.borderRadius.toString(),
+      );
       setBorderRadius(config.token.borderRadius);
     }
   };

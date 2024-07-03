@@ -9,6 +9,7 @@ import SectionHeader from '#/SectionHeader.tsx';
 import EntryNotification from '#/EntryNotification.tsx';
 import SelectorPanel from '#/SelectorPanel.tsx';
 import { CourseService } from '@/services/courseService.ts';
+import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 
 const Container = styled.div`
   display: flex;
@@ -129,8 +130,14 @@ const App: FC = () => {
         selectedSemester={selectedSemester}
         setSelectedSemester={setSelectedSemester}
       />
-      <FloatButton onClick={toggleScheduleTable}>
-        {scheduleTableCollapsed ? 'Show' : 'Hide'} Schedule Table
+      <FloatButton
+        onClick={toggleScheduleTable}
+        icon={
+          scheduleTableCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />
+        }
+        style={{ left: 16, bottom: 16 }}
+      >
+        Toggle Schedule Table
       </FloatButton>
       <Container>
         <SlideContainer collapsed={scheduleTableCollapsed}>
