@@ -15,5 +15,5 @@ export default defineConfig({
       { find: '#', replacement: resolve(__dirname, 'src/components') },
     ],
   },
-  base: '/selector_helper_react/',
+  base: '/NSYSUCourseSelectorV6/',
 });
