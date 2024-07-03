@@ -1,13 +1,14 @@
 import { Course } from '@/types';
 import React from 'react';
 import styled from 'styled-components';
-import { Checkbox, Tag } from 'antd';
+import { Checkbox, Popover, Tag } from 'antd';
 
 const StyledTag = styled(Tag)`
   font-size: 10px;
   padding: 2px 5px;
   white-space: pre-wrap;
   text-align: center;
+  margin: 0 auto;
 `;
 
 const CourseRow = styled.div`
@@ -45,6 +46,16 @@ const TinyCourseInfo = styled(CourseInfo)`
   flex: 0.25;
 `;
 
+const StyledLink = styled.a`
+  display: inline-block;
+  text-decoration: none;
+  color: black;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
 type ItemProps = {
   scheduleTableCollapsed: boolean;
   course: Course;
@@ -64,15 +75,46 @@ const Item: React.FC<ItemProps> = ({
   const {
     id,
     name,
+    url,
     classTime,
     department,
     compulsory,
     credit,
     english,
-    room,
+    class: classCode,
     teacher,
     tags,
+    restrict,
+    select,
+    selected,
+    remaining,
+    description,
   } = course;
+
+  const getClassCodeColor = (classCode: string | undefined) => {
+    switch (classCode) {
+      case '不分班':
+        return '不分班';
+      case '全英班':
+        return <Tag color={'red'}>全英</Tag>;
+      case '甲班':
+        return <Tag color={'blue'}>甲班</Tag>;
+      case '乙班':
+        return <Tag color={'yellow'}>乙班</Tag>;
+      default:
+        return classCode;
+    }
+  };
+
+  const content = (
+    <div>
+      <p>{description}</p>
+      <p>限選人數: {restrict}</p>
+      <p>點選人數: {select}</p>
+      <p>選上人數: {selected}</p>
+      <p>剩餘人數: {remaining}</p>
+    </div>
+  );
 
   return (
     <CourseRow
@@ -80,13 +122,19 @@ const Item: React.FC<ItemProps> = ({
       onMouseLeave={() => onHoverCourse('')}
     >
       <TinyCourseInfo>
-        <Checkbox
-          name={id}
-          checked={isSelected}
-          onChange={(e) => onSelectCourse(course, e.target.checked)}
-        />
+        <Popover content={content} title={name} trigger='hover'>
+          <Checkbox
+            name={id}
+            checked={isSelected}
+            onChange={(e) => onSelectCourse(course, e.target.checked)}
+          />
+        </Popover>
       </TinyCourseInfo>
-      <CourseInfo>{name.split('\n')[0]}</CourseInfo>
+      <CourseInfo>
+        <StyledLink href={url} target={'_blank'} rel='noreferrer'>
+          {name.split('\n')[0]}
+        </StyledLink>
+      </CourseInfo>
       <SmallCourseInfo>
         {!classTime.every((time) => time === '') ? (
           classTime.map(
@@ -106,40 +154,47 @@ const Item: React.FC<ItemProps> = ({
               ),
           )
         ) : (
-          <Tag color={'red'}>未知</Tag>
+          <StyledTag color={'red'}>未知</StyledTag>
         )}
       </SmallCourseInfo>
       <SmallCourseInfo>{department}</SmallCourseInfo>
       <SmallCourseInfo>
-        <Tag color={compulsory ? 'red' : 'green'}>
-          {compulsory ? '必' : '選'}
-        </Tag>
+        {compulsory ? <StyledTag color={'red'}>必</StyledTag> : '選'}
       </SmallCourseInfo>
       <SmallCourseInfo>
-        <Tag
+        <StyledTag
           color={
             ['yellow', 'green', 'blue', 'purple'][parseInt(credit) - 1] || 'red'
           }
         >
           {credit}
-        </Tag>
+        </StyledTag>
       </SmallCourseInfo>
       <SmallCourseInfo>
-        <Tag color={english ? 'red' : 'green'}>{english ? '英' : '中'}</Tag>
+        {english ? <StyledTag color={'red'}>英語</StyledTag> : '中'}
       </SmallCourseInfo>
-      <SmallCourseInfo>
-        {room ? room?.split('(')[1]?.split(')')[0] : '未公布'}
-      </SmallCourseInfo>
+      <SmallCourseInfo>{getClassCodeColor(classCode)}</SmallCourseInfo>
       <SmallCourseInfo>
         {teacher
           ? teacher
               .split(',')
               .filter((t, i, self) => self.indexOf(t) === i)
-              .map((t) => (
-                <StyledTag color={'purple'} key={t}>
-                  {t}
-                </StyledTag>
-              ))
+              .map((t) => {
+                const teacherName = t.trim().replace("'", '');
+                const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(`中山大學 ${teacherName} DCard | PTT`)}`;
+
+                return (
+                  <StyledTag color={'purple'} key={t}>
+                    <StyledLink
+                      href={searchUrl}
+                      target={'_blank'}
+                      rel='noreferrer'
+                    >
+                      {teacherName}
+                    </StyledLink>
+                  </StyledTag>
+                );
+              })
           : ''}
       </SmallCourseInfo>
       <CourseInfo>
