@@ -102,8 +102,9 @@ const App: FC = () => {
   }, [courses]);
 
   const onSelectCourse = (course: Course, isSelected: boolean) => {
+    const newSelectedCourses = new Set(selectedCourses);
     setSelectedCourses(
-      CourseService.selectCourse(selectedCourses, course, isSelected),
+      CourseService.selectCourse(newSelectedCourses, course, isSelected),
     );
   };
 

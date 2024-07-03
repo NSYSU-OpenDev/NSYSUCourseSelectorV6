@@ -1,6 +1,14 @@
 import { Course } from '@/types';
 import React from 'react';
 import styled from 'styled-components';
+import { Checkbox, Tag } from 'antd';
+
+const StyledTag = styled(Tag)`
+  font-size: 10px;
+  padding: 2px 5px;
+  white-space: pre-wrap;
+  text-align: center;
+`;
 
 const CourseRow = styled.div`
   font-size: 12px;
@@ -20,6 +28,9 @@ const CourseInfo = styled.div`
   text-align: center;
   overflow: hidden;
   text-overflow: fade;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 
   &:last-child {
     margin-right: 0;
@@ -34,15 +45,6 @@ const TinyCourseInfo = styled(CourseInfo)`
   flex: 0.25;
 `;
 
-const Tag = styled.div`
-  background-color: #eef;
-  border: 1px solid #ddf;
-  border-radius: 4px;
-  padding: 2px 5px;
-  margin: 2px;
-  font-size: 10px;
-`;
-
 type ItemProps = {
   scheduleTableCollapsed: boolean;
   course: Course;
@@ -53,7 +55,12 @@ type ItemProps = {
   onHoverCourse: (courseId: string) => void;
 };
 
-const Item: React.FC<ItemProps> = ({ course, onHoverCourse }) => {
+const Item: React.FC<ItemProps> = ({
+  course,
+  isSelected,
+  onSelectCourse,
+  onHoverCourse,
+}) => {
   const {
     id,
     name,
@@ -72,30 +79,79 @@ const Item: React.FC<ItemProps> = ({ course, onHoverCourse }) => {
       onMouseEnter={() => onHoverCourse(course.id)}
       onMouseLeave={() => onHoverCourse('')}
     >
-      <TinyCourseInfo>v</TinyCourseInfo>
+      <TinyCourseInfo>
+        <Checkbox
+          name={id}
+          checked={isSelected}
+          onChange={(e) => onSelectCourse(course, e.target.checked)}
+        />
+      </TinyCourseInfo>
       <CourseInfo>{name.split('\n')[0]}</CourseInfo>
       <SmallCourseInfo>
-        {classTime.map(
-          (time, index) =>
-            time !== '' && (
-              <Tag key={`${id}-${index}`}>
-                {'一二三四五六日'[index]} {time}
-              </Tag>
-            ),
+        {!classTime.every((time) => time === '') ? (
+          classTime.map(
+            (time, index) =>
+              time !== '' && (
+                <StyledTag color={'purple'} key={`${id}-${index}`}>
+                  {`${'一二三四五六日'[index]} ${time}`
+                    .split('')
+                    .reduce(
+                      (acc, curr, i) =>
+                        i % 5 === 0 && i !== 0
+                          ? `${acc}\n${curr}`
+                          : `${acc}${curr}`,
+                      '',
+                    )}
+                </StyledTag>
+              ),
+          )
+        ) : (
+          <Tag color={'red'}>未知</Tag>
         )}
       </SmallCourseInfo>
       <SmallCourseInfo>{department}</SmallCourseInfo>
-      <SmallCourseInfo>{compulsory ? 'Y' : 'N'}</SmallCourseInfo>
-      <SmallCourseInfo>{credit}</SmallCourseInfo>
-      <SmallCourseInfo>{english ? 'Y' : 'N'}</SmallCourseInfo>
+      <SmallCourseInfo>
+        <Tag color={compulsory ? 'red' : 'green'}>
+          {compulsory ? '必' : '選'}
+        </Tag>
+      </SmallCourseInfo>
+      <SmallCourseInfo>
+        <Tag
+          color={
+            ['yellow', 'green', 'blue', 'purple'][parseInt(credit) - 1] || 'red'
+          }
+        >
+          {credit}
+        </Tag>
+      </SmallCourseInfo>
+      <SmallCourseInfo>
+        <Tag color={english ? 'red' : 'green'}>{english ? '英' : '中'}</Tag>
+      </SmallCourseInfo>
       <SmallCourseInfo>
         {room ? room?.split('(')[1]?.split(')')[0] : '未公布'}
       </SmallCourseInfo>
       <SmallCourseInfo>
-        {teacher ? teacher.split(',').map((t) => <Tag key={t}>{t}</Tag>) : ''}
+        {teacher
+          ? teacher
+              .split(',')
+              .filter((t, i, self) => self.indexOf(t) === i)
+              .map((t) => (
+                <StyledTag color={'purple'} key={t}>
+                  {t}
+                </StyledTag>
+              ))
+          : ''}
       </SmallCourseInfo>
       <CourseInfo>
-        {tags ? tags.map((tag) => <Tag key={tag}>{tag}</Tag>) : ''}
+        {tags
+          ? tags
+              .filter((tag, i, self) => self.indexOf(tag) === i)
+              .map((tag) => (
+                <StyledTag color={'purple'} key={tag}>
+                  {tag}
+                </StyledTag>
+              ))
+          : ''}
       </CourseInfo>
     </CourseRow>
   );
