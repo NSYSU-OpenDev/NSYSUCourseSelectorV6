@@ -9,6 +9,7 @@
   "courseDetective": "課程偵探",
   "selectedExport": "已選匯出",
   "announcements": "公告",
+  "panelNotFound": "找不到該控制面板",
   "announcementContent": {
     "description": "中山選課小助手迎來第三學期囉~ 感謝您使用這個系統，也獲得不錯的流量。您寶貴的意見我們都有收到，並會改善更新，感謝各位支持與回饋了！",
     "notes": [
@@ -52,5 +53,8 @@
     "close": "關閉",
     "fillFeedbackForm": "填寫回饋表單",
     "feedbackForm": "回饋表單"
+  },
+  "allCourse": {
+    "totalSelectedCourses": "共篩選 {totalCourses} 門課程，已選 {totalSelectedCourses} 門課程"
   }
 }

@@ -21,11 +21,11 @@ const Container = styled.div`
   }
 `;
 
-const SlideContainer = styled.div<{ collapsed: boolean }>`
+const SlideContainer = styled.div<{ $collapsed: boolean }>`
   transition: all 0.5s;
-  flex: ${({ collapsed }) => (collapsed ? '0 0 0' : '0 0 50%')};
+  flex: ${({ $collapsed }) => ($collapsed ? '0 0 0' : '0 0 50%')};
   overflow: hidden;
-  height: ${({ collapsed }) => (collapsed ? '0' : 'auto')};
+  height: ${({ $collapsed }) => ($collapsed ? '0' : 'auto')};
 
   @media (max-width: 768px) {
     width: 100%;
@@ -140,11 +140,12 @@ const App: FC = () => {
         Toggle Schedule Table
       </FloatButton>
       <Container>
-        <SlideContainer collapsed={scheduleTableCollapsed}>
+        <SlideContainer $collapsed={scheduleTableCollapsed}>
           <div>Schedule Table Content</div>
         </SlideContainer>
         <ContentContainer>
           <SelectorPanel
+            scheduleTableCollapsed={scheduleTableCollapsed}
             selectedTabKeys={selectedTabKeys}
             courses={courses}
             selectedCourses={selectedCourses}
