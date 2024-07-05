@@ -1,9 +1,18 @@
 import React from 'react';
 import { Card, Flex } from 'antd';
+import { useTranslation } from 'react-i18next';
+import styled from 'styled-components';
 
 import type { Course } from '@/types';
-import { useTranslation } from 'react-i18next';
-import CoursesList from '#/SelectorPanel/AllCourses/CoursesList.tsx';
+import CoursesList from '#/SelectorPanel/AllCourses/CoursesList';
+
+const StyledCard = styled(Card)`
+  @media (max-width: 1200px) {
+    div.ant-card-body {
+      padding: 0;
+    }
+  }
+`;
 
 type AllCoursesProps = {
   scheduleTableCollapsed: boolean;
@@ -43,7 +52,7 @@ const AllCourses: React.FC<AllCoursesProps> = ({
   );
 
   return (
-    <Card title={CardTitle}>
+    <StyledCard title={CardTitle}>
       <div style={{ height: '100vh' }}>
         <CoursesList
           scheduleTableCollapsed={scheduleTableCollapsed}
@@ -56,7 +65,7 @@ const AllCourses: React.FC<AllCoursesProps> = ({
           hoveredCourseId={hoveredCourseId}
         />
       </div>
-    </Card>
+    </StyledCard>
   );
 };
 

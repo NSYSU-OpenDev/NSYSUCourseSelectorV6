@@ -1,7 +1,8 @@
-import { Course } from '@/types';
 import React from 'react';
 import styled from 'styled-components';
-import { Checkbox, Popover, Tag } from 'antd';
+import { Card, Checkbox, Flex, Popover, Progress, Space, Tag } from 'antd';
+
+import type { Course } from '@/types';
 
 const StyledTag = styled(Tag)`
   font-size: 10px;
@@ -107,13 +108,35 @@ const Item: React.FC<ItemProps> = ({
   };
 
   const content = (
-    <div>
-      <p>{description}</p>
-      <p>限選人數: {restrict}</p>
-      <p>點選人數: {select}</p>
-      <p>選上人數: {selected}</p>
-      <p>剩餘人數: {remaining}</p>
-    </div>
+    <Space style={{ maxWidth: 300 }} direction={'vertical'}>
+      <Card>{description}</Card>
+      <Card>
+        <Flex justify={'space-between'} gap={5}>
+          <Flex vertical={true} align={'center'}>
+            <span>
+              點選 {select}/{remaining} 剩餘
+            </span>
+            <Progress
+              type='circle'
+              percent={Math.round((select / remaining) * 100)}
+              size='small'
+              status={select >= remaining ? 'exception' : 'normal'}
+            />
+          </Flex>
+          <Flex vertical={true} align={'center'}>
+            <span>
+              選上 {selected}/{restrict} 限制
+            </span>
+            <Progress
+              type='circle'
+              percent={Math.round((selected / restrict) * 100)}
+              size='small'
+              status={selected >= restrict ? 'exception' : 'normal'}
+            />
+          </Flex>
+        </Flex>
+      </Card>
+    </Space>
   );
 
   return (
@@ -122,7 +145,16 @@ const Item: React.FC<ItemProps> = ({
       onMouseLeave={() => onHoverCourse('')}
     >
       <TinyCourseInfo>
-        <Popover content={content} title={name} trigger='hover'>
+        <Popover
+          content={content}
+          title={
+            <>
+              {name.split('\n')[0]} ({id})
+            </>
+          }
+          trigger={['hover', 'focus']}
+          placement={'left'}
+        >
           <Checkbox
             name={id}
             checked={isSelected}

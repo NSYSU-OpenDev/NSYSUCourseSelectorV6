@@ -1,12 +1,12 @@
 import React, { JSX } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import type { AcademicYear, Course } from '@/types';
-import { useTranslation } from 'react-i18next';
-import AllCourses from '#/SelectorPanel/AllCourses.tsx';
+import AllCourses from '#/SelectorPanel/AllCourses';
 
 type SelectorPanelProps = {
   scheduleTableCollapsed: boolean;
-  selectedTabKeys: string[];
+  selectedTabKey: string;
   courses: Course[];
   selectedCourses: Set<Course>;
   onSelectCourse: (course: Course, isSelected: boolean) => void;
@@ -18,7 +18,7 @@ type SelectorPanelProps = {
 
 const SelectorPanel: React.FC<SelectorPanelProps> = ({
   scheduleTableCollapsed,
-  selectedTabKeys,
+  selectedTabKey,
   courses,
   selectedCourses,
   onSelectCourse,
@@ -54,7 +54,7 @@ const SelectorPanel: React.FC<SelectorPanelProps> = ({
         return <h1>{t('panelNotFound')}</h1>;
     }
   };
-  return <>{mapTabToComponent(selectedTabKeys[0])}</>;
+  return <>{mapTabToComponent(selectedTabKey)}</>;
 };
 
 export default SelectorPanel;

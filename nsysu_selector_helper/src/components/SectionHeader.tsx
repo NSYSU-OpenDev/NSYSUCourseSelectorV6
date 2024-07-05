@@ -20,7 +20,7 @@ import {
 } from '@ant-design/icons';
 import styled from 'styled-components';
 
-import { AcademicYear } from '@/types';
+import type { AcademicYear } from '@/types';
 import banner from '@/assets/banner.svg';
 
 const HeaderContainer = styled(Flex)<{
@@ -85,16 +85,16 @@ const MobileMenu = styled(Flex)`
 `;
 
 type HeaderProps = {
-  selectedKeys: string[];
-  setSelectedKeys: (keys: string[]) => void;
+  selectedKey: string;
+  setSelectedKey: (keys: string) => void;
   availableSemesters: AcademicYear;
   selectedSemester: string;
   setSelectedSemester: (semester: string) => void;
 };
 
 const SectionHeader: FC<HeaderProps> = ({
-  selectedKeys,
-  setSelectedKeys,
+  selectedKey,
+  setSelectedKey,
   availableSemesters,
   selectedSemester,
   setSelectedSemester,
@@ -152,7 +152,7 @@ const SectionHeader: FC<HeaderProps> = ({
     }));
 
   const handleMenuClick = (e: { key: string }) => {
-    setSelectedKeys([e.key]);
+    setSelectedKey(e.key);
     setDrawerOpen(false);
   };
 
@@ -179,7 +179,7 @@ const SectionHeader: FC<HeaderProps> = ({
           $textColor={textColor}
           mode='horizontal'
           items={navTabs}
-          selectedKeys={selectedKeys}
+          selectedKeys={[selectedKey]}
           onClick={handleMenuClick}
         />
         <MobileMenu align={'center'} justify={'center'}>
@@ -207,7 +207,7 @@ const SectionHeader: FC<HeaderProps> = ({
           <Menu
             mode='vertical'
             items={navTabs}
-            selectedKeys={selectedKeys}
+            selectedKeys={[selectedKey]}
             onClick={handleMenuClick}
           />
         </Flex>

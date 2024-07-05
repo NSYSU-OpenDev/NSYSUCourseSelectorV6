@@ -2,9 +2,9 @@ import React from 'react';
 import { Virtuoso } from 'react-virtuoso';
 
 import type { Course } from '@/types';
+import { CourseService } from '@/services/courseService.ts';
 import Header from '#/SelectorPanel/AllCourses/CoursesList/Header';
 import Item from '#/SelectorPanel/AllCourses/CoursesList/Item';
-import { CourseService } from '@/services/courseService.ts';
 
 type CoursesListProps = {
   scheduleTableCollapsed: boolean;

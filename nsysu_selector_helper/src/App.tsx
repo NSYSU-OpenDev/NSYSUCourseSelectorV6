@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ConfigProvider, FloatButton, Spin } from 'antd';
 import styled from 'styled-components';
 
@@ -36,8 +36,6 @@ const SlideContainer = styled.div<{ $collapsed: boolean }>`
 const ContentContainer = styled.div`
   transition: all 0.5s;
   flex: 1;
-  padding: 16px;
-  width: 100%;
 
   @media (max-width: 768px) {
     width: 100%;
@@ -45,14 +43,13 @@ const ContentContainer = styled.div`
   }
 `;
 
-const App: FC = () => {
+const App: React.FC = () => {
   const [themeConfig] = useThemeConfig();
 
   const [scheduleTableCollapsed, setScheduleTableCollapsed] = useState(false);
-
   const [isLoading, setIsLoading] = useState(true);
 
-  const [selectedTabKeys, setSelectedTabKeys] = useState(['allCourses']);
+  const [selectedTabKey, setSelectedTabKey] = useState('allCourses');
   const [availableSemesters, setAvailableSemesters] = useState<AcademicYear>({
     latest: '',
     history: {},
@@ -125,8 +122,8 @@ const App: FC = () => {
       {isLoading && <Spin spinning={true} fullscreen />}
       <EntryNotification />
       <SectionHeader
-        selectedKeys={selectedTabKeys}
-        setSelectedKeys={setSelectedTabKeys}
+        selectedKey={selectedTabKey}
+        setSelectedKey={setSelectedTabKey}
         availableSemesters={availableSemesters}
         selectedSemester={selectedSemester}
         setSelectedSemester={setSelectedSemester}
@@ -147,7 +144,7 @@ const App: FC = () => {
         <ContentContainer>
           <SelectorPanel
             scheduleTableCollapsed={scheduleTableCollapsed}
-            selectedTabKeys={selectedTabKeys}
+            selectedTabKey={selectedTabKey}
             courses={courses}
             selectedCourses={selectedCourses}
             onSelectCourse={onSelectCourse}
