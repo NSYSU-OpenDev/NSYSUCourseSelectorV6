@@ -16,7 +16,7 @@ const CourseRow = styled.div`
   font-size: 0.8rem;
   display: flex;
   align-items: center;
-  padding: 10px;
+  padding: 5px;
   border-bottom: 1px solid #eee;
   background-color: #fafafa;
   gap: 5px;
@@ -49,7 +49,7 @@ const SmallCourseInfo = styled(CourseInfo)`
 `;
 
 const TinyCourseInfo = styled(CourseInfo)`
-  flex: 0.22;
+  flex: 0.275;
 `;
 
 const StyledLink = styled.a`

@@ -3,8 +3,9 @@ import styled from 'styled-components';
 
 const HeaderRow = styled.div`
   display: flex;
+  gap: 5px;
   align-items: center;
-  padding: 10px;
+  padding: 5px;
   border-bottom: 2px solid #ddd;
   background-color: #f5f5f5;
   font-weight: bold;
@@ -26,11 +27,11 @@ const MediumCourseInfo = styled(CourseInfo)`
 `;
 
 const SmallCourseInfo = styled(CourseInfo)`
-  flex: 0.42;
+  flex: 0.4;
 `;
 
 const TinyCourseInfo = styled(CourseInfo)`
-  flex: 0.22;
+  flex: 0.275;
 `;
 
 const Header: React.FC = () => {
