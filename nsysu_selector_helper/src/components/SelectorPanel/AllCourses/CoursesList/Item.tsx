@@ -19,6 +19,7 @@ const CourseRow = styled.div`
   padding: 10px;
   border-bottom: 1px solid #eee;
   background-color: #fafafa;
+  gap: 5px;
 
   &:hover {
     background-color: #f0f0f0;
@@ -83,6 +84,7 @@ const Item: React.FC<ItemProps> = ({
     credit,
     english,
     class: classCode,
+    grade,
     teacher,
     tags,
     restrict,
@@ -168,26 +170,28 @@ const Item: React.FC<ItemProps> = ({
         </StyledLink>
       </CourseInfo>
       <SmallCourseInfo>
-        {!classTime.every((time) => time === '') ? (
-          classTime.map(
-            (time, index) =>
-              time !== '' && (
-                <StyledTag color={'purple'} key={`${id}-${index}`}>
-                  {`${'一二三四五六日'[index]} ${time}`
-                    .split('')
-                    .reduce(
-                      (acc, curr, i) =>
-                        i % 5 === 0 && i !== 0
-                          ? `${acc}\n${curr}`
-                          : `${acc}${curr}`,
-                      '',
-                    )}
-                </StyledTag>
-              ),
-          )
-        ) : (
-          <StyledTag color={'red'}>未知</StyledTag>
-        )}
+        <Space direction={'vertical'}>
+          {!classTime.every((time) => time === '') ? (
+            classTime.map(
+              (time, index) =>
+                time !== '' && (
+                  <StyledTag color={'purple'} key={`${id}-${index}`}>
+                    {`${'一二三四五六日'[index]} ${time}`
+                      .split('')
+                      .reduce(
+                        (acc, curr, i) =>
+                          i % 5 === 0 && i !== 0
+                            ? `${acc}\n${curr}`
+                            : `${acc}${curr}`,
+                        '',
+                      )}
+                  </StyledTag>
+                ),
+            )
+          ) : (
+            <StyledTag color={'red'}>未知</StyledTag>
+          )}
+        </Space>
       </SmallCourseInfo>
       <SmallCourseInfo>{department}</SmallCourseInfo>
       <SmallCourseInfo>
@@ -203,42 +207,48 @@ const Item: React.FC<ItemProps> = ({
         </StyledTag>
       </SmallCourseInfo>
       <SmallCourseInfo>
-        {english ? <StyledTag color={'red'}>英語</StyledTag> : '中'}
+        {english ? <StyledTag color={'red'}>英</StyledTag> : '中'}
       </SmallCourseInfo>
-      <SmallCourseInfo>{getClassCodeColor(classCode)}</SmallCourseInfo>
       <SmallCourseInfo>
-        {teacher
-          ? teacher
-              .split(',')
-              .filter((t, i, self) => self.indexOf(t) === i)
-              .map((t) => {
-                const teacherName = t.trim().replace("'", '');
-                const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(`中山大學 ${teacherName} DCard | PTT`)}`;
+        {getClassCodeColor(classCode)} {'⓪①②③④'[parseInt(grade)]}
+      </SmallCourseInfo>
+      <SmallCourseInfo>
+        <Space direction={'vertical'}>
+          {teacher
+            ? teacher
+                .split(',')
+                .filter((t, i, self) => self.indexOf(t) === i)
+                .map((t) => {
+                  const teacherName = t.trim().replace("'", '');
+                  const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(`中山大學 ${teacherName} DCard | PTT`)}`;
 
-                return (
-                  <StyledTag color={'purple'} key={t}>
-                    <StyledLink
-                      href={searchUrl}
-                      target={'_blank'}
-                      rel='noreferrer'
-                    >
-                      {teacherName}
-                    </StyledLink>
-                  </StyledTag>
-                );
-              })
-          : ''}
+                  return (
+                    <StyledTag color={'purple'} key={t}>
+                      <StyledLink
+                        href={searchUrl}
+                        target={'_blank'}
+                        rel='noreferrer'
+                      >
+                        {teacherName}
+                      </StyledLink>
+                    </StyledTag>
+                  );
+                })
+            : ''}
+        </Space>
       </SmallCourseInfo>
       <CourseInfo>
-        {tags
-          ? tags
-              .filter((tag, i, self) => self.indexOf(tag) === i)
-              .map((tag) => (
-                <StyledTag color={'purple'} key={tag}>
-                  {tag}
-                </StyledTag>
-              ))
-          : ''}
+        <Space direction={'vertical'}>
+          {tags
+            ? tags
+                .filter((tag, i, self) => self.indexOf(tag) === i)
+                .map((tag) => (
+                  <StyledTag color={'purple'} key={tag}>
+                    {tag}
+                  </StyledTag>
+                ))
+            : ''}
+        </Space>
       </CourseInfo>
     </CourseRow>
   );
