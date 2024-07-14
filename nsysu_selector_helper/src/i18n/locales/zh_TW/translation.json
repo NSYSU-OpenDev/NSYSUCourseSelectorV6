@@ -10,6 +10,40 @@
   "selectedExport": "已選匯出",
   "announcements": "公告",
   "panelNotFound": "找不到該控制面板",
+  "noData": "目前沒有任何資料",
+  "unknown": "未知",
+  "course": {
+    "select": {
+      "name": "選"
+    },
+    "name": {
+      "name": "名稱"
+    },
+    "classTime": {
+      "name": "時間"
+    },
+    "department": {
+      "name": "系所"
+    },
+    "compulsory": {
+      "name": "必選"
+    },
+    "credit": {
+      "name": "學分"
+    },
+    "english": {
+      "name": "英課"
+    },
+    "class": {
+      "name": "班級"
+    },
+    "teacher": {
+      "name": "教師"
+    },
+    "tags": {
+      "name": "學程"
+    }
+  },
   "announcementContent": {
     "description": "中山選課小助手迎來第三學期囉~ 感謝您使用這個系統，也獲得不錯的流量。您寶貴的意見我們都有收到，並會改善更新，感謝各位支持與回饋了！",
     "notes": [

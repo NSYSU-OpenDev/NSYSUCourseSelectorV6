@@ -5,6 +5,8 @@ import type { Course } from '@/types';
 import { CourseService } from '@/services/courseService.ts';
 import Header from '#/SelectorPanel/AllCourses/CoursesList/Header';
 import Item from '#/SelectorPanel/AllCourses/CoursesList/Item';
+import { Empty } from 'antd';
+import { useTranslation } from 'react-i18next';
 
 type CoursesListProps = {
   scheduleTableCollapsed: boolean;
@@ -27,6 +29,8 @@ const CoursesList: React.FC<CoursesListProps> = ({
   onHoverCourse,
   hoveredCourseId,
 }) => {
+  const { t } = useTranslation();
+
   const renderItem = (index: number) => {
     if (index === 0) {
       return <Header />;
@@ -71,7 +75,7 @@ const CoursesList: React.FC<CoursesListProps> = ({
     return (
       <>
         <Header />
-        <span>沒有符合篩選條件的課程</span>
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('noData')} />
       </>
     );
   }

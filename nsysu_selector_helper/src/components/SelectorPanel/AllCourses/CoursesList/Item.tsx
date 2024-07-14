@@ -145,6 +145,55 @@ const Item: React.FC<ItemProps> = ({
     </Space>
   );
 
+  const displayClassTime = !classTime.every((time) => time === '') ? (
+    classTime.map(
+      (time, index) =>
+        time !== '' && (
+          <StyledTag color={'purple'} key={`${id}-${index}`}>
+            {`${'一二三四五六日'[index]}\n${time}`
+              .split('')
+              .reduce(
+                (acc, curr, i) =>
+                  (i + 1) % 3 === 0 && i !== 2
+                    ? `${acc}\n${curr}`
+                    : `${acc}${curr}`,
+                '',
+              )}
+          </StyledTag>
+        ),
+    )
+  ) : (
+    <StyledTag color={'red'}>未知</StyledTag>
+  );
+
+  const displayTeachers = teacher
+    ? teacher
+        .split(',')
+        .filter((t, i, self) => self.indexOf(t) === i)
+        .map((t) => {
+          const teacherName = t.trim().replace("'", '');
+          const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(`中山大學 ${teacherName} DCard | PTT`)}`;
+
+          return (
+            <StyledTag color={'purple'} key={t}>
+              <StyledLink href={searchUrl} target={'_blank'} rel='noreferrer'>
+                {teacherName}
+              </StyledLink>
+            </StyledTag>
+          );
+        })
+    : '';
+
+  const displayTags = tags
+    ? tags
+        .filter((tag, i, self) => self.indexOf(tag) === i)
+        .map((tag) => (
+          <StyledTag color={'purple'} key={tag}>
+            {tag}
+          </StyledTag>
+        ))
+    : '';
+
   return (
     <CourseRow
       onMouseEnter={() => onHoverCourse(course.id)}
@@ -174,28 +223,7 @@ const Item: React.FC<ItemProps> = ({
         </StyledLink>
       </CourseInfo>
       <MediumCourseInfo>
-        <Space direction={'vertical'}>
-          {!classTime.every((time) => time === '') ? (
-            classTime.map(
-              (time, index) =>
-                time !== '' && (
-                  <StyledTag color={'purple'} key={`${id}-${index}`}>
-                    {`${'一二三四五六日'[index]}\n${time}`
-                      .split('')
-                      .reduce(
-                        (acc, curr, i) =>
-                          (i + 1) % 3 === 0 && i !== 2
-                            ? `${acc}\n${curr}`
-                            : `${acc}${curr}`,
-                        '',
-                      )}
-                  </StyledTag>
-                ),
-            )
-          ) : (
-            <StyledTag color={'red'}>未知</StyledTag>
-          )}
-        </Space>
+        <Space direction={'vertical'}>{displayClassTime}</Space>
       </MediumCourseInfo>
       <SmallCourseInfo>{department}</SmallCourseInfo>
       <SmallCourseInfo>
@@ -221,40 +249,12 @@ const Item: React.FC<ItemProps> = ({
       </SmallCourseInfo>
       <SmallCourseInfo>
         <Flex align={'center'} justify={'center'} vertical={true} gap={5}>
-          {teacher
-            ? teacher
-                .split(',')
-                .filter((t, i, self) => self.indexOf(t) === i)
-                .map((t) => {
-                  const teacherName = t.trim().replace("'", '');
-                  const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(`中山大學 ${teacherName} DCard | PTT`)}`;
-
-                  return (
-                    <StyledTag color={'purple'} key={t}>
-                      <StyledLink
-                        href={searchUrl}
-                        target={'_blank'}
-                        rel='noreferrer'
-                      >
-                        {teacherName}
-                      </StyledLink>
-                    </StyledTag>
-                  );
-                })
-            : ''}
+          {displayTeachers}
         </Flex>
       </SmallCourseInfo>
       <CourseInfo>
         <Flex align={'center'} justify={'center'} vertical={true} gap={5}>
-          {tags
-            ? tags
-                .filter((tag, i, self) => self.indexOf(tag) === i)
-                .map((tag) => (
-                  <StyledTag color={'purple'} key={tag}>
-                    {tag}
-                  </StyledTag>
-                ))
-            : ''}
+          {displayTags}
         </Flex>
       </CourseInfo>
     </CourseRow>

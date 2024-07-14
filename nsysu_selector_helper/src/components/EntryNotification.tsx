@@ -76,8 +76,10 @@ const EntryNotification: React.FC = () => {
       open={isModalOpen}
       onOk={handleOk}
       onCancel={handleCancel}
+      centered={true}
       footer={[
         <Checkbox
+          name={'dontShowAgain'}
           key='dontShowAgain'
           checked={dontShowAgain}
           onChange={handleDontShowAgain}

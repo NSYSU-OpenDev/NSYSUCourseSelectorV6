@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Flex } from 'antd';
+import { Card, Divider, Flex, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 
@@ -40,12 +40,13 @@ const AllCourses: React.FC<AllCoursesProps> = ({
       gap={2}
       style={{ padding: 5 }}
     >
-      <h3 style={{ margin: 0 }}>{t('allCourses')}</h3>
-      <span>
+      <Typography.Title level={3}>{t('allCourses')}</Typography.Title>
+      <Typography.Text type='secondary'>
         {t('allCourse.totalSelectedCourses')
           .replace('{totalCourses}', courses.length.toString())
           .replace('{totalSelectedCourses}', selectedCourses.size.toString())}
-      </span>
+      </Typography.Text>
+      <Divider />
     </Flex>
   );
 
