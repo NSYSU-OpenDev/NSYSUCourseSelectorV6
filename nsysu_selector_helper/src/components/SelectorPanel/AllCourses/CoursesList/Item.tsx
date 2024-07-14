@@ -13,7 +13,7 @@ const StyledTag = styled(Tag)`
 `;
 
 const CourseRow = styled.div`
-  font-size: 12px;
+  font-size: 0.8rem;
   display: flex;
   align-items: center;
   padding: 10px;
@@ -40,12 +40,16 @@ const CourseInfo = styled.div`
   }
 `;
 
+const MediumCourseInfo = styled(CourseInfo)`
+  flex: 0.6;
+`;
+
 const SmallCourseInfo = styled(CourseInfo)`
   flex: 0.4;
 `;
 
 const TinyCourseInfo = styled(CourseInfo)`
-  flex: 0.25;
+  flex: 0.22;
 `;
 
 const StyledLink = styled.a`
@@ -99,11 +103,11 @@ const Item: React.FC<ItemProps> = ({
       case '不分班':
         return '不分班';
       case '全英班':
-        return <Tag color={'red'}>全英</Tag>;
+        return <StyledTag color={'red'}>全英</StyledTag>;
       case '甲班':
-        return <Tag color={'blue'}>甲班</Tag>;
+        return <StyledTag color={'blue'}>甲班</StyledTag>;
       case '乙班':
-        return <Tag color={'yellow'}>乙班</Tag>;
+        return <StyledTag color={'yellow'}>乙班</StyledTag>;
       default:
         return classCode;
     }
@@ -169,18 +173,18 @@ const Item: React.FC<ItemProps> = ({
           {name.split('\n')[0]}
         </StyledLink>
       </CourseInfo>
-      <SmallCourseInfo>
+      <MediumCourseInfo>
         <Space direction={'vertical'}>
           {!classTime.every((time) => time === '') ? (
             classTime.map(
               (time, index) =>
                 time !== '' && (
                   <StyledTag color={'purple'} key={`${id}-${index}`}>
-                    {`${'一二三四五六日'[index]} ${time}`
+                    {`${'一二三四五六日'[index]}\n${time}`
                       .split('')
                       .reduce(
                         (acc, curr, i) =>
-                          i % 5 === 0 && i !== 0
+                          (i + 1) % 3 === 0 && i !== 2
                             ? `${acc}\n${curr}`
                             : `${acc}${curr}`,
                         '',
@@ -192,10 +196,10 @@ const Item: React.FC<ItemProps> = ({
             <StyledTag color={'red'}>未知</StyledTag>
           )}
         </Space>
-      </SmallCourseInfo>
+      </MediumCourseInfo>
       <SmallCourseInfo>{department}</SmallCourseInfo>
       <SmallCourseInfo>
-        {compulsory ? <StyledTag color={'red'}>必</StyledTag> : '選'}
+        {compulsory ? <StyledTag color={'red'}>必</StyledTag> : <span>選</span>}
       </SmallCourseInfo>
       <SmallCourseInfo>
         <StyledTag
@@ -210,10 +214,13 @@ const Item: React.FC<ItemProps> = ({
         {english ? <StyledTag color={'red'}>英</StyledTag> : '中'}
       </SmallCourseInfo>
       <SmallCourseInfo>
-        {getClassCodeColor(classCode)} {'⓪①②③④'[parseInt(grade)]}
+        <Flex align={'center'} justify={'center'} vertical={true}>
+          {getClassCodeColor(classCode)}
+          <span>{'⓪①②③④'[parseInt(grade)]}</span>
+        </Flex>
       </SmallCourseInfo>
       <SmallCourseInfo>
-        <Space direction={'vertical'}>
+        <Flex align={'center'} justify={'center'} vertical={true} gap={5}>
           {teacher
             ? teacher
                 .split(',')
@@ -235,10 +242,10 @@ const Item: React.FC<ItemProps> = ({
                   );
                 })
             : ''}
-        </Space>
+        </Flex>
       </SmallCourseInfo>
       <CourseInfo>
-        <Space direction={'vertical'}>
+        <Flex align={'center'} justify={'center'} vertical={true} gap={5}>
           {tags
             ? tags
                 .filter((tag, i, self) => self.indexOf(tag) === i)
@@ -248,7 +255,7 @@ const Item: React.FC<ItemProps> = ({
                   </StyledTag>
                 ))
             : ''}
-        </Space>
+        </Flex>
       </CourseInfo>
     </CourseRow>
   );

@@ -7,10 +7,8 @@ import type { Course } from '@/types';
 import CoursesList from '#/SelectorPanel/AllCourses/CoursesList';
 
 const StyledCard = styled(Card)`
-  @media (max-width: 1200px) {
-    div.ant-card-body {
-      padding: 0;
-    }
+  div.ant-card-body {
+    padding: 0;
   }
 `;
 

@@ -21,12 +21,16 @@ const CourseInfo = styled.div`
   }
 `;
 
+const MediumCourseInfo = styled(CourseInfo)`
+  flex: 0.6;
+`;
+
 const SmallCourseInfo = styled(CourseInfo)`
-  flex: 0.4;
+  flex: 0.42;
 `;
 
 const TinyCourseInfo = styled(CourseInfo)`
-  flex: 0.25;
+  flex: 0.22;
 `;
 
 const Header: React.FC = () => {
@@ -35,7 +39,7 @@ const Header: React.FC = () => {
       <HeaderRow>
         <TinyCourseInfo>選</TinyCourseInfo>
         <CourseInfo>名稱</CourseInfo>
-        <SmallCourseInfo>時間</SmallCourseInfo>
+        <MediumCourseInfo>時間</MediumCourseInfo>
         <SmallCourseInfo>系所</SmallCourseInfo>
         <SmallCourseInfo>必選</SmallCourseInfo>
         <SmallCourseInfo>學分</SmallCourseInfo>
