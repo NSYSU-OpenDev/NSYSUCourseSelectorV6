@@ -1,6 +1,6 @@
 import { AcademicYear, Course, SemesterUpdate } from '@/types';
 
-const BASE_URL = 'https://whats2000.github.io/NSYSUCourseAPI';
+const BASE_URL = 'https://nsysu-opendev.github.io/NSYSUCourseAPI';
 
 export class NSYSUCourseAPI {
   /**
@@ -18,7 +18,9 @@ export class NSYSUCourseAPI {
    * 取得指定學年度的學期更新資訊
    * @param academicYear - 學年度
    */
-  static async getSemesterUpdates(academicYear: string): Promise<SemesterUpdate> {
+  static async getSemesterUpdates(
+    academicYear: string,
+  ): Promise<SemesterUpdate> {
     const response = await fetch(`${BASE_URL}/${academicYear}/version.json`);
     if (!response.ok) {
       throw new Error('Failed to fetch semester updates');
@@ -31,15 +33,21 @@ export class NSYSUCourseAPI {
    * @param academicYear - 學年度
    * @param updateTime - 更新時間
    */
-  static async getCourses(academicYear: string, updateTime: string): Promise<Course[]> {
-    const response = await fetch(`${BASE_URL}/${academicYear}/${updateTime}/all.json`);
+  static async getCourses(
+    academicYear: string,
+    updateTime: string,
+  ): Promise<Course[]> {
+    const response = await fetch(
+      `${BASE_URL}/${academicYear}/${updateTime}/all.json`,
+    );
     if (!response.ok) {
       throw new Error('Failed to fetch courses');
     }
 
     return response.json().then((courses: Course[]) => {
-      return Array.from(new Set(courses.map(course => course.id)))
-        .map(id => courses.find(course => course.id === id)!);
+      return Array.from(new Set(courses.map((course) => course.id))).map(
+        (id) => courses.find((course) => course.id === id)!,
+      );
     });
   }
 
