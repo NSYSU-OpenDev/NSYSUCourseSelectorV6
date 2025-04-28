@@ -209,8 +209,6 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({
     })),
   ];
 
-  // 計算表格寬度，但確保它不會導致溢出
-  const columnsCount = visibleDays.length + 1; // 時間列 + 天數列
   // 使表格寬度與內容匹配，但不設置最小寬度
   const tableWidth = timeColumnWidth + visibleDays.length * dayColumnWidth;
 
