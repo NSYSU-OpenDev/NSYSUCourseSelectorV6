@@ -1,5 +1,5 @@
-import React, { ReactNode } from 'react';
-import { Card, Table, Typography, Tooltip, Tag } from 'antd';
+import React, { ReactNode, useState } from 'react';
+import { Card, Table, Typography, Tooltip, Tag, Switch, Space } from 'antd';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 
@@ -26,6 +26,10 @@ const StyledTable = styled(Table)`
     vertical-align: middle;
   }
 
+  .ant-table {
+    width: 100%;
+  }
+
   // 手機版樣式調整
   @media screen and (max-width: 768px) {
     .ant-table-thead > tr > th {
@@ -38,6 +42,12 @@ const StyledTable = styled(Table)`
       font-size: 11px;
     }
   }
+`;
+
+const TableWrapper = styled.div`
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* 為iOS添加慣性滾動 */
 `;
 
 const CourseTag = styled(Tag)<{ $isHovered?: boolean }>`
@@ -60,6 +70,13 @@ const CourseTag = styled(Tag)<{ $isHovered?: boolean }>`
   }
 `;
 
+const CardHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+`;
+
 // Define proper interface for schedule table row data
 interface ScheduleTableRow {
   key: string;
@@ -80,6 +97,11 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({
   const { t } = useTranslation();
   const { width } = useWindowSize();
   const isMobile = width <= 768;
+  const [showWeekends, setShowWeekends] = useState(true);
+
+  // 計算每個欄位的固定寬度 - 為手機優化
+  const timeColumnWidth = isMobile ? 36 : 60;
+  const dayColumnWidth = isMobile ? 45 : 80; // 減小每天欄位在手機上的寬度
 
   // 將課程按時間段和星期分組
   const getScheduleData = () => {
@@ -157,12 +179,17 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({
   });
 
   // 定義表格列
+  const weekdays = ['一', '二', '三', '四', '五', '六', '日'];
+
+  // Filter columns based on the showWeekends setting
+  const visibleDays = showWeekends ? weekdays : weekdays.slice(0, 5);
+
   const columns = [
     {
       title: '',
       dataIndex: 'time',
       key: 'time',
-      width: isMobile ? 40 : 60,
+      width: timeColumnWidth,
       render: (text: string) => (
         <Text
           style={{
@@ -174,23 +201,48 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({
         </Text>
       ),
     },
-    ...['一', '二', '三', '四', '五', '六', '日'].map((day, index) => ({
+    ...visibleDays.map((day, index) => ({
       title: day,
       dataIndex: `day${index}` as keyof ScheduleTableRow,
       key: `day${index}`,
-      width: isMobile ? 'auto' : 120,
+      width: dayColumnWidth,
     })),
   ];
 
+  // 計算表格寬度，但確保它不會導致溢出
+  const columnsCount = visibleDays.length + 1; // 時間列 + 天數列
+  // 使表格寬度與內容匹配，但不設置最小寬度
+  const tableWidth = timeColumnWidth + visibleDays.length * dayColumnWidth;
+
+  // Custom title component with weekend toggle
+  const TitleComponent = () => (
+    <CardHeader>
+      <span>{t('課程時間表')}</span>
+      <Space>
+        <Text style={{ fontSize: isMobile ? '12px' : '14px' }}>
+          {t('顯示週末')}
+        </Text>
+        <Switch
+          checked={showWeekends}
+          onChange={setShowWeekends}
+          size={isMobile ? 'small' : 'default'}
+        />
+      </Space>
+    </CardHeader>
+  );
+
   return (
-    <StyledCard title={t('課程時間表')}>
-      <StyledTable
-        dataSource={dataSource}
-        columns={columns}
-        pagination={false}
-        size={isMobile ? 'small' : 'middle'}
-        scroll={{ x: 'max-content' }}
-      />
+    <StyledCard title={<TitleComponent />}>
+      <TableWrapper>
+        <StyledTable
+          dataSource={dataSource}
+          columns={columns}
+          pagination={false}
+          size={isMobile ? 'small' : 'middle'}
+          scroll={{ x: tableWidth }}
+          style={{ width: '100%' }}
+        />
+      </TableWrapper>
     </StyledCard>
   );
 };

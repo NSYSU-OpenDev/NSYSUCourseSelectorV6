@@ -1,12 +1,9 @@
 # NSYSU Course Selector V6
 
-> ⚠️ **IMPORTANT NOTICE**: This repository is no longer being developed or maintained.
+整改很多 UI/UX 問題，並且修正了許多 bug。
+完成時間未定，會不定期更新。
 
-## About
-
-NSYSU Course Selector is a tool designed to help students at National Sun Yat-sen University (NSYSU) select and organize their courses more efficiently. This is version 6 of the project, built with React, TypeScript, and Vite.
-
-## Archive Information
-This project is no longer actively maintained. Users are welcome to fork this repository for their own purposes, but no new features, bug fixes, or support will be provided.
-
-For any inquiries about similar tools or resources, please refer to the official NSYSU course registration system or other active projects.
+# 目前進度
+- [x] 完成主課程列表
+- [x] 更好收折課程列表
+- [x] 更好的顯示目前剩餘名額

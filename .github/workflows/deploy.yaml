@@ -28,6 +28,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
+          cache: 'yarn'
+          cache-dependency-path: 'nsysu_selector_helper/yarn.lock'
 
       - name: Install
         run: yarn install

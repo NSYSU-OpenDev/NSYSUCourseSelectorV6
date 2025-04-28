@@ -12,6 +12,8 @@
   "panelNotFound": "找不到該控制面板",
   "noData": "目前沒有任何資料",
   "unknown": "未知",
+  "顯示週末": "顯示週末",
+  "課程時間表": "課程時間表",
   "course": {
     "select": {
       "name": "選"
