@@ -27,7 +27,6 @@ const MobileLayout = styled(Layout)`
   @media screen and (max-width: 768px) {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 52px);
     overflow: hidden;
   }
 `;
@@ -180,7 +179,7 @@ const App: React.FC = () => {
         {/* 課表區塊 */}
         <CollapsibleSection
           $isVisible={mobileScheduleExpanded}
-          $height={mobileScheduleExpanded ? '50%' : '48px'}
+          $height={mobileScheduleExpanded ? '100%' : '48px'}
           vertical
         >
           <MobileToggleHeader
@@ -208,7 +207,7 @@ const App: React.FC = () => {
         {/* 控制面板區塊 */}
         <CollapsibleSection
           $isVisible={mobileSelectorExpanded}
-          $height={mobileSelectorExpanded ? '50%' : '48px'}
+          $height={mobileSelectorExpanded ? '100%' : '48px'}
           vertical
           style={{ flex: 1 }}
         >
