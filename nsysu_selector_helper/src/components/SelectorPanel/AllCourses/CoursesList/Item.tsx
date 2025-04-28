@@ -63,7 +63,6 @@ const StyledLink = styled.a`
 `;
 
 type ItemProps = {
-  scheduleTableCollapsed: boolean;
   course: Course;
   isSelected: boolean;
   isConflict: boolean;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Divider, Flex, Typography } from 'antd';
+import { Card, Flex, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 
@@ -13,7 +13,6 @@ const StyledCard = styled(Card)`
 `;
 
 type AllCoursesProps = {
-  scheduleTableCollapsed: boolean;
   courses: Course[];
   selectedCourses: Set<Course>;
   onSelectCourse: (course: Course, isSelected: boolean) => void;
@@ -23,7 +22,6 @@ type AllCoursesProps = {
 };
 
 const AllCourses: React.FC<AllCoursesProps> = ({
-  scheduleTableCollapsed,
   courses,
   selectedCourses,
   onSelectCourse,
@@ -46,24 +44,20 @@ const AllCourses: React.FC<AllCoursesProps> = ({
           .replace('{totalCourses}', courses.length.toString())
           .replace('{totalSelectedCourses}', selectedCourses.size.toString())}
       </Typography.Text>
-      <Divider />
     </Flex>
   );
 
   return (
     <StyledCard title={CardTitle}>
-      <div style={{ height: '100vh' }}>
-        <CoursesList
-          scheduleTableCollapsed={scheduleTableCollapsed}
-          courses={courses}
-          displaySelectedOnly={false}
-          selectedCourses={selectedCourses}
-          displayConflictCourses={false}
-          onSelectCourse={onSelectCourse}
-          onHoverCourse={onHoverCourse}
-          hoveredCourseId={hoveredCourseId}
-        />
-      </div>
+      <CoursesList
+        courses={courses}
+        displaySelectedOnly={false}
+        selectedCourses={selectedCourses}
+        displayConflictCourses={false}
+        onSelectCourse={onSelectCourse}
+        onHoverCourse={onHoverCourse}
+        hoveredCourseId={hoveredCourseId}
+      />
     </StyledCard>
   );
 };

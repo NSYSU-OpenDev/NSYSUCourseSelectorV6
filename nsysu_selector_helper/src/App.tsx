@@ -1,52 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { ConfigProvider, FloatButton, Spin } from 'antd';
+import { ConfigProvider, Spin, Splitter } from 'antd';
 import styled from 'styled-components';
 
 import type { AcademicYear, Course } from '@/types';
 import { useThemeConfig } from '@/hooks/useThemeConfig';
 import { NSYSUCourseAPI } from '@/api/NSYSUCourseAPI.ts';
+import { CourseService } from '@/services/courseService.ts';
 import SectionHeader from '#/SectionHeader.tsx';
 import EntryNotification from '#/EntryNotification.tsx';
 import SelectorPanel from '#/SelectorPanel.tsx';
-import { CourseService } from '@/services/courseService.ts';
-import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  transition: all 0.5s;
-
-  @media (min-width: 768px) {
-    flex-direction: row;
-  }
-`;
-
-const SlideContainer = styled.div<{ $collapsed: boolean }>`
-  transition: all 0.5s;
-  flex: ${({ $collapsed }) => ($collapsed ? '0 0 0' : '0 0 50%')};
-  overflow: hidden;
-  height: ${({ $collapsed }) => ($collapsed ? '0' : 'auto')};
-
-  @media (max-width: 768px) {
-    width: 100%;
-    flex: none;
-  }
-`;
-
-const ContentContainer = styled.div`
-  transition: all 0.5s;
-  flex: 1;
-
-  @media (max-width: 768px) {
-    width: 100%;
-    flex: none;
-  }
+const StyledSplitter = styled(Splitter)`
+  height: calc(100vh - 52px);
 `;
 
 const App: React.FC = () => {
   const [themeConfig] = useThemeConfig();
-
-  const [scheduleTableCollapsed, setScheduleTableCollapsed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const [selectedTabKey, setSelectedTabKey] = useState('allCourses');
@@ -113,10 +82,6 @@ const App: React.FC = () => {
     setHoveredCourseId(courseId);
   };
 
-  const toggleScheduleTable = () => {
-    setScheduleTableCollapsed(!scheduleTableCollapsed);
-  };
-
   return (
     <ConfigProvider theme={themeConfig}>
       {isLoading && <Spin spinning={true} fullscreen />}
@@ -128,22 +93,12 @@ const App: React.FC = () => {
         selectedSemester={selectedSemester}
         setSelectedSemester={setSelectedSemester}
       />
-      <FloatButton
-        onClick={toggleScheduleTable}
-        icon={
-          scheduleTableCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />
-        }
-        style={{ left: 16, bottom: 16 }}
-      >
-        Toggle Schedule Table
-      </FloatButton>
-      <Container>
-        <SlideContainer $collapsed={scheduleTableCollapsed}>
+      <StyledSplitter>
+        <Splitter.Panel collapsible={true}>
           <div>Schedule Table Content</div>
-        </SlideContainer>
-        <ContentContainer>
+        </Splitter.Panel>
+        <Splitter.Panel>
           <SelectorPanel
-            scheduleTableCollapsed={scheduleTableCollapsed}
             selectedTabKey={selectedTabKey}
             courses={courses}
             selectedCourses={selectedCourses}
@@ -153,8 +108,8 @@ const App: React.FC = () => {
             onHoverCourse={onHoverCourse}
             availableSemesters={availableSemesters}
           />
-        </ContentContainer>
-      </Container>
+        </Splitter.Panel>
+      </StyledSplitter>
     </ConfigProvider>
   );
 };

@@ -5,7 +5,6 @@ import type { AcademicYear, Course } from '@/types';
 import AllCourses from '#/SelectorPanel/AllCourses';
 
 type SelectorPanelProps = {
-  scheduleTableCollapsed: boolean;
   selectedTabKey: string;
   courses: Course[];
   selectedCourses: Set<Course>;
@@ -17,7 +16,6 @@ type SelectorPanelProps = {
 };
 
 const SelectorPanel: React.FC<SelectorPanelProps> = ({
-  scheduleTableCollapsed,
   selectedTabKey,
   courses,
   selectedCourses,
@@ -33,7 +31,6 @@ const SelectorPanel: React.FC<SelectorPanelProps> = ({
       case 'allCourses':
         return (
           <AllCourses
-            scheduleTableCollapsed={scheduleTableCollapsed}
             courses={courses}
             selectedCourses={selectedCourses}
             onSelectCourse={onSelectCourse}

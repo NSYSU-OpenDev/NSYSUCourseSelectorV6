@@ -9,7 +9,6 @@ import { Empty } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 type CoursesListProps = {
-  scheduleTableCollapsed: boolean;
   courses: Course[];
   displaySelectedOnly: boolean;
   selectedCourses: Set<Course>;
@@ -20,7 +19,6 @@ type CoursesListProps = {
 };
 
 const CoursesList: React.FC<CoursesListProps> = ({
-  scheduleTableCollapsed,
   courses,
   displaySelectedOnly,
   selectedCourses,
@@ -60,7 +58,6 @@ const CoursesList: React.FC<CoursesListProps> = ({
     return (
       <Item
         key={`course-${index}`}
-        scheduleTableCollapsed={scheduleTableCollapsed}
         course={course}
         isSelected={isSelected}
         isConflict={isConflict}
@@ -83,7 +80,12 @@ const CoursesList: React.FC<CoursesListProps> = ({
   const dataWithHeader = [{}, ...courses];
 
   return (
-    <Virtuoso data={dataWithHeader} itemContent={renderItem} topItemCount={1} />
+    <Virtuoso
+      style={{ height: 'calc(100vh - 155px)' }}
+      data={dataWithHeader}
+      itemContent={renderItem}
+      topItemCount={1}
+    />
   );
 };
 
