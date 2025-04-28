@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ConfigProvider, Spin, Splitter, Layout, Flex } from 'antd';
+import { ConfigProvider, Spin, Splitter, Layout, Collapse } from 'antd';
 import styled from 'styled-components';
 
 import type { AcademicYear, Course } from '@/types';
@@ -10,9 +10,8 @@ import SectionHeader from '#/SectionHeader.tsx';
 import EntryNotification from '#/EntryNotification.tsx';
 import SelectorPanel from '#/SelectorPanel.tsx';
 import ScheduleTable from '#/ScheduleTable.tsx';
-import { UpOutlined, DownOutlined } from '@ant-design/icons';
 
-const { Content } = Layout;
+const { Panel } = Collapse;
 
 const StyledSplitter = styled(Splitter)`
   height: calc(100vh - 52px);
@@ -31,26 +30,25 @@ const MobileLayout = styled(Layout)`
   }
 `;
 
-// 手機版可摺疊容器
-const CollapsibleSection = styled(Flex)<{
-  $isVisible: boolean;
-  $height: string;
-}>`
-  height: ${(props) => (props.$isVisible ? props.$height : '48px')};
-  overflow: hidden;
-  transition: height 0.3s ease-in-out;
-  background: #fff;
-  position: relative;
-  border-bottom: 1px solid #f0f0f0;
+// 自定義 Collapse 樣式
+const StyledCollapse = styled(Collapse)`
+  .ant-collapse-item {
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .ant-collapse-content-box {
+    padding: 8px !important;
+  }
+
+  .ant-collapse-header {
+    background: #fafafa;
+    padding: 12px 16px !important;
+  }
 `;
 
-const MobileToggleHeader = styled(Flex)`
-  height: 48px;
-  padding: 0 16px;
-  background: #fafafa;
-  border-bottom: 1px solid #f0f0f0;
-  cursor: pointer;
-  z-index: 2;
+// 內容容器，確保可以滾動
+const ContentWrapper = styled.div`
+  height: 100%;
 `;
 
 const App: React.FC = () => {
@@ -68,24 +66,13 @@ const App: React.FC = () => {
     new Set(),
   );
   const [hoveredCourseId, setHoveredCourseId] = useState('');
-  const [mobileScheduleExpanded, setMobileScheduleExpanded] = useState(true);
-  const [mobileSelectorExpanded, setMobileSelectorExpanded] = useState(
-    !mobileScheduleExpanded,
-  );
+  const [activeKey, setActiveKey] = useState<string | string[]>([
+    'schedulePanel',
+  ]);
 
-  // 在手機模式下點擊切換顯示區塊
-  const toggleMobileSchedule = () => {
-    setMobileScheduleExpanded(!mobileScheduleExpanded);
-    if (mobileSelectorExpanded && !mobileScheduleExpanded) {
-      setMobileSelectorExpanded(false);
-    }
-  };
-
-  const toggleMobileSelector = () => {
-    setMobileSelectorExpanded(!mobileSelectorExpanded);
-    if (mobileScheduleExpanded && !mobileSelectorExpanded) {
-      setMobileScheduleExpanded(false);
-    }
+  // 處理手機版 Collapse 切換
+  const handleCollapseChange = (key: string | string[]) => {
+    setActiveKey(key);
   };
 
   useEffect(() => {
@@ -174,70 +161,38 @@ const App: React.FC = () => {
         </Splitter.Panel>
       </StyledSplitter>
 
-      {/* 手機版垂直布局 */}
+      {/* 手機版垂直布局 - 使用 antd Collapse */}
       <MobileLayout>
-        {/* 課表區塊 */}
-        <CollapsibleSection
-          $isVisible={mobileScheduleExpanded}
-          $height={mobileScheduleExpanded ? '100%' : '48px'}
-          vertical
+        <StyledCollapse
+          activeKey={activeKey}
+          onChange={handleCollapseChange}
+          expandIconPosition='end'
+          style={{ borderRadius: 0 }}
+          bordered={false}
         >
-          <MobileToggleHeader
-            justify='space-between'
-            align='center'
-            onClick={toggleMobileSchedule}
-          >
-            <span>課程時間表</span>
-            {mobileScheduleExpanded ? <UpOutlined /> : <DownOutlined />}
-          </MobileToggleHeader>
-          <Content
-            style={{
-              padding: '0 8px',
-              overflow: 'auto',
-              height: 'calc(100% - 48px)',
-            }}
-          >
-            <ScheduleTable
-              selectedCourses={selectedCourses}
-              hoveredCourseId={hoveredCourseId}
-            />
-          </Content>
-        </CollapsibleSection>
-
-        {/* 控制面板區塊 */}
-        <CollapsibleSection
-          $isVisible={mobileSelectorExpanded}
-          $height={mobileSelectorExpanded ? '100%' : '48px'}
-          vertical
-          style={{ flex: 1 }}
-        >
-          <MobileToggleHeader
-            justify='space-between'
-            align='center'
-            onClick={toggleMobileSelector}
-          >
-            <span>課程控制面板</span>
-            {mobileSelectorExpanded ? <UpOutlined /> : <DownOutlined />}
-          </MobileToggleHeader>
-          <Content
-            style={{
-              padding: '0 8px',
-              overflow: 'auto',
-              height: 'calc(100% - 48px)',
-            }}
-          >
-            <SelectorPanel
-              selectedTabKey={selectedTabKey}
-              courses={courses}
-              selectedCourses={selectedCourses}
-              onSelectCourse={onSelectCourse}
-              onClearAllSelectedCourses={onClearAllSelectedCourses}
-              hoveredCourseId={hoveredCourseId}
-              onHoverCourse={onHoverCourse}
-              availableSemesters={availableSemesters}
-            />
-          </Content>
-        </CollapsibleSection>
+          <Panel key='schedulePanel' header='課程時間表'>
+            <ContentWrapper>
+              <ScheduleTable
+                selectedCourses={selectedCourses}
+                hoveredCourseId={hoveredCourseId}
+              />
+            </ContentWrapper>
+          </Panel>
+          <Panel key='selectorPanel' header='課程控制面板'>
+            <ContentWrapper>
+              <SelectorPanel
+                selectedTabKey={selectedTabKey}
+                courses={courses}
+                selectedCourses={selectedCourses}
+                onSelectCourse={onSelectCourse}
+                onClearAllSelectedCourses={onClearAllSelectedCourses}
+                hoveredCourseId={hoveredCourseId}
+                onHoverCourse={onHoverCourse}
+                availableSemesters={availableSemesters}
+              />
+            </ContentWrapper>
+          </Panel>
+        </StyledCollapse>
       </MobileLayout>
     </ConfigProvider>
   );
