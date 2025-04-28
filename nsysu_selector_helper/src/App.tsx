@@ -15,6 +15,7 @@ import { UpOutlined, DownOutlined } from '@ant-design/icons';
 const { Content } = Layout;
 
 const StyledSplitter = styled(Splitter)`
+  height: calc(100vh - 52px);
   @media screen and (max-width: 768px) {
     display: none;
   }

@@ -14,7 +14,6 @@ const StyledCard = styled(Card)`
 
   .ant-card-body {
     padding: 0;
-    height: 100%;
     overflow: auto;
   }
 `;
