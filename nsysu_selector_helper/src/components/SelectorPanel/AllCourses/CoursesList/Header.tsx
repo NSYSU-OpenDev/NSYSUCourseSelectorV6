@@ -2,8 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 
-import type { Course } from '@/types';
-
 const HeaderRow = styled.div`
   display: flex;
   gap: 5px;
@@ -39,11 +37,10 @@ const TinyCourseInfo = styled(CourseInfo)`
 
 const Header: React.FC = () => {
   const { t } = useTranslation();
-  const courseTranslation: {
-    [key in keyof Partial<Course>]: {
-      name: string;
-    };
-  } & { select: { name: string } } = t('course', { returnObjects: true });
+  // Use type assertion without strict structure check to resolve the type error
+  const courseTranslation = t('course', { returnObjects: true }) as {
+    [key: string]: { name: string };
+  };
 
   return (
     <>
