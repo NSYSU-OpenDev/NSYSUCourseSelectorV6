@@ -14,18 +14,22 @@ const StyledTag = styled(Tag)`
   margin: 0 auto;
 `;
 
-const CourseRow = styled.div<{ $isHovered?: boolean }>`
+const CourseRow = styled.div<{ $isHovered?: boolean; $isConflict?: boolean }>`
   font-size: 0.8rem;
   display: flex;
   align-items: center;
   padding: 5px;
   border-bottom: 1px solid #eee;
-  background-color: ${(props) => (props.$isHovered ? '#f0f0f0' : '#fafafa')};
+  background-color: ${(props) => {
+    if (props.$isConflict) return '#fff2f0';
+    return props.$isHovered ? '#f0f0f0' : '#fafafa';
+  }};
+  border-left: ${(props) => (props.$isConflict ? '4px solid #ff4d4f' : 'none')};
   gap: 5px;
   transition: background-color 0.2s ease;
 
   &:hover {
-    background-color: #f0f0f0;
+    background-color: ${(props) => (props.$isConflict ? '#ffebe8' : '#f0f0f0')};
   }
 `;
 
@@ -72,7 +76,12 @@ type ItemProps = {
   isHovered: boolean;
 };
 
-const Item: React.FC<ItemProps> = ({ course, isSelected, isHovered }) => {
+const Item: React.FC<ItemProps> = ({
+  course,
+  isSelected,
+  isConflict,
+  isHovered,
+}) => {
   const dispatch = useAppDispatch();
 
   const handleSelectCourse = (isSelected: boolean) => {
@@ -116,7 +125,6 @@ const Item: React.FC<ItemProps> = ({ course, isSelected, isHovered }) => {
         return classCode;
     }
   };
-
   const content = (
     <Space style={{ maxWidth: 300 }} direction={'vertical'}>
       <Card>{description}</Card>
@@ -200,6 +208,7 @@ const Item: React.FC<ItemProps> = ({ course, isSelected, isHovered }) => {
   return (
     <CourseRow
       $isHovered={isHovered}
+      $isConflict={isConflict}
       onMouseEnter={handleHoverCourse}
       onMouseLeave={() => dispatch(setHoveredCourseId(''))}
     >

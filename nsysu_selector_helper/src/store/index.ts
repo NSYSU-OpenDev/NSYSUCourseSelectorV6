@@ -16,6 +16,8 @@ export {
   setSelectedTabKey,
   setHoveredCourseId,
   setActiveCollapseKey,
+  setDisplaySelectedOnly,
+  setDisplayConflictCourses,
 } from './slices/uiSlice';
 
 // Export selectors
@@ -29,4 +31,6 @@ export {
   selectSelectedTabKey,
   selectHoveredCourseId,
   selectActiveCollapseKey,
+  selectDisplaySelectedOnly,
+  selectDisplayConflictCourses,
 } from './selectors';

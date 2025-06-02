@@ -19,3 +19,7 @@ export const selectHoveredCourseId = (state: RootState) =>
   state.ui.hoveredCourseId;
 export const selectActiveCollapseKey = (state: RootState) =>
   state.ui.activeCollapseKey;
+export const selectDisplaySelectedOnly = (state: RootState) =>
+  state.ui.displaySelectedOnly;
+export const selectDisplayConflictCourses = (state: RootState) =>
+  state.ui.displayConflictCourses;

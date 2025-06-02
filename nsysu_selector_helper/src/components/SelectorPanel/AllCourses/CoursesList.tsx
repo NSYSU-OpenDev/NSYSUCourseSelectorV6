@@ -9,25 +9,21 @@ import {
   selectCourses,
   selectSelectedCourses,
   selectHoveredCourseId,
+  selectDisplaySelectedOnly,
+  selectDisplayConflictCourses,
 } from '@/store';
 import Header from '#/SelectorPanel/AllCourses/CoursesList/Header';
 import Item from '#/SelectorPanel/AllCourses/CoursesList/Item';
 
-type CoursesListProps = {
-  displaySelectedOnly: boolean;
-  displayConflictCourses: boolean;
-};
-
-const CoursesList: React.FC<CoursesListProps> = ({
-  displaySelectedOnly,
-  displayConflictCourses,
-}) => {
+const CoursesList: React.FC = () => {
   const { t } = useTranslation();
 
   // Redux state
   const courses = useAppSelector(selectCourses);
   const selectedCourses = useAppSelector(selectSelectedCourses);
   const hoveredCourseId = useAppSelector(selectHoveredCourseId);
+  const displaySelectedOnly = useAppSelector(selectDisplaySelectedOnly);
+  const displayConflictCourses = useAppSelector(selectDisplayConflictCourses);
 
   const renderItem = (index: number) => {
     if (index === 0) {
@@ -48,11 +44,19 @@ const CoursesList: React.FC<CoursesListProps> = ({
       return null;
     }
 
-    // 如果設定為顯示包含衝堂課程，則計算該課程是否衝堂
-    if (displayConflictCourses) {
+    // 只對未選課程檢測時間衝突
+    if (!isSelected) {
       const selectedCoursesSet = new Set(selectedCourses);
       isConflict = CourseService.detectTimeConflict(course, selectedCoursesSet);
-    } // 渲染課程項目
+
+      // 如果設定為不顯示衝突課程，且當前課程有衝突，則不渲染該課程
+      // 但已選課程永遠不被隱藏
+      if (!displayConflictCourses && isConflict) {
+        return null;
+      }
+    }
+
+    // 渲染課程項目
     return (
       <Item
         key={`course-${index}`}
