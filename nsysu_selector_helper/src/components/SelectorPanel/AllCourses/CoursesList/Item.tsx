@@ -12,14 +12,15 @@ const StyledTag = styled(Tag)`
   margin: 0 auto;
 `;
 
-const CourseRow = styled.div`
+const CourseRow = styled.div<{ $isHovered?: boolean }>`
   font-size: 0.8rem;
   display: flex;
   align-items: center;
   padding: 5px;
   border-bottom: 1px solid #eee;
-  background-color: #fafafa;
+  background-color: ${props => props.$isHovered ? '#f0f0f0' : '#fafafa'};
   gap: 5px;
+  transition: background-color 0.2s ease;
 
   &:hover {
     background-color: #f0f0f0;
@@ -74,6 +75,7 @@ type ItemProps = {
 const Item: React.FC<ItemProps> = ({
   course,
   isSelected,
+  isHovered,
   onSelectCourse,
   onHoverCourse,
 }) => {
@@ -192,9 +194,9 @@ const Item: React.FC<ItemProps> = ({
           </StyledTag>
         ))
     : '';
-
   return (
     <CourseRow
+      $isHovered={isHovered}
       onMouseEnter={() => onHoverCourse(course.id)}
       onMouseLeave={() => onHoverCourse('')}
     >

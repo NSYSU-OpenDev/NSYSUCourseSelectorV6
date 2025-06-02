@@ -3,7 +3,7 @@ import type { Course } from '@/types';
 export class CourseService {
   static loadSelectedCourses(courses: Course[]): Set<Course> {
     const savedSelectedCoursesIds = localStorage.getItem(
-      'selectedCoursesNumbers',
+      'NSYSUCourseSelector.selectedCoursesNumbers',
     );
 
     if (!savedSelectedCoursesIds) return new Set();
@@ -27,7 +27,7 @@ export class CourseService {
     }
 
     localStorage.setItem(
-      'selectedCoursesNumbers',
+      'NSYSUCourseSelector.selectedCoursesNumbers',
       JSON.stringify(Array.from(selectedCourses).map((course) => course.id)),
     );
 
@@ -35,7 +35,7 @@ export class CourseService {
   }
 
   static clearSelectedCourses(): Set<Course> {
-    localStorage.removeItem('selectedCoursesNumbers');
+    localStorage.removeItem('NSYSUCourseSelector.selectedCoursesNumbers');
 
     return new Set();
   }

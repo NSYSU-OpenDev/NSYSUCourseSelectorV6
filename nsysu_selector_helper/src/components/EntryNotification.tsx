@@ -27,8 +27,12 @@ const EntryNotification: React.FC = () => {
   const [dontShowAgain, setDontShowAgain] = useState(false);
 
   useEffect(() => {
-    const announcementSeen = localStorage.getItem('entryNotificationSeen');
-    const versionSeen = localStorage.getItem('entryNotificationVersion');
+    const announcementSeen = localStorage.getItem(
+      'NSYSUCourseSelector.entryNotificationSeen',
+    );
+    const versionSeen = localStorage.getItem(
+      'NSYSUCourseSelector.entryNotificationVersion',
+    );
 
     if (announcementSeen !== 'true' || versionSeen !== t('version')) {
       setIsModalOpen(true);
@@ -49,8 +53,14 @@ const EntryNotification: React.FC = () => {
 
   const handleDontShowAgain = (event: CheckboxChangeEvent) => {
     const { checked } = event.target;
-    localStorage.setItem('entryNotificationSeen', checked ? 'true' : 'false');
-    localStorage.setItem('entryNotificationVersion', t('version'));
+    localStorage.setItem(
+      'NSYSUCourseSelector.entryNotificationSeen',
+      checked ? 'true' : 'false',
+    );
+    localStorage.setItem(
+      'NSYSUCourseSelector.entryNotificationVersion',
+      t('version'),
+    );
     setDontShowAgain(checked);
   };
 

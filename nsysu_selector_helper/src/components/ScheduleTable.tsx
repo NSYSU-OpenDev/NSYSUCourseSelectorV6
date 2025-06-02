@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { Card, Table, Typography, Tooltip, Tag, Switch, Space } from 'antd';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
@@ -127,7 +127,10 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({
   const { t } = useTranslation();
   const { width } = useWindowSize();
   const isMobile = width <= 768;
-  const [showWeekends, setShowWeekends] = useState(true);
+  const [showWeekends, setShowWeekends] = useState(
+    localStorage.getItem('NSYSUCourseSelector.showWeekends') === 'true' ||
+      false,
+  );
 
   // 計算每個欄位的固定寬度 - 為手機優化
   const timeColumnWidth = isMobile ? 36 : 60;
@@ -135,6 +138,15 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({
 
   // 定義表格列
   const weekdays = ['一', '二', '三', '四', '五', '六', '日'];
+
+  useEffect(() => {
+    // 儲存週末顯示狀態到 localStorage
+    localStorage.setItem(
+      'NSYSUCourseSelector.showWeekends',
+      showWeekends.toString(),
+    );
+  }, [showWeekends]);
+
   // 解析課程教室信息
   const parseRoomInfo = (roomString: string) => {
     // 解析如 "一2,3,4(理PH 1008) 三2,3,4(理PH 1008) 五2,3,4(理PH 1008)" 的格式

@@ -13,9 +13,15 @@ export const useThemeConfig = (): [
 
   useEffect(() => {
     const fetchSettings = () => {
-      const storedPrimaryColor = localStorage.getItem('primaryColor');
-      const storedAlgorithm = localStorage.getItem('algorithm');
-      const storedBorderRadius = localStorage.getItem('borderRadius');
+      const storedPrimaryColor = localStorage.getItem(
+        'NSYSUCourseSelector.primaryColor',
+      );
+      const storedAlgorithm = localStorage.getItem(
+        'NSYSUCourseSelector.algorithm',
+      );
+      const storedBorderRadius = localStorage.getItem(
+        'NSYSUCourseSelector.borderRadius',
+      );
 
       if (storedPrimaryColor) setPrimaryColor(storedPrimaryColor);
       if (storedAlgorithm) setAlgorithm(storedAlgorithm as AlgorithmType);
@@ -28,16 +34,19 @@ export const useThemeConfig = (): [
     config: Partial<ThemeConfig & { algorithm: AlgorithmType }>,
   ) => {
     if (config.token?.colorPrimary) {
-      localStorage.setItem('primaryColor', config.token.colorPrimary);
+      localStorage.setItem(
+        'NSYSUCourseSelector.primaryColor',
+        config.token.colorPrimary,
+      );
       setPrimaryColor(config.token.colorPrimary);
     }
     if (config.algorithm) {
-      localStorage.setItem('algorithm', config.algorithm);
+      localStorage.setItem('NSYSUCourseSelector.algorithm', config.algorithm);
       setAlgorithm(config.algorithm);
     }
     if (config.token?.borderRadius) {
       localStorage.setItem(
-        'borderRadius',
+        'NSYSUCourseSelector.borderRadius',
         config.token.borderRadius.toString(),
       );
       setBorderRadius(config.token.borderRadius);
