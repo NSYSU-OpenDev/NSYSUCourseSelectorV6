@@ -1,7 +1,22 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { AcademicYear, Course } from '@/types';
 import { NSYSUCourseAPI } from '@/api';
-import { CourseService } from '@/services';
+
+// Helper function to load selected courses from localStorage
+const loadSelectedCoursesFromStorage = (courses: Course[]): Course[] => {
+  const savedSelectedCoursesIds = localStorage.getItem(
+    'NSYSUCourseSelector.selectedCoursesNumbers',
+  );
+
+  if (!savedSelectedCoursesIds) return [];
+
+  try {
+    const selectedCourseIds = new Set(JSON.parse(savedSelectedCoursesIds));
+    return courses.filter((course) => selectedCourseIds.has(course.id));
+  } catch {
+    return [];
+  }
+};
 
 // 異步 actions
 export const fetchAvailableSemesters = createAsyncThunk(
@@ -22,7 +37,7 @@ export const fetchCourses = createAsyncThunk(
 // State 類型定義
 export interface CoursesState {
   courses: Course[];
-  selectedCourses: Course[]; // Changed from Set<Course> to Course[]
+  selectedCourses: Course[];
   availableSemesters: AcademicYear;
   selectedSemester: string;
   isLoading: boolean;
@@ -32,7 +47,7 @@ export interface CoursesState {
 // 初始狀態
 const initialState: CoursesState = {
   courses: [],
-  selectedCourses: [], // Changed from new Set() to []
+  selectedCourses: [],
   availableSemesters: {
     latest: '',
     history: {},
@@ -66,15 +81,21 @@ const coursesSlice = createSlice({
           (c) => c.id !== course.id,
         );
       }
+
+      // Save to localStorage
+      localStorage.setItem(
+        'NSYSUCourseSelector.selectedCoursesNumbers',
+        JSON.stringify(state.selectedCourses.map((course) => course.id)),
+      );
     },
     clearAllSelectedCourses: (state) => {
       state.selectedCourses = [];
+      // Clear from localStorage
+      localStorage.removeItem('NSYSUCourseSelector.selectedCoursesNumbers');
     },
     loadSelectedCourses: (state) => {
       if (state.courses.length > 0) {
-        // Convert Set result to array
-        const selectedSet = CourseService.loadSelectedCourses(state.courses);
-        state.selectedCourses = Array.from(selectedSet);
+        state.selectedCourses = loadSelectedCoursesFromStorage(state.courses);
       }
     },
     setSelectedSemester: (state, action: PayloadAction<string>) => {
@@ -111,8 +132,9 @@ const coursesSlice = createSlice({
         state.courses = action.payload;
         // 自動載入已選課程
         if (action.payload.length > 0) {
-          const selectedSet = CourseService.loadSelectedCourses(action.payload);
-          state.selectedCourses = Array.from(selectedSet);
+          state.selectedCourses = loadSelectedCoursesFromStorage(
+            action.payload,
+          );
         }
       })
       .addCase(fetchCourses.rejected, (state, action) => {
