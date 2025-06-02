@@ -142,9 +142,11 @@ const App: React.FC = () => {
       {/* 桌面版 */}
       <StyledSplitter>
         <Splitter.Panel collapsible={true} style={{ width: '100%' }}>
+          {' '}
           <ScheduleTable
             selectedCourses={selectedCourses}
             hoveredCourseId={hoveredCourseId}
+            setHoveredCourseId={setHoveredCourseId}
           />
         </Splitter.Panel>
         <Splitter.Panel>
@@ -175,6 +177,7 @@ const App: React.FC = () => {
               <ScheduleTable
                 selectedCourses={selectedCourses}
                 hoveredCourseId={hoveredCourseId}
+                setHoveredCourseId={setHoveredCourseId}
               />
             </ContentWrapper>
           </Panel>
