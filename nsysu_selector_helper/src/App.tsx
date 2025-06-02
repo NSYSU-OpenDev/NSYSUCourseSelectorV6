@@ -1,17 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { ConfigProvider, Spin, Splitter, Layout, Collapse } from 'antd';
+import type { CollapseProps } from 'antd';
 import styled from 'styled-components';
 
-import type { AcademicYear, Course } from '@/types';
 import { useThemeConfig } from '@/hooks';
-import { NSYSUCourseAPI } from '@/api';
-import { CourseService } from '@/services';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import {
+  fetchAvailableSemesters,
+  fetchCourses,
+  setSelectedSemester,
+  setSelectedTabKey,
+  setActiveCollapseKey,
+  selectAvailableSemesters,
+  selectSelectedSemester,
+  selectCoursesLoading,
+  selectSelectedTabKey,
+  selectActiveCollapseKey,
+} from '@/store';
 import SectionHeader from '#/SectionHeader.tsx';
 import EntryNotification from '#/EntryNotification.tsx';
 import SelectorPanel from '#/SelectorPanel.tsx';
 import ScheduleTable from '#/ScheduleTable.tsx';
-
-const { Panel } = Collapse;
 
 const StyledSplitter = styled(Splitter)`
   height: calc(100vh - 52px);
@@ -53,116 +62,74 @@ const ContentWrapper = styled.div`
 
 const App: React.FC = () => {
   const [themeConfig] = useThemeConfig();
-  const [isLoading, setIsLoading] = useState(true);
-
-  const [selectedTabKey, setSelectedTabKey] = useState('allCourses');
-  const [availableSemesters, setAvailableSemesters] = useState<AcademicYear>({
-    latest: '',
-    history: {},
-  });
-  const [selectedSemester, setSelectedSemester] = useState('');
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [selectedCourses, setSelectedCourses] = useState<Set<Course>>(
-    new Set(),
-  );
-  const [hoveredCourseId, setHoveredCourseId] = useState('');
-  const [activeKey, setActiveKey] = useState<string | string[]>([
-    'schedulePanel',
-  ]);
-
+  const dispatch = useAppDispatch();
+  // Redux selectors
+  const availableSemesters = useAppSelector(selectAvailableSemesters);
+  const selectedSemester = useAppSelector(selectSelectedSemester);
+  const isLoading = useAppSelector(selectCoursesLoading);
+  const selectedTabKey = useAppSelector(selectSelectedTabKey);
+  const activeKey = useAppSelector(selectActiveCollapseKey);
   // 處理手機版 Collapse 切換
   const handleCollapseChange = (key: string | string[]) => {
-    setActiveKey(key);
+    dispatch(setActiveCollapseKey(key));
   };
 
-  useEffect(() => {
-    NSYSUCourseAPI.getAvailableSemesters().then((availableSemesters) => {
-      setAvailableSemesters(availableSemesters);
-      setSelectedSemester(availableSemesters.latest);
-    });
-  }, []);
+  // 定義 Collapse items
+  const collapseItems: CollapseProps['items'] = [
+    {
+      key: 'schedulePanel',
+      label: '課程時間表',
+      children: (
+        <ContentWrapper>
+          <ScheduleTable />
+        </ContentWrapper>
+      ),
+    },
+    {
+      key: 'selectorPanel',
+      label: '課程控制面板',
+      children: (
+        <ContentWrapper>
+          <SelectorPanel />
+        </ContentWrapper>
+      ),
+    },
+  ];
 
+  // 初始化 - 獲取可用學期
   useEffect(() => {
-    if (selectedSemester === '') {
-      return;
+    dispatch(fetchAvailableSemesters());
+  }, [dispatch]);
+
+  // 當選擇的學期改變時，獲取課程
+  useEffect(() => {
+    if (selectedSemester) {
+      dispatch(fetchCourses(selectedSemester));
     }
-    setIsLoading(true);
-    NSYSUCourseAPI.getSemesterUpdates(selectedSemester)
-      .then((updates) => {
-        NSYSUCourseAPI.getCourses(selectedSemester, updates.latest).then(
-          (courses) => {
-            setCourses(courses);
-            setTimeout(() => {
-              setIsLoading(false);
-            }, 250);
-          },
-        );
-      })
-      .catch((error) => {
-        console.error(error);
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 250);
-      });
-  }, [selectedSemester]);
-
-  useEffect(() => {
-    if (courses.length === 0) return;
-
-    setSelectedCourses(CourseService.loadSelectedCourses(courses));
-  }, [courses]);
-
-  const onSelectCourse = (course: Course, isSelected: boolean) => {
-    const newSelectedCourses = new Set(selectedCourses);
-    setSelectedCourses(
-      CourseService.selectCourse(newSelectedCourses, course, isSelected),
-    );
-  };
-
-  const onClearAllSelectedCourses = () => {
-    setSelectedCourses(CourseService.clearSelectedCourses());
-  };
-
-  const onHoverCourse = (courseId: string) => {
-    setHoveredCourseId(courseId);
-  };
+  }, [dispatch, selectedSemester]);
 
   return (
     <ConfigProvider theme={themeConfig}>
       {isLoading && <Spin spinning={true} fullscreen />}
-      <EntryNotification />
+      <EntryNotification />{' '}
       <SectionHeader
         selectedKey={selectedTabKey}
-        setSelectedKey={setSelectedTabKey}
+        setSelectedKey={(key: string) => dispatch(setSelectedTabKey(key))}
         availableSemesters={availableSemesters}
         selectedSemester={selectedSemester}
-        setSelectedSemester={setSelectedSemester}
-      />
-
+        setSelectedSemester={(semester: string) =>
+          dispatch(setSelectedSemester(semester))
+        }
+      />{' '}
       {/* 桌面版 */}
       <StyledSplitter>
         <Splitter.Panel collapsible={true} style={{ width: '100%' }}>
-          {' '}
-          <ScheduleTable
-            selectedCourses={selectedCourses}
-            hoveredCourseId={hoveredCourseId}
-            setHoveredCourseId={setHoveredCourseId}
-          />
-        </Splitter.Panel>
+          <ScheduleTable />
+        </Splitter.Panel>{' '}
         <Splitter.Panel>
-          <SelectorPanel
-            selectedTabKey={selectedTabKey}
-            courses={courses}
-            selectedCourses={selectedCourses}
-            onSelectCourse={onSelectCourse}
-            onClearAllSelectedCourses={onClearAllSelectedCourses}
-            hoveredCourseId={hoveredCourseId}
-            onHoverCourse={onHoverCourse}
-            availableSemesters={availableSemesters}
-          />
+          <SelectorPanel />
         </Splitter.Panel>
-      </StyledSplitter>
-
+      </StyledSplitter>{' '}
       {/* 手機版垂直布局 - 使用 antd Collapse */}
       <MobileLayout>
         <StyledCollapse
@@ -171,31 +138,8 @@ const App: React.FC = () => {
           expandIconPosition='end'
           style={{ borderRadius: 0 }}
           bordered={false}
-        >
-          <Panel key='schedulePanel' header='課程時間表'>
-            <ContentWrapper>
-              <ScheduleTable
-                selectedCourses={selectedCourses}
-                hoveredCourseId={hoveredCourseId}
-                setHoveredCourseId={setHoveredCourseId}
-              />
-            </ContentWrapper>
-          </Panel>
-          <Panel key='selectorPanel' header='課程控制面板'>
-            <ContentWrapper>
-              <SelectorPanel
-                selectedTabKey={selectedTabKey}
-                courses={courses}
-                selectedCourses={selectedCourses}
-                onSelectCourse={onSelectCourse}
-                onClearAllSelectedCourses={onClearAllSelectedCourses}
-                hoveredCourseId={hoveredCourseId}
-                onHoverCourse={onHoverCourse}
-                availableSemesters={availableSemesters}
-              />
-            </ContentWrapper>
-          </Panel>
-        </StyledCollapse>
+          items={collapseItems}
+        />
       </MobileLayout>
     </ConfigProvider>
   );

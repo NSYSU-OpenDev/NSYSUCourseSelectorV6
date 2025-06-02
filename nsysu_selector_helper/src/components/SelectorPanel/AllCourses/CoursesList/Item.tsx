@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import { Card, Checkbox, Flex, Popover, Progress, Space, Tag } from 'antd';
 
 import type { Course } from '@/types';
+import { useAppDispatch } from '@/store/hooks';
+import { selectCourse, setHoveredCourseId } from '@/store';
 
 const StyledTag = styled(Tag)`
   font-size: 10px;
@@ -18,7 +20,7 @@ const CourseRow = styled.div<{ $isHovered?: boolean }>`
   align-items: center;
   padding: 5px;
   border-bottom: 1px solid #eee;
-  background-color: ${props => props.$isHovered ? '#f0f0f0' : '#fafafa'};
+  background-color: ${(props) => (props.$isHovered ? '#f0f0f0' : '#fafafa')};
   gap: 5px;
   transition: background-color 0.2s ease;
 
@@ -68,17 +70,18 @@ type ItemProps = {
   isSelected: boolean;
   isConflict: boolean;
   isHovered: boolean;
-  onSelectCourse: (course: Course, isSelected: boolean) => void;
-  onHoverCourse: (courseId: string) => void;
 };
 
-const Item: React.FC<ItemProps> = ({
-  course,
-  isSelected,
-  isHovered,
-  onSelectCourse,
-  onHoverCourse,
-}) => {
+const Item: React.FC<ItemProps> = ({ course, isSelected, isHovered }) => {
+  const dispatch = useAppDispatch();
+
+  const handleSelectCourse = (isSelected: boolean) => {
+    dispatch(selectCourse({ course, isSelected }));
+  };
+
+  const handleHoverCourse = () => {
+    dispatch(setHoveredCourseId(course.id));
+  };
   const {
     id,
     name,
@@ -197,8 +200,8 @@ const Item: React.FC<ItemProps> = ({
   return (
     <CourseRow
       $isHovered={isHovered}
-      onMouseEnter={() => onHoverCourse(course.id)}
-      onMouseLeave={() => onHoverCourse('')}
+      onMouseEnter={handleHoverCourse}
+      onMouseLeave={() => dispatch(setHoveredCourseId(''))}
     >
       <TinyCourseInfo>
         <Popover
@@ -214,7 +217,7 @@ const Item: React.FC<ItemProps> = ({
           <Checkbox
             name={id}
             checked={isSelected}
-            onChange={(e) => onSelectCourse(course, e.target.checked)}
+            onChange={(e) => handleSelectCourse(e.target.checked)}
           />
         </Popover>
       </TinyCourseInfo>

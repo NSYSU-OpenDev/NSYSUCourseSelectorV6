@@ -3,7 +3,8 @@ import { Card, Flex, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
 import styled from 'styled-components';
 
-import type { Course } from '@/types';
+import { useAppSelector } from '@/store/hooks';
+import { selectCourses, selectSelectedCourses } from '@/store';
 import CoursesList from '#/SelectorPanel/AllCourses/CoursesList';
 
 const StyledCard = styled(Card)`
@@ -12,23 +13,10 @@ const StyledCard = styled(Card)`
   }
 `;
 
-type AllCoursesProps = {
-  courses: Course[];
-  selectedCourses: Set<Course>;
-  onSelectCourse: (course: Course, isSelected: boolean) => void;
-  onClearAllSelectedCourses: () => void;
-  hoveredCourseId: string;
-  onHoverCourse: (courseId: string) => void;
-};
-
-const AllCourses: React.FC<AllCoursesProps> = ({
-  courses,
-  selectedCourses,
-  onSelectCourse,
-  hoveredCourseId,
-  onHoverCourse,
-}) => {
+const AllCourses: React.FC = () => {
   const { t } = useTranslation();
+  const courses = useAppSelector(selectCourses);
+  const selectedCourses = useAppSelector(selectSelectedCourses);
 
   const CardTitle = (
     <Flex
@@ -38,26 +26,17 @@ const AllCourses: React.FC<AllCoursesProps> = ({
       gap={2}
       style={{ padding: 5 }}
     >
-      <Typography.Title level={3}>{t('allCourses')}</Typography.Title>
+      <Typography.Title level={3}>{t('allCourses')}</Typography.Title>{' '}
       <Typography.Text type='secondary'>
         {t('allCourse.totalSelectedCourses')
           .replace('{totalCourses}', courses.length.toString())
-          .replace('{totalSelectedCourses}', selectedCourses.size.toString())}
+          .replace('{totalSelectedCourses}', selectedCourses.length.toString())}
       </Typography.Text>
     </Flex>
   );
-
   return (
     <StyledCard title={CardTitle}>
-      <CoursesList
-        courses={courses}
-        displaySelectedOnly={false}
-        selectedCourses={selectedCourses}
-        displayConflictCourses={false}
-        onSelectCourse={onSelectCourse}
-        onHoverCourse={onHoverCourse}
-        hoveredCourseId={hoveredCourseId}
-      />
+      <CoursesList displaySelectedOnly={false} displayConflictCourses={false} />
     </StyledCard>
   );
 };

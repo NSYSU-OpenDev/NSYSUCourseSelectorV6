@@ -6,6 +6,12 @@ import { useTranslation } from 'react-i18next';
 import type { Course } from '@/types';
 import { timeSlot } from '@/constants';
 import { useWindowSize } from '@/hooks';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import {
+  selectSelectedCourses,
+  selectHoveredCourseId,
+  setHoveredCourseId,
+} from '@/store';
 
 // Department color mapping - using Ant Design official colors
 const getDepartmentColor = (department: string): string => {
@@ -113,19 +119,15 @@ interface ScheduleTableRow {
   [key: `day${number}`]: ReactNode;
 }
 
-interface ScheduleTableProps {
-  selectedCourses: Set<Course>;
-  hoveredCourseId: string;
-  setHoveredCourseId: React.Dispatch<React.SetStateAction<string>>;
-}
-
-const ScheduleTable: React.FC<ScheduleTableProps> = ({
-  selectedCourses,
-  hoveredCourseId,
-  setHoveredCourseId,
-}) => {
+const ScheduleTable: React.FC = () => {
   const { t } = useTranslation();
   const { width } = useWindowSize();
+  const dispatch = useAppDispatch();
+
+  // Redux state
+  const selectedCourses = useAppSelector(selectSelectedCourses);
+  const hoveredCourseId = useAppSelector(selectHoveredCourseId);
+
   const isMobile = width <= 768;
   const [showWeekends, setShowWeekends] = useState(
     localStorage.getItem('NSYSUCourseSelector.showWeekends') === 'true' ||
@@ -262,10 +264,10 @@ const ScheduleTable: React.FC<ScheduleTableProps> = ({
                     color={departmentColor}
                     $isHovered={isHovered}
                     onMouseEnter={() => {
-                      setHoveredCourseId(course.id);
+                      dispatch(setHoveredCourseId(course.id));
                     }}
                     onMouseLeave={() => {
-                      setHoveredCourseId('');
+                      dispatch(setHoveredCourseId(''));
                     }}
                   >
                     {isMobile

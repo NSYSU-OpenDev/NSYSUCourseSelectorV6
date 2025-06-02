@@ -1,33 +1,33 @@
 import React from 'react';
 import { Virtuoso } from 'react-virtuoso';
-
-import type { Course } from '@/types';
-import { CourseService } from '@/services/courseService.ts';
-import Header from '#/SelectorPanel/AllCourses/CoursesList/Header';
-import Item from '#/SelectorPanel/AllCourses/CoursesList/Item';
 import { Empty } from 'antd';
 import { useTranslation } from 'react-i18next';
 
+import { CourseService } from '@/services/courseService.ts';
+import { useAppSelector } from '@/store/hooks';
+import {
+  selectCourses,
+  selectSelectedCourses,
+  selectHoveredCourseId,
+} from '@/store';
+import Header from '#/SelectorPanel/AllCourses/CoursesList/Header';
+import Item from '#/SelectorPanel/AllCourses/CoursesList/Item';
+
 type CoursesListProps = {
-  courses: Course[];
   displaySelectedOnly: boolean;
-  selectedCourses: Set<Course>;
   displayConflictCourses: boolean;
-  onSelectCourse: (course: Course, isSelected: boolean) => void;
-  onHoverCourse: (courseId: string) => void;
-  hoveredCourseId: string;
 };
 
 const CoursesList: React.FC<CoursesListProps> = ({
-  courses,
   displaySelectedOnly,
-  selectedCourses,
   displayConflictCourses,
-  onSelectCourse,
-  onHoverCourse,
-  hoveredCourseId,
 }) => {
   const { t } = useTranslation();
+
+  // Redux state
+  const courses = useAppSelector(selectCourses);
+  const selectedCourses = useAppSelector(selectSelectedCourses);
+  const hoveredCourseId = useAppSelector(selectHoveredCourseId);
 
   const renderItem = (index: number) => {
     if (index === 0) {
@@ -39,8 +39,7 @@ const CoursesList: React.FC<CoursesListProps> = ({
 
     // 如果課程不存在，則不渲染該課程，動態篩選時可能會發生
     if (!course) return null;
-
-    const isSelected = selectedCourses.has(course);
+    const isSelected = selectedCourses.some((c) => c.id === course.id);
     const isHovered = hoveredCourseId === course.id;
     let isConflict = false;
 
@@ -51,10 +50,9 @@ const CoursesList: React.FC<CoursesListProps> = ({
 
     // 如果設定為顯示包含衝堂課程，則計算該課程是否衝堂
     if (displayConflictCourses) {
-      isConflict = CourseService.detectTimeConflict(course, selectedCourses);
-    }
-
-    // 渲染課程項目
+      const selectedCoursesSet = new Set(selectedCourses);
+      isConflict = CourseService.detectTimeConflict(course, selectedCoursesSet);
+    } // 渲染課程項目
     return (
       <Item
         key={`course-${index}`}
@@ -62,8 +60,6 @@ const CoursesList: React.FC<CoursesListProps> = ({
         isSelected={isSelected}
         isConflict={isConflict}
         isHovered={isHovered}
-        onSelectCourse={onSelectCourse}
-        onHoverCourse={onHoverCourse}
       />
     );
   };

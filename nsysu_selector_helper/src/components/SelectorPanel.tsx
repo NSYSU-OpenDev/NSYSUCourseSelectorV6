@@ -1,44 +1,18 @@
 import React, { JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { AcademicYear, Course } from '@/types';
+import { useAppSelector } from '@/store/hooks';
+import { selectSelectedTabKey } from '@/store';
 import AllCourses from '#/SelectorPanel/AllCourses';
 
-type SelectorPanelProps = {
-  selectedTabKey: string;
-  courses: Course[];
-  selectedCourses: Set<Course>;
-  onSelectCourse: (course: Course, isSelected: boolean) => void;
-  onClearAllSelectedCourses: () => void;
-  hoveredCourseId: string;
-  onHoverCourse: (courseId: string) => void;
-  availableSemesters: AcademicYear;
-};
-
-const SelectorPanel: React.FC<SelectorPanelProps> = ({
-  selectedTabKey,
-  courses,
-  selectedCourses,
-  onSelectCourse,
-  onClearAllSelectedCourses,
-  hoveredCourseId,
-  onHoverCourse,
-}) => {
+const SelectorPanel: React.FC = () => {
   const { t } = useTranslation();
+  const selectedTabKey = useAppSelector(selectSelectedTabKey);
 
   const mapTabToComponent = (tabKey: string): JSX.Element => {
     switch (tabKey) {
       case 'allCourses':
-        return (
-          <AllCourses
-            courses={courses}
-            selectedCourses={selectedCourses}
-            onSelectCourse={onSelectCourse}
-            onClearAllSelectedCourses={onClearAllSelectedCourses}
-            hoveredCourseId={hoveredCourseId}
-            onHoverCourse={onHoverCourse}
-          />
-        );
+        return <AllCourses />;
       case 'semesterCompulsory':
         return <h1>Semester Compulsory</h1>;
       case 'courseDetective':

@@ -22,7 +22,7 @@ export const fetchCourses = createAsyncThunk(
 // State 類型定義
 export interface CoursesState {
   courses: Course[];
-  selectedCourses: Set<Course>;
+  selectedCourses: Course[]; // Changed from Set<Course> to Course[]
   availableSemesters: AcademicYear;
   selectedSemester: string;
   isLoading: boolean;
@@ -32,7 +32,7 @@ export interface CoursesState {
 // 初始狀態
 const initialState: CoursesState = {
   courses: [],
-  selectedCourses: new Set(),
+  selectedCourses: [], // Changed from new Set() to []
   availableSemesters: {
     latest: '',
     history: {},
@@ -52,21 +52,29 @@ const coursesSlice = createSlice({
       action: PayloadAction<{ course: Course; isSelected: boolean }>,
     ) => {
       const { course, isSelected } = action.payload;
-      const newSelectedCourses = new Set(state.selectedCourses);
-      state.selectedCourses = CourseService.selectCourse(
-        newSelectedCourses,
-        course,
-        isSelected,
-      );
+      if (isSelected) {
+        // Add course if not already selected
+        const isAlreadySelected = state.selectedCourses.some(
+          (c) => c.id === course.id,
+        );
+        if (!isAlreadySelected) {
+          state.selectedCourses.push(course);
+        }
+      } else {
+        // Remove course if selected
+        state.selectedCourses = state.selectedCourses.filter(
+          (c) => c.id !== course.id,
+        );
+      }
     },
     clearAllSelectedCourses: (state) => {
-      state.selectedCourses = CourseService.clearSelectedCourses();
+      state.selectedCourses = [];
     },
     loadSelectedCourses: (state) => {
       if (state.courses.length > 0) {
-        state.selectedCourses = CourseService.loadSelectedCourses(
-          state.courses,
-        );
+        // Convert Set result to array
+        const selectedSet = CourseService.loadSelectedCourses(state.courses);
+        state.selectedCourses = Array.from(selectedSet);
       }
     },
     setSelectedSemester: (state, action: PayloadAction<string>) => {
@@ -103,9 +111,8 @@ const coursesSlice = createSlice({
         state.courses = action.payload;
         // 自動載入已選課程
         if (action.payload.length > 0) {
-          state.selectedCourses = CourseService.loadSelectedCourses(
-            action.payload,
-          );
+          const selectedSet = CourseService.loadSelectedCourses(action.payload);
+          state.selectedCourses = Array.from(selectedSet);
         }
       })
       .addCase(fetchCourses.rejected, (state, action) => {
