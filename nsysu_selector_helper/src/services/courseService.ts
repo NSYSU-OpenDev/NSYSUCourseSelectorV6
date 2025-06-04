@@ -16,9 +16,9 @@ export class CourseService {
 
       // 檢查兩個時間都存在且不為空字符串
       if (time1 && time2 && time1.trim() !== '' && time2.trim() !== '') {
-        // 清理並只保留數字字符
-        const cleanTime1 = time1.trim().replace(/[^0-9]/g, '');
-        const cleanTime2 = time2.trim().replace(/[^0-9]/g, '');
+        // 清理並只保留數字及 A-F 字符，避免刪除特殊時段代碼
+        const cleanTime1 = time1.trim().replace(/[^0-9A-F]/gi, '');
+        const cleanTime2 = time2.trim().replace(/[^0-9A-F]/gi, '');
 
         if (cleanTime1 && cleanTime2) {
           const timeSlots1 = cleanTime1.split('');
