@@ -1,10 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Card, Checkbox, Flex, Popover, Progress, Space, Tag } from 'antd';
+import {
+  Card,
+  Checkbox,
+  Flex,
+  Modal,
+  Popover,
+  Progress,
+  Space,
+  Tag,
+} from 'antd';
 
 import type { Course } from '@/types';
 import { useAppDispatch } from '@/store/hooks';
 import { selectCourse, setHoveredCourseId } from '@/store';
+import { useWindowSize } from '@/hooks';
 
 const StyledTag = styled(Tag)`
   font-size: 10px;
@@ -83,6 +93,9 @@ const Item: React.FC<ItemProps> = ({
   isHovered,
 }) => {
   const dispatch = useAppDispatch();
+  const { width } = useWindowSize();
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const isMobile = width < 768;
 
   const handleSelectCourse = (isSelected: boolean) => {
     dispatch(selectCourse({ course, isSelected }));
@@ -90,6 +103,14 @@ const Item: React.FC<ItemProps> = ({
 
   const handleHoverCourse = () => {
     dispatch(setHoveredCourseId(course.id));
+  };
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const hideModal = () => {
+    setIsModalVisible(false);
   };
   const {
     id,
@@ -212,28 +233,92 @@ const Item: React.FC<ItemProps> = ({
       onMouseEnter={handleHoverCourse}
       onMouseLeave={() => dispatch(setHoveredCourseId(''))}
     >
+      {' '}
       <TinyCourseInfo>
-        <Popover
-          content={content}
-          title={
-            <>
-              {name.split('\n')[0]} ({id})
-            </>
-          }
-          trigger={['hover', 'focus']}
-          placement={'left'}
-        >
-          <Checkbox
-            name={id}
-            checked={isSelected}
-            onChange={(e) => handleSelectCourse(e.target.checked)}
-          />
-        </Popover>
-      </TinyCourseInfo>
+        <Checkbox
+          name={id}
+          checked={isSelected}
+          onChange={(e) => handleSelectCourse(e.target.checked)}
+        />
+      </TinyCourseInfo>{' '}
       <CourseInfo>
-        <StyledLink href={url} target={'_blank'} rel='noreferrer'>
-          {name.split('\n')[0]}
-        </StyledLink>
+        {isMobile ? (
+          <>
+            <StyledLink
+              href='#'
+              onClick={(e) => {
+                e.preventDefault();
+                showModal();
+              }}
+            >
+              {name.split('\n')[0]}
+            </StyledLink>
+            <Modal
+              title={`${name.split('\n')[0]} (${id})`}
+              open={isModalVisible}
+              onCancel={hideModal}
+              footer={null}
+              width='90%'
+              style={{ maxWidth: 400 }}
+            >
+              <Space style={{ width: '100%' }} direction='vertical'>
+                <Card size='small'>
+                  <div style={{ fontSize: '14px', lineHeight: 1.6 }}>
+                    {description}
+                  </div>
+                </Card>
+                <Card size='small'>
+                  <Flex justify='space-between' gap={10}>
+                    <Flex vertical align='center'>
+                      <span style={{ fontSize: '12px', marginBottom: 8 }}>
+                        點選 {select}/{remaining} 剩餘
+                      </span>
+                      <Progress
+                        type='circle'
+                        percent={Math.round((select / remaining) * 100)}
+                        size={60}
+                        status={select >= remaining ? 'exception' : 'normal'}
+                      />
+                    </Flex>
+                    <Flex vertical align='center'>
+                      <span style={{ fontSize: '12px', marginBottom: 8 }}>
+                        選上 {selected}/{restrict} 限制
+                      </span>
+                      <Progress
+                        type='circle'
+                        percent={Math.round((selected / restrict) * 100)}
+                        size={60}
+                        status={selected >= restrict ? 'exception' : 'normal'}
+                      />
+                    </Flex>
+                  </Flex>
+                </Card>
+                <Card size='small'>
+                  <div style={{ textAlign: 'center', marginTop: 10 }}>
+                    <StyledLink href={url} target='_blank' rel='noreferrer'>
+                      查看課程詳細資訊
+                    </StyledLink>
+                  </div>
+                </Card>
+              </Space>
+            </Modal>
+          </>
+        ) : (
+          <Popover
+            content={content}
+            title={
+              <>
+                {name.split('\n')[0]} ({id})
+              </>
+            }
+            trigger={['hover', 'focus']}
+            placement={'top'}
+          >
+            <StyledLink href={url} target={'_blank'} rel='noreferrer'>
+              {name.split('\n')[0]}
+            </StyledLink>
+          </Popover>
+        )}
       </CourseInfo>
       <MediumCourseInfo>
         <Space direction={'vertical'}>{displayClassTime}</Space>

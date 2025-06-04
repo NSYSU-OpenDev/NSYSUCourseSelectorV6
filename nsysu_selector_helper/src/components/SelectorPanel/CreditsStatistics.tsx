@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Statistic, Row, Col, Badge, Space } from 'antd';
+import { Statistic, Row, Col } from 'antd';
 import { BookOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
@@ -90,14 +90,14 @@ const CreditsStatistics: React.FC = () => {
                   {t('creditsOverlay.coursesSelected')}
                 </span>
               }
-                value={selectedCourses.length}
-                valueStyle={{ color: '#722ed1' }}
-                suffix={
-                  <span style={{ fontSize: '11px', fontWeight: 500 }}>
-                    {t('creditsOverlay.courses')}
-                  </span>
-                }
-                style={{ marginBottom: 0 }}
+              value={selectedCourses.length}
+              valueStyle={{ color: '#722ed1' }}
+              suffix={
+                <span style={{ fontSize: '11px', fontWeight: 500 }}>
+                  {t('creditsOverlay.courses')}
+                </span>
+              }
+              style={{ marginBottom: 0 }}
             />
           </div>
         </Col>
