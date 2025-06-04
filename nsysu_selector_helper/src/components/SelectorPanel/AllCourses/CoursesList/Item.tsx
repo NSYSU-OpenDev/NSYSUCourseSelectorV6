@@ -27,7 +27,7 @@ const StyledTag = styled(Tag)`
 const CourseRow = styled.div<{ $isHovered?: boolean; $isConflict?: boolean }>`
   font-size: 0.8rem;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   padding: 5px;
   border-bottom: 1px solid #eee;
   background-color: ${(props) => {
@@ -35,12 +35,57 @@ const CourseRow = styled.div<{ $isHovered?: boolean; $isConflict?: boolean }>`
     return props.$isHovered ? '#f0f0f0' : '#fafafa';
   }};
   border-left: ${(props) => (props.$isConflict ? '4px solid #ff4d4f' : 'none')};
-  gap: 5px;
+  gap: 3px;
   transition: background-color 0.2s ease;
 
   &:hover {
     background-color: ${(props) => (props.$isConflict ? '#ffebe8' : '#f0f0f0')};
   }
+`;
+
+const CourseMainRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+`;
+
+const ProbabilityBar = styled.div`
+  width: 100%;
+  height: 3px;
+  background-color: #f0f0f0;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 2px;
+`;
+
+const ProbabilityFill = styled.div<{
+  $probability: number;
+  $status: 'full' | 'overbooked' | 'normal';
+}>`
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+  width: ${(props) => Math.min(props.$probability, 100)}%;
+  background-color: ${(props) => {
+    if (props.$status === 'full') return '#ff4d4f'; // 紅色 - 已滿
+    if (props.$status === 'overbooked') return '#722ed1'; // 紫色 - 超額
+    if (props.$probability >= 80) return '#52c41a'; // 綠色 - 很容易選上
+    if (props.$probability >= 50) return '#faad14'; // 橙色 - 中等機率
+    return '#ff7875'; // 淺紅 - 困難
+  }};
+`;
+
+const ProbabilityText = styled.span<{
+  $status: 'full' | 'overbooked' | 'normal';
+}>`
+  font-size: 9px;
+  font-weight: bold;
+  color: ${(props) => {
+    if (props.$status === 'full') return '#ff4d4f';
+    if (props.$status === 'overbooked') return '#722ed1';
+    return '#666';
+  }};
+  margin-left: 5px;
 `;
 
 const CourseInfo = styled.div`
@@ -112,6 +157,32 @@ const Item: React.FC<ItemProps> = ({
   const hideModal = () => {
     setIsModalVisible(false);
   };
+  // 計算選上機率
+  const getSuccessProbability = (select: number, remaining: number): number => {
+    if (remaining <= 0) return 0; // 已滿或超額
+    if (select <= 0) return 100; // 沒人搶，100%選上
+
+    // 簡化計算：remaining / select * 100，但限制在0-100之間
+    const probability = Math.min((remaining / select) * 100, 100);
+    return Math.max(probability, 0);
+  };
+
+  const getProbabilityStatus = (
+    remaining: number,
+  ): 'full' | 'overbooked' | 'normal' => {
+    if (remaining === 0) return 'full'; // 剛好滿額
+    if (remaining < 0) return 'overbooked'; // 超額（加簽等）
+    return 'normal'; // 正常
+  };
+
+  const getProbabilityText = (select: number, remaining: number): string => {
+    if (remaining <= 0) {
+      return remaining === 0 ? '已滿' : `超額${Math.abs(remaining)}`;
+    }
+    const probability = getSuccessProbability(select, remaining);
+    return `${Math.round(probability)}%`;
+  };
+
   const {
     id,
     name,
@@ -233,128 +304,156 @@ const Item: React.FC<ItemProps> = ({
       onMouseEnter={handleHoverCourse}
       onMouseLeave={() => dispatch(setHoveredCourseId(''))}
     >
-      {' '}
-      <TinyCourseInfo>
-        <Checkbox
-          name={id}
-          checked={isSelected}
-          onChange={(e) => handleSelectCourse(e.target.checked)}
-        />
-      </TinyCourseInfo>{' '}
-      <CourseInfo>
-        {isMobile ? (
-          <>
-            <StyledLink
-              href='#'
-              onClick={(e) => {
-                e.preventDefault();
-                showModal();
-              }}
-            >
-              {name.split('\n')[0]}
-            </StyledLink>
-            <Modal
-              title={`${name.split('\n')[0]} (${id})`}
-              open={isModalVisible}
-              onCancel={hideModal}
-              footer={null}
-              width='90%'
-              style={{ maxWidth: 400 }}
-            >
-              <Space style={{ width: '100%' }} direction='vertical'>
-                <Card size='small'>
-                  <div style={{ fontSize: '14px', lineHeight: 1.6 }}>
-                    {description}
-                  </div>
-                </Card>
-                <Card size='small'>
-                  <Flex justify='space-between' gap={10}>
-                    <Flex vertical align='center'>
-                      <span style={{ fontSize: '12px', marginBottom: 8 }}>
-                        點選 {select}/{remaining} 剩餘
-                      </span>
-                      <Progress
-                        type='circle'
-                        percent={Math.round((select / remaining) * 100)}
-                        size={60}
-                        status={select >= remaining ? 'exception' : 'normal'}
-                      />
+      <CourseMainRow>
+        <TinyCourseInfo>
+          <Checkbox
+            name={id}
+            checked={isSelected}
+            onChange={(e) => handleSelectCourse(e.target.checked)}
+          />
+        </TinyCourseInfo>
+        <CourseInfo>
+          {isMobile ? (
+            <>
+              <StyledLink
+                href='#'
+                onClick={(e) => {
+                  e.preventDefault();
+                  showModal();
+                }}
+              >
+                {name.split('\n')[0]}
+              </StyledLink>
+              <Modal
+                title={`${name.split('\n')[0]} (${id})`}
+                open={isModalVisible}
+                onCancel={hideModal}
+                footer={null}
+                width='90%'
+                style={{ maxWidth: 400 }}
+              >
+                <Space style={{ width: '100%' }} direction='vertical'>
+                  <Card size='small'>
+                    <div style={{ fontSize: '14px', lineHeight: 1.6 }}>
+                      {description}
+                    </div>
+                  </Card>
+                  <Card size='small'>
+                    <Flex justify='space-between' gap={10}>
+                      <Flex vertical align='center'>
+                        <span style={{ fontSize: '12px', marginBottom: 8 }}>
+                          點選 {select}/{remaining} 剩餘
+                        </span>
+                        <Progress
+                          type='circle'
+                          percent={Math.round((select / remaining) * 100)}
+                          size={60}
+                          status={select >= remaining ? 'exception' : 'normal'}
+                        />
+                      </Flex>
+                      <Flex vertical align='center'>
+                        <span style={{ fontSize: '12px', marginBottom: 8 }}>
+                          選上 {selected}/{restrict} 限制
+                        </span>
+                        <Progress
+                          type='circle'
+                          percent={Math.round((selected / restrict) * 100)}
+                          size={60}
+                          status={selected >= restrict ? 'exception' : 'normal'}
+                        />
+                      </Flex>
                     </Flex>
-                    <Flex vertical align='center'>
-                      <span style={{ fontSize: '12px', marginBottom: 8 }}>
-                        選上 {selected}/{restrict} 限制
-                      </span>
-                      <Progress
-                        type='circle'
-                        percent={Math.round((selected / restrict) * 100)}
-                        size={60}
-                        status={selected >= restrict ? 'exception' : 'normal'}
-                      />
-                    </Flex>
-                  </Flex>
-                </Card>
-                <Card size='small'>
-                  <div style={{ textAlign: 'center', marginTop: 10 }}>
-                    <StyledLink href={url} target='_blank' rel='noreferrer'>
-                      查看課程詳細資訊
-                    </StyledLink>
-                  </div>
-                </Card>
-              </Space>
-            </Modal>
-          </>
-        ) : (
-          <Popover
-            content={content}
-            title={
-              <>
-                {name.split('\n')[0]} ({id})
-              </>
+                  </Card>
+                  <Card size='small'>
+                    <div style={{ textAlign: 'center', marginTop: 10 }}>
+                      <StyledLink href={url} target='_blank' rel='noreferrer'>
+                        查看課程詳細資訊
+                      </StyledLink>
+                    </div>
+                  </Card>
+                </Space>
+              </Modal>
+            </>
+          ) : (
+            <Popover
+              content={content}
+              title={
+                <>
+                  {name.split('\n')[0]} ({id})
+                </>
+              }
+              trigger={['hover', 'focus']}
+              placement={'top'}
+            >
+              <StyledLink href={url} target={'_blank'} rel='noreferrer'>
+                {name.split('\n')[0]}
+              </StyledLink>
+            </Popover>
+          )}
+        </CourseInfo>
+        <MediumCourseInfo>
+          <Space direction={'vertical'}>{displayClassTime}</Space>
+        </MediumCourseInfo>
+        <SmallCourseInfo>{department}</SmallCourseInfo>
+        <SmallCourseInfo>
+          {compulsory ? (
+            <StyledTag color={'red'}>必</StyledTag>
+          ) : (
+            <span>選</span>
+          )}
+        </SmallCourseInfo>
+        <SmallCourseInfo>
+          <StyledTag
+            color={
+              ['yellow', 'green', 'blue', 'purple'][parseInt(credit) - 1] ||
+              'red'
             }
-            trigger={['hover', 'focus']}
-            placement={'top'}
           >
-            <StyledLink href={url} target={'_blank'} rel='noreferrer'>
-              {name.split('\n')[0]}
-            </StyledLink>
-          </Popover>
-        )}
-      </CourseInfo>
-      <MediumCourseInfo>
-        <Space direction={'vertical'}>{displayClassTime}</Space>
-      </MediumCourseInfo>
-      <SmallCourseInfo>{department}</SmallCourseInfo>
-      <SmallCourseInfo>
-        {compulsory ? <StyledTag color={'red'}>必</StyledTag> : <span>選</span>}
-      </SmallCourseInfo>
-      <SmallCourseInfo>
-        <StyledTag
-          color={
-            ['yellow', 'green', 'blue', 'purple'][parseInt(credit) - 1] || 'red'
-          }
-        >
-          {credit}
-        </StyledTag>
-      </SmallCourseInfo>
-      <SmallCourseInfo>
-        {english ? <StyledTag color={'red'}>英</StyledTag> : '中'}
-      </SmallCourseInfo>
-      <SmallCourseInfo>
-        <Flex align={'center'} justify={'center'} vertical={true}>
-          {getClassCodeColor(classCode)}
-          <span>{'⓪①②③④'[parseInt(grade)]}</span>
-        </Flex>
-      </SmallCourseInfo>
-      <SmallCourseInfo>
-        <Flex align={'center'} justify={'center'} vertical={true} gap={5}>
-          {displayTeachers}
-        </Flex>
-      </SmallCourseInfo>
-      <CourseInfo>
-        <Flex align={'center'} justify={'center'} vertical={true} gap={5}>
-          {displayTags}
-        </Flex>
-      </CourseInfo>
+            {credit}
+          </StyledTag>
+        </SmallCourseInfo>
+        <SmallCourseInfo>
+          {english ? <StyledTag color={'red'}>英</StyledTag> : '中'}
+        </SmallCourseInfo>
+        <SmallCourseInfo>
+          <Flex align={'center'} justify={'center'} vertical={true}>
+            {getClassCodeColor(classCode)}
+            <span>{'⓪①②③④'[parseInt(grade)]}</span>
+          </Flex>
+        </SmallCourseInfo>
+        <SmallCourseInfo>
+          <Flex align={'center'} justify={'center'} vertical={true} gap={5}>
+            {displayTeachers}
+          </Flex>
+        </SmallCourseInfo>
+        <CourseInfo>
+          <Flex align={'center'} justify={'center'} vertical={true} gap={5}>
+            {displayTags}
+          </Flex>
+        </CourseInfo>
+      </CourseMainRow>
+
+      {/* 選上機率條 */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <ProbabilityText $status={getProbabilityStatus(remaining)}>
+          選上機率: {getProbabilityText(select, remaining)}
+        </ProbabilityText>
+        <span style={{ fontSize: '9px', color: '#999' }}>
+          點選: {select} | 剩餘: {remaining}
+        </span>
+      </div>
+      <ProbabilityBar>
+        <ProbabilityFill
+          $probability={getSuccessProbability(select, remaining)}
+          $status={getProbabilityStatus(remaining)}
+        />
+      </ProbabilityBar>
     </CourseRow>
   );
 };
