@@ -92,5 +92,13 @@
   },
   "allCourse": {
     "totalSelectedCourses": "共篩選 {totalCourses} 門課程，已選 {totalSelectedCourses} 門課程"
+  },
+  "creditsOverlay": {
+    "totalCredits": "總學分",
+    "totalHours": "總時數",
+    "credits": "學分",
+    "hours": "小時",
+    "courses": "課程",
+    "coursesSelected": "門課程已選"
   }
 }

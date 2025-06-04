@@ -14,6 +14,7 @@ import {
   setDisplayConflictCourses,
 } from '@/store';
 import CoursesList from '#/SelectorPanel/AllCourses/CoursesList';
+import CreditsStatistics from '#/SelectorPanel/CreditsStatistics';
 
 const StyledCard = styled(Card)`
   div.ant-card-body {
@@ -65,7 +66,6 @@ const AllCourses: React.FC = () => {
       gap={10}
       style={{ padding: 5 }}
     >
-      <Typography.Title level={3}>{t('allCourses')}</Typography.Title>{' '}
       <Typography.Text type='secondary'>
         {t('allCourse.totalSelectedCourses')
           .replace('{totalCourses}', displayedCoursesCount.toString())
@@ -94,6 +94,7 @@ const AllCourses: React.FC = () => {
   );
   return (
     <StyledCard title={CardTitle}>
+      <CreditsStatistics />
       <CoursesList />
     </StyledCard>
   );
