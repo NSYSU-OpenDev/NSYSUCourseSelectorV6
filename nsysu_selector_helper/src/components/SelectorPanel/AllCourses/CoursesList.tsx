@@ -81,7 +81,7 @@ const CoursesList: React.FC = () => {
 
   return (
     <Virtuoso
-      style={{ height: 'calc(100vh - 155px)' }}
+      style={{ height: 'calc(100vh - 205px)' }}
       data={dataWithHeader}
       itemContent={renderItem}
       topItemCount={1}
