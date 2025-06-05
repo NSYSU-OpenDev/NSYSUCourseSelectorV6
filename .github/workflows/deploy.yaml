@@ -37,6 +37,10 @@ jobs:
         run: yarn install
         working-directory: nsysu_selector_helper/
 
+      - name: TypeScript type check
+        run: yarn tsc -b --noEmit
+        working-directory: nsysu_selector_helper/
+
       - name: Build
         run: yarn build
         working-directory: nsysu_selector_helper/
