@@ -48,10 +48,6 @@ const CreditsStatistics: React.FC = () => {
     return CourseService.calculateTotalCredits(selectedCoursesSet);
   }, [selectedCourses]);
 
-  // Don't show statistics if no courses are selected
-  if (selectedCourses.length === 0) {
-    return null;
-  }
   return (
     <StatisticsContainer>
       <Row gutter={[8, 4]} align='middle'>
