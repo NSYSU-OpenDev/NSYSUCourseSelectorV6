@@ -31,7 +31,8 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: 'nsysu_selector_helper/yarn.lock'
 
-      - name: Install
+      - name: Install dependencies
+        if: steps.setup-node.outputs.cache-hit != 'true'
         run: yarn install
         working-directory: nsysu_selector_helper/
 
