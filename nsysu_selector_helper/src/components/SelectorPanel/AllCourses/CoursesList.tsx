@@ -1,22 +1,26 @@
-import React from 'react';
-import { Virtuoso } from 'react-virtuoso';
+import React, { useRef, useEffect } from 'react';
+import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { Empty } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import { CourseService } from '@/services/courseService.ts';
-import { useAppSelector } from '@/store/hooks';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import {
   selectCourses,
   selectSelectedCourses,
   selectHoveredCourseId,
   selectDisplaySelectedOnly,
   selectDisplayConflictCourses,
+  selectScrollToCourseId,
+  setScrollToCourseId,
 } from '@/store';
 import Header from '#/SelectorPanel/AllCourses/CoursesList/Header';
 import Item from '#/SelectorPanel/AllCourses/CoursesList/Item';
 
 const CoursesList: React.FC = () => {
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+  const virtuosoRef = useRef<VirtuosoHandle>(null);
 
   // Redux state
   const courses = useAppSelector(selectCourses);
@@ -24,6 +28,24 @@ const CoursesList: React.FC = () => {
   const hoveredCourseId = useAppSelector(selectHoveredCourseId);
   const displaySelectedOnly = useAppSelector(selectDisplaySelectedOnly);
   const displayConflictCourses = useAppSelector(selectDisplayConflictCourses);
+  const scrollToCourseId = useAppSelector(selectScrollToCourseId);
+
+  // 處理滾動到特定課程
+  useEffect(() => {
+    if (scrollToCourseId && virtuosoRef.current) {
+      const courseIndex = courses.findIndex((c) => c.id === scrollToCourseId);
+      if (courseIndex !== -1) {
+        // Add 1 to account for the header
+        virtuosoRef.current.scrollToIndex({
+          index: courseIndex + 1,
+          align: 'center',
+          behavior: 'smooth',
+        });
+        // 清除滾動狀態，避免重複滾動
+        dispatch(setScrollToCourseId(''));
+      }
+    }
+  }, [scrollToCourseId, courses, dispatch]);
 
   const renderItem = (index: number) => {
     if (index === 0) {
@@ -78,9 +100,9 @@ const CoursesList: React.FC = () => {
   }
 
   const dataWithHeader = [{}, ...courses];
-
   return (
     <Virtuoso
+      ref={virtuosoRef}
       style={{ height: 'calc(100vh - 205px)' }}
       data={dataWithHeader}
       itemContent={renderItem}

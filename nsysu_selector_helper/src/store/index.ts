@@ -15,9 +15,11 @@ export {
 export {
   setSelectedTabKey,
   setHoveredCourseId,
+  setActiveCourseId,
   setActiveCollapseKey,
   setDisplaySelectedOnly,
   setDisplayConflictCourses,
+  setScrollToCourseId,
 } from './slices/uiSlice';
 
 // Export selectors
@@ -30,7 +32,9 @@ export {
   selectCoursesError,
   selectSelectedTabKey,
   selectHoveredCourseId,
+  selectActiveCourseId,
   selectActiveCollapseKey,
   selectDisplaySelectedOnly,
   selectDisplayConflictCourses,
+  selectScrollToCourseId,
 } from './selectors';

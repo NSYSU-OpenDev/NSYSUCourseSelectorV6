@@ -17,9 +17,13 @@ export const selectSelectedTabKey = (state: RootState) =>
   state.ui.selectedTabKey;
 export const selectHoveredCourseId = (state: RootState) =>
   state.ui.hoveredCourseId;
+export const selectActiveCourseId = (state: RootState) =>
+  state.ui.activeCourseId;
 export const selectActiveCollapseKey = (state: RootState) =>
   state.ui.activeCollapseKey;
 export const selectDisplaySelectedOnly = (state: RootState) =>
   state.ui.displaySelectedOnly;
 export const selectDisplayConflictCourses = (state: RootState) =>
   state.ui.displayConflictCourses;
+export const selectScrollToCourseId = (state: RootState) =>
+  state.ui.scrollToCourseId;

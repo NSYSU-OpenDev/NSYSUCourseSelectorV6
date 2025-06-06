@@ -1,5 +1,15 @@
 import React, { ReactNode, useEffect, useState } from 'react';
-import { Card, Table, Typography, Tooltip, Tag, Switch, Space } from 'antd';
+import {
+  Card,
+  Table,
+  Typography,
+  Tag,
+  Switch,
+  Space,
+  Button,
+  Modal,
+} from 'antd';
+import { EyeOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 
@@ -11,6 +21,9 @@ import {
   selectSelectedCourses,
   selectHoveredCourseId,
   setHoveredCourseId,
+  setScrollToCourseId,
+  setSelectedTabKey,
+  setActiveCollapseKey,
 } from '@/store';
 
 // Department color mapping - using Ant Design official colors
@@ -84,7 +97,7 @@ const TableWrapper = styled.div`
   -webkit-overflow-scrolling: touch; /* 為iOS添加慣性滾動 */
 `;
 
-const CourseTag = styled(Tag)<{ $isHovered?: boolean }>`
+const CourseTag = styled(Tag)<{ $isHovered?: boolean; $isActive?: boolean }>`
   width: 100%;
   margin: 2px 0;
   padding: 2px 4px;
@@ -93,9 +106,12 @@ const CourseTag = styled(Tag)<{ $isHovered?: boolean }>`
   white-space: pre-wrap;
   text-align: center;
   cursor: pointer;
-  transform: ${(props) => (props.$isHovered ? 'scale(1.05)' : 'none')};
+  transform: ${(props) =>
+    props.$isHovered || props.$isActive ? 'scale(1.05)' : 'none'};
   box-shadow: ${(props) =>
-    props.$isHovered ? '0 0 5px rgba(24, 144, 255, 0.5)' : 'none'};
+    props.$isHovered || props.$isActive
+      ? '0 0 5px rgba(24, 144, 255, 0.5)'
+      : 'none'};
   transition: all 0.2s;
 
   @media screen and (max-width: 768px) {
@@ -123,10 +139,43 @@ const ScheduleTable: React.FC = () => {
   const { t } = useTranslation();
   const { width } = useWindowSize();
   const dispatch = useAppDispatch();
-
   // Redux state
   const selectedCourses = useAppSelector(selectSelectedCourses);
   const hoveredCourseId = useAppSelector(selectHoveredCourseId);
+
+  // Modal state for mobile course details
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<
+    (Course & { roomForThisSlot?: string }) | null
+  >(null);
+  // 處理課程標籤點擊 - 導航到課程列表
+  const handleCourseNavigate = (courseId: string) => {
+    // 觸發滾動到對應課程
+    dispatch(setScrollToCourseId(courseId));
+
+    // 切換到課程列表 tab
+    dispatch(setSelectedTabKey('allCourses'));
+
+    // 如果是移動端，展開選課面板
+    if (isMobile) {
+      dispatch(setActiveCollapseKey(['selectorPanel']));
+    }
+  }; // 處理手機端課程標籤點擊 - 顯示 Modal
+  const handleMobileCourseClick = (course: Course, roomForThisSlot: string) => {
+    setSelectedCourse({ ...course, roomForThisSlot });
+    setModalVisible(true);
+  };
+
+  // 處理課程標籤點擊
+  const handleCourseClick = (course: Course, roomForThisSlot?: string) => {
+    if (isMobile) {
+      // 手機端：顯示 Modal
+      handleMobileCourseClick(course, roomForThisSlot || '未知');
+    } else {
+      // 桌面端：直接導航
+      handleCourseNavigate(course.id);
+    }
+  };
 
   const isMobile = width <= 768;
   const [showWeekends, setShowWeekends] = useState(
@@ -243,7 +292,6 @@ const ScheduleTable: React.FC = () => {
       row[`day${day}`] =
         courses.length > 0 ? (
           <>
-            {' '}
             {courses.map((course) => {
               const departmentColor = getDepartmentColor(
                 course.department || '其他',
@@ -251,32 +299,26 @@ const ScheduleTable: React.FC = () => {
               const isHovered = hoveredCourseId === course.id;
 
               return (
-                <Tooltip
+                <CourseTag
                   key={`${course.id}-${day}-${slot.key}`}
-                  title={
-                    isMobile
-                      ? `${course.name} - ${course.teacher} (${course.roomForThisSlot || 'Unknown'})`
-                      : ''
+                  color={departmentColor}
+                  $isHovered={isHovered}
+                  onClick={() =>
+                    handleCourseClick(course, course.roomForThisSlot)
                   }
-                  placement='top'
+                  onMouseEnter={() => {
+                    dispatch(setHoveredCourseId(course.id));
+                  }}
+                  onMouseLeave={() => {
+                    dispatch(setHoveredCourseId(''));
+                  }}
                 >
-                  <CourseTag
-                    color={departmentColor}
-                    $isHovered={isHovered}
-                    onMouseEnter={() => {
-                      dispatch(setHoveredCourseId(course.id));
-                    }}
-                    onMouseLeave={() => {
-                      dispatch(setHoveredCourseId(''));
-                    }}
-                  >
-                    {isMobile
-                      ? course.name.length > 4
-                        ? `${course.name.substring(0, 4)}...`
-                        : course.name
-                      : `${course.name.split('\n')[0]}\n(${course.roomForThisSlot || '未知'})\n`}
-                  </CourseTag>
-                </Tooltip>
+                  {!isMobile
+                    ? `${course.name.split('\n')[0]}\n(${course.roomForThisSlot || '未知'})\n`
+                    : course.name.length > 5
+                      ? `${course.name.substring(0, 5)}...`
+                      : course.name}
+                </CourseTag>
               );
             })}
           </>
@@ -333,20 +375,76 @@ const ScheduleTable: React.FC = () => {
       </Space>
     </CardHeader>
   );
-
   return (
-    <StyledCard title={<TitleComponent />}>
-      <TableWrapper>
-        <StyledTable
-          dataSource={dataSource}
-          columns={columns}
-          pagination={false}
-          size={isMobile ? 'small' : 'middle'}
-          scroll={{ x: tableWidth }}
-          style={{ width: '100%' }}
-        />
-      </TableWrapper>
-    </StyledCard>
+    <>
+      <StyledCard title={<TitleComponent />}>
+        <TableWrapper>
+          <StyledTable
+            dataSource={dataSource}
+            columns={columns}
+            pagination={false}
+            size={isMobile ? 'small' : 'middle'}
+            scroll={{ x: tableWidth }}
+            style={{ width: '100%' }}
+          />
+        </TableWrapper>
+      </StyledCard>
+
+      {/* Mobile Course Details Modal */}
+      <Modal
+        title='課程詳情'
+        open={modalVisible}
+        onCancel={() => setModalVisible(false)}
+        footer={[
+          <Button key='cancel' onClick={() => setModalVisible(false)}>
+            關閉
+          </Button>,
+          <Button
+            key='navigate'
+            type='primary'
+            icon={<EyeOutlined />}
+            onClick={() => {
+              if (selectedCourse) {
+                handleCourseNavigate(selectedCourse.id);
+                setModalVisible(false);
+              }
+            }}
+          >
+            查看課程
+          </Button>,
+        ]}
+        centered
+      >
+        {selectedCourse && (
+          <div>
+            <div style={{ marginBottom: '12px' }}>
+              <strong>課程名稱：</strong>
+              {selectedCourse.name}
+            </div>
+            <div style={{ marginBottom: '12px' }}>
+              <strong>授課教師：</strong>
+              {selectedCourse.teacher}
+            </div>
+            <div style={{ marginBottom: '12px' }}>
+              <strong>課程代號：</strong>
+              {selectedCourse.id}
+            </div>
+            <div style={{ marginBottom: '12px' }}>
+              <strong>學分數：</strong>
+              {selectedCourse.credit}
+            </div>
+            <div style={{ marginBottom: '12px' }}>
+              <strong>教室：</strong>
+              {selectedCourse.roomForThisSlot || '未知'}
+            </div>
+            <div style={{ marginBottom: '12px' }}>
+              <strong>系所：</strong>
+              {selectedCourse.department}
+            </div>
+          </div>
+        )}
+      </Modal>
+    </>
   );
 };
 

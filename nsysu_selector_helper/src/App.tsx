@@ -111,7 +111,7 @@ const App: React.FC = () => {
   return (
     <ConfigProvider theme={themeConfig}>
       {isLoading && <Spin spinning={true} fullscreen />}
-      <EntryNotification />{' '}
+      <EntryNotification />
       <SectionHeader
         selectedKey={selectedTabKey}
         setSelectedKey={(key: string) => dispatch(setSelectedTabKey(key))}
@@ -120,16 +120,16 @@ const App: React.FC = () => {
         setSelectedSemester={(semester: string) =>
           dispatch(setSelectedSemester(semester))
         }
-      />{' '}
+      />
       {/* 桌面版 */}
       <StyledSplitter>
         <Splitter.Panel collapsible={true} style={{ width: '100%' }}>
           <ScheduleTable />
-        </Splitter.Panel>{' '}
+        </Splitter.Panel>
         <Splitter.Panel>
           <SelectorPanel />
         </Splitter.Panel>
-      </StyledSplitter>{' '}
+      </StyledSplitter>
       {/* 手機版垂直布局 - 使用 antd Collapse */}
       <MobileLayout>
         <StyledCollapse
