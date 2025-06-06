@@ -2,7 +2,7 @@
  * 課程資料結構
  * @property {string} id - 課程代碼 e.g., "STP101"
  * @property {string} url - 課程網址
- * @property {string} [change] - 課程變更狀態 e.g., "新增" 
+ * @property {string} [change] - 課程變更狀態 e.g., "新增"
  * @property {string} [changeDescription] - 課程變更描述 e.g., "7/15"
  * @property {boolean} multipleCompulsory - 是否為多選必修課程
  * @property {string} department - 開課系所 e.g., "中學學程"

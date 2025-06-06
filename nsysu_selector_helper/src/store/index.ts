@@ -20,6 +20,7 @@ export {
   setDisplaySelectedOnly,
   setDisplayConflictCourses,
   setScrollToCourseId,
+  setSearchQuery,
 } from './slices/uiSlice';
 
 // Export selectors
@@ -37,4 +38,5 @@ export {
   selectDisplaySelectedOnly,
   selectDisplayConflictCourses,
   selectScrollToCourseId,
+  selectSearchQuery,
 } from './selectors';

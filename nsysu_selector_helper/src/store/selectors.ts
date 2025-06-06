@@ -27,3 +27,4 @@ export const selectDisplayConflictCourses = (state: RootState) =>
   state.ui.displayConflictCourses;
 export const selectScrollToCourseId = (state: RootState) =>
   state.ui.scrollToCourseId;
+export const selectSearchQuery = (state: RootState) => state.ui.searchQuery;

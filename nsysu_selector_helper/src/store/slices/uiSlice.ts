@@ -9,6 +9,7 @@ export interface UIState {
   displaySelectedOnly: boolean;
   displayConflictCourses: boolean;
   scrollToCourseId: string;
+  searchQuery: string; // 搜尋關鍵字
 }
 
 // 初始狀態
@@ -20,6 +21,7 @@ const initialState: UIState = {
   displaySelectedOnly: false,
   displayConflictCourses: true,
   scrollToCourseId: '',
+  searchQuery: '',
 };
 
 // Slice
@@ -48,6 +50,9 @@ const uiSlice = createSlice({
     setScrollToCourseId: (state, action: PayloadAction<string>) => {
       state.scrollToCourseId = action.payload;
     },
+    setSearchQuery: (state, action: PayloadAction<string>) => {
+      state.searchQuery = action.payload;
+    },
   },
 });
 
@@ -59,6 +64,7 @@ export const {
   setDisplaySelectedOnly,
   setDisplayConflictCourses,
   setScrollToCourseId,
+  setSearchQuery,
 } = uiSlice.actions;
 
 export default uiSlice;

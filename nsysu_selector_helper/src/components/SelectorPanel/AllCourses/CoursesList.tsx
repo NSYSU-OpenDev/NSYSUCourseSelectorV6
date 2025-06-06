@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next';
 import { CourseService } from '@/services/courseService.ts';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import {
-  selectCourses,
   selectSelectedCourses,
   selectHoveredCourseId,
   selectDisplaySelectedOnly,
@@ -14,16 +13,19 @@ import {
   selectScrollToCourseId,
   setScrollToCourseId,
 } from '@/store';
+import { Course } from '@/types';
 import Header from '#/SelectorPanel/AllCourses/CoursesList/Header';
 import Item from '#/SelectorPanel/AllCourses/CoursesList/Item';
 
-const CoursesList: React.FC = () => {
+interface CoursesListProps {
+  filteredCourses: Course[];
+}
+
+const CoursesList: React.FC<CoursesListProps> = ({ filteredCourses }) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const virtuosoRef = useRef<VirtuosoHandle>(null);
-
   // Redux state
-  const courses = useAppSelector(selectCourses);
   const selectedCourses = useAppSelector(selectSelectedCourses);
   const hoveredCourseId = useAppSelector(selectHoveredCourseId);
   const displaySelectedOnly = useAppSelector(selectDisplaySelectedOnly);
@@ -33,7 +35,9 @@ const CoursesList: React.FC = () => {
   // 處理滾動到特定課程
   useEffect(() => {
     if (scrollToCourseId && virtuosoRef.current) {
-      const courseIndex = courses.findIndex((c) => c.id === scrollToCourseId);
+      const courseIndex = filteredCourses.findIndex(
+        (c) => c.id === scrollToCourseId,
+      );
       if (courseIndex !== -1) {
         // Add 1 to account for the header
         virtuosoRef.current.scrollToIndex({
@@ -45,15 +49,13 @@ const CoursesList: React.FC = () => {
         dispatch(setScrollToCourseId(''));
       }
     }
-  }, [scrollToCourseId, courses, dispatch]);
+  }, [scrollToCourseId, filteredCourses, dispatch]);
 
   const renderItem = (index: number) => {
     if (index === 0) {
       return <Header />;
-    }
-
-    // 由於頂部有一個固定項目，所以所有後續項目的索引都要向前移動一位
-    const course = courses[index - 1];
+    } // 由於頂部有一個固定項目，所以所有後續項目的索引都要向前移動一位
+    const course = filteredCourses[index - 1];
 
     // 如果課程不存在，則不渲染該課程，動態篩選時可能會發生
     if (!course) return null;
@@ -90,7 +92,7 @@ const CoursesList: React.FC = () => {
     );
   };
 
-  if (courses.length === 0) {
+  if (filteredCourses.length === 0) {
     return (
       <>
         <Header />
@@ -99,7 +101,7 @@ const CoursesList: React.FC = () => {
     );
   }
 
-  const dataWithHeader = [{}, ...courses];
+  const dataWithHeader = [{}, ...filteredCourses];
   return (
     <Virtuoso
       ref={virtuosoRef}
