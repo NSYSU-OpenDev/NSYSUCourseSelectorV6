@@ -157,6 +157,7 @@ const Item: React.FC<ItemProps> = ({
   const hideModal = () => {
     setIsModalVisible(false);
   };
+
   // 計算選上機率
   const getSuccessProbability = (select: number, remaining: number): number => {
     if (remaining <= 0) return 0; // 已滿或超額
@@ -383,7 +384,7 @@ const Item: React.FC<ItemProps> = ({
                 </>
               }
               trigger={['hover', 'focus']}
-              placement={'left'}
+              placement={'right'}
             >
               <StyledLink href={url} target={'_blank'} rel='noreferrer'>
                 {name.split('\n')[0]}

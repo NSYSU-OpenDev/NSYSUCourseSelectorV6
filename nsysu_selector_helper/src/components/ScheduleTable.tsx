@@ -88,6 +88,11 @@ const StyledTable = styled(Table)`
       padding: 2px;
       font-size: 11px;
     }
+
+    .ant-table-cell {
+      padding: 2px !important;
+      font-size: 11px;
+    }
   }
 `;
 
@@ -113,10 +118,55 @@ const CourseTag = styled(Tag)<{ $isHovered?: boolean; $isActive?: boolean }>`
       ? '0 0 5px rgba(24, 144, 255, 0.5)'
       : 'none'};
   transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
 
   @media screen and (max-width: 768px) {
     font-size: 10px;
     padding: 1px 2px;
+  }
+`;
+
+const ProbabilityIndicator = styled.div<{
+  $probability: number;
+  $status: 'full' | 'overbooked' | 'normal';
+}>`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  width: ${(props) => Math.min(props.$probability, 100)}%;
+  background-color: ${(props) => {
+    if (props.$status === 'full') return '#ff4d4f'; // 紅色 - 已滿
+    if (props.$status === 'overbooked') return '#722ed1'; // 紫色 - 超額
+    if (props.$probability >= 80) return '#52c41a'; // 綠色 - 很容易選上
+    if (props.$probability >= 50) return '#faad14'; // 橙色 - 中等機率
+    return '#ff7875'; // 淺紅 - 困難
+  }};
+  transition: width 0.3s ease;
+  z-index: 1;
+`;
+
+const CourseTagContent = styled.div`
+  position: relative;
+  z-index: 2;
+`;
+
+const ProbabilityText = styled.div<{
+  $status: 'full' | 'overbooked' | 'normal';
+}>`
+  font-size: 8px;
+  font-weight: bold;
+  color: ${(props) => {
+    if (props.$status === 'full') return '#ff4d4f';
+    if (props.$status === 'overbooked') return '#722ed1';
+    return '#666';
+  }};
+  line-height: 1;
+  margin-top: 1px;
+
+  @media screen and (max-width: 768px) {
+    font-size: 7px;
   }
 `;
 
@@ -148,6 +198,32 @@ const ScheduleTable: React.FC = () => {
   const [selectedCourse, setSelectedCourse] = useState<
     (Course & { roomForThisSlot?: string }) | null
   >(null);
+
+  // 計算選上機率
+  const getSuccessProbability = (select: number, remaining: number): number => {
+    if (remaining <= 0) return 0; // 已滿或超額
+    if (select <= 0) return 100; // 沒人搶，100%選上
+
+    // 簡化計算：remaining / select * 100，但限制在0-100之間
+    const probability = Math.min((remaining / select) * 100, 100);
+    return Math.max(probability, 0);
+  };
+
+  const getProbabilityStatus = (
+    remaining: number,
+  ): 'full' | 'overbooked' | 'normal' => {
+    if (remaining === 0) return 'full'; // 剛好滿額
+    if (remaining < 0) return 'overbooked'; // 超額（加簽等）
+    return 'normal'; // 正常
+  };
+
+  const getProbabilityText = (select: number, remaining: number): string => {
+    if (remaining <= 0) {
+      return remaining === 0 ? '已滿' : `超額${Math.abs(remaining)}`;
+    }
+    const probability = getSuccessProbability(select, remaining);
+    return `${Math.round(probability)}%`;
+  };
   // 處理課程標籤點擊 - 導航到課程列表
   const handleCourseNavigate = (courseId: string) => {
     // 觸發滾動到對應課程
@@ -297,7 +373,6 @@ const ScheduleTable: React.FC = () => {
                 course.department || '其他',
               );
               const isHovered = hoveredCourseId === course.id;
-
               return (
                 <CourseTag
                   key={`${course.id}-${day}-${slot.key}`}
@@ -313,11 +388,25 @@ const ScheduleTable: React.FC = () => {
                     dispatch(setHoveredCourseId(''));
                   }}
                 >
-                  {!isMobile
-                    ? `${course.name.split('\n')[0]}\n(${course.roomForThisSlot || '未知'})\n`
-                    : course.name.length > 5
-                      ? `${course.name.substring(0, 5)}...`
-                      : course.name}
+                  <ProbabilityIndicator
+                    $probability={getSuccessProbability(
+                      course.select,
+                      course.remaining,
+                    )}
+                    $status={getProbabilityStatus(course.remaining)}
+                  />
+                  <CourseTagContent>
+                    {!isMobile
+                      ? `${course.name.split('\n')[0]}\n(${course.roomForThisSlot || '未知'})`
+                      : course.name.length > 6
+                        ? `${course.name.substring(0, 6)}...`
+                        : course.name}
+                    <ProbabilityText
+                      $status={getProbabilityStatus(course.remaining)}
+                    >
+                      {getProbabilityText(course.select, course.remaining)}
+                    </ProbabilityText>
+                  </CourseTagContent>
                 </CourseTag>
               );
             })}
