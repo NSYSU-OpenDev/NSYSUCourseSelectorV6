@@ -383,7 +383,7 @@ const Item: React.FC<ItemProps> = ({
                 </>
               }
               trigger={['hover', 'focus']}
-              placement={'top'}
+              placement={'left'}
             >
               <StyledLink href={url} target={'_blank'} rel='noreferrer'>
                 {name.split('\n')[0]}
