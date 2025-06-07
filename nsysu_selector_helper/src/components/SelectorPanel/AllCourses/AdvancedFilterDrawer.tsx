@@ -187,14 +187,15 @@ const FilterConditionItem: React.FC<FilterConditionItemProps> = ({
                       onChange={handleFieldChange}
                       placeholder='選擇篩選欄位'
                       showSearch
-                      optionFilterProp='children'
-                    >
-                      {fieldOptions.map((field) => (
-                        <Select.Option key={field.field} value={field.field}>
-                          {field.label}
-                        </Select.Option>
-                      ))}
-                    </Select>
+                      optionFilterProp='label'
+                      options={
+                        fieldOptions.map((field) => ({
+                          key: field.field,
+                          value: field.field,
+                          label: field.label,
+                        }))
+                      }
+                    />
                   </div>
                   {/* 包含/排除選擇 */}
                   <div>
@@ -255,7 +256,6 @@ const FilterConditionItem: React.FC<FilterConditionItemProps> = ({
                         onChange={(values) => handleValueChange(values)}
                         placeholder={`選擇${currentFieldOption?.label || '篩選值'}...`}
                         showSearch
-                        optionFilterProp='children'
                         allowClear
                         notFoundContent={
                           <Empty
@@ -267,22 +267,20 @@ const FilterConditionItem: React.FC<FilterConditionItemProps> = ({
                         maxTagPlaceholder={(omittedValues) =>
                           `+${omittedValues.length}...`
                         }
-                      >
-                        {currentFieldOption &&
-                          currentFieldOption.options.map((option) => (
-                            <Select.Option
-                              key={option.value}
-                              value={option.value}
-                            >
-                              <Space>
-                                <span>{option.label}</span>
-                                {option.count && (
-                                  <Tag color='blue'>{option.count}</Tag>
-                                )}
-                              </Space>
-                            </Select.Option>
-                          ))}
-                      </Select>
+                        optionFilterProp='key'
+                        options={currentFieldOption?.options.map((option) => ({
+                          key: option.label,
+                          label: (
+                            <Space>
+                              <span>{option.label}</span>
+                              {option.count && (
+                                <Tag color='blue'>{option.count}</Tag>
+                              )}
+                            </Space>
+                          ),
+                          value: option.value,
+                        }))}
+                      />
                     )}
                   </div>
                 </Space>
