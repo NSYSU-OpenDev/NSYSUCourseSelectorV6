@@ -15,6 +15,7 @@ import {
   Empty,
   Tooltip,
   Card,
+  Popconfirm,
 } from 'antd';
 import {
   PlusOutlined,
@@ -30,6 +31,10 @@ import {
   selectAdvancedFilterDrawerOpen,
   selectFilterConditions,
   selectCourses,
+  selectSearchQuery,
+  selectSelectedCourses,
+  selectDisplaySelectedOnly,
+  selectDisplayConflictCourses,
   setAdvancedFilterDrawerOpen,
   addFilterCondition,
   removeFilterCondition,
@@ -40,6 +45,7 @@ import {
   AdvancedFilterService,
   type FieldOptions,
 } from '@/services/advancedFilterService';
+import { CourseService } from '@/services/courseService';
 import type { FilterCondition } from '@/store/slices/uiSlice';
 
 const { Text, Title } = Typography;
@@ -63,9 +69,9 @@ const StyledCollapse = styled(Collapse)`
 
 const StatsContainer = styled.div`
   background: #f5f5f5;
-  padding: 12px;
+  padding: 8px;
   border-radius: 6px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 `;
 
 interface FilterConditionItemProps {
@@ -188,13 +194,11 @@ const FilterConditionItem: React.FC<FilterConditionItemProps> = ({
                       placeholder='選擇篩選欄位'
                       showSearch
                       optionFilterProp='label'
-                      options={
-                        fieldOptions.map((field) => ({
-                          key: field.field,
-                          value: field.field,
-                          label: field.label,
-                        }))
-                      }
+                      options={fieldOptions.map((field) => ({
+                        key: field.field,
+                        value: field.field,
+                        label: field.label,
+                      }))}
                     />
                   </div>
                   {/* 包含/排除選擇 */}
@@ -298,17 +302,59 @@ const AdvancedFilterDrawer: React.FC = () => {
   const open = useAppSelector(selectAdvancedFilterDrawerOpen);
   const filterConditions = useAppSelector(selectFilterConditions);
   const courses = useAppSelector(selectCourses);
+  const searchQuery = useAppSelector(selectSearchQuery);
+  const selectedCourses = useAppSelector(selectSelectedCourses);
+  const displaySelectedOnly = useAppSelector(selectDisplaySelectedOnly);
+  const displayConflictCourses = useAppSelector(selectDisplayConflictCourses);
 
   // 動態計算篩選選項
   const fieldOptions = useMemo(() => {
     return AdvancedFilterService.getFilterOptions(courses);
   }, [courses]);
 
-  // 計算篩選後的課程數量
+  // 計算篩選後的課程數量 (與主要列表和統計組件保持一致)
   const filteredCoursesCount = useMemo(() => {
-    return AdvancedFilterService.filterCourses(courses, filterConditions)
-      .length;
-  }, [courses, filterConditions]);
+    // 先進行基本搜尋
+    let result = CourseService.searchCourses(courses, searchQuery);
+
+    // 再進行精確篩選
+    if (filterConditions.length > 0) {
+      result = AdvancedFilterService.filterCourses(result, filterConditions);
+    }
+
+    // 應用與 CoursesList 和 CreditsStatistics 相同的顯示篩選邏輯
+    return result.filter((course) => {
+      const isSelected = selectedCourses.some((c) => c.id === course.id);
+
+      // 如果設定為僅顯示已選擇的課程，且當前課程未被選擇，則不顯示
+      if (displaySelectedOnly && !isSelected) {
+        return false;
+      }
+
+      // 只對未選課程檢測時間衝突
+      if (!isSelected) {
+        const selectedCoursesSet = new Set(selectedCourses);
+        const isConflict = CourseService.detectTimeConflict(
+          course,
+          selectedCoursesSet,
+        );
+
+        // 如果設定為不顯示衝突課程，且當前課程有衝突，則不顯示
+        if (!displayConflictCourses && isConflict) {
+          return false;
+        }
+      }
+
+      return true;
+    }).length;
+  }, [
+    courses,
+    searchQuery,
+    filterConditions,
+    selectedCourses,
+    displaySelectedOnly,
+    displayConflictCourses,
+  ]);
 
   const handleClose = () => {
     dispatch(setAdvancedFilterDrawerOpen(false));
@@ -361,19 +407,23 @@ const AdvancedFilterDrawer: React.FC = () => {
       placement='left'
       mask={false}
       maskClosable={false}
-      width={400}
       open={open}
       onClose={handleClose}
       extra={
         <Space>
-          <Tooltip title='清除所有篩選條件'>
+          <Popconfirm
+            title='清除所有篩選條件'
+            onConfirm={handleClearAll}
+            okText={'清除'}
+            cancelText='取消'
+          >
             <Button
               type='text'
               icon={<ClearOutlined />}
-              onClick={handleClearAll}
               disabled={filterConditions.length === 0}
+              danger={filterConditions.length > 0}
             />
-          </Tooltip>
+          </Popconfirm>
         </Space>
       }
     >

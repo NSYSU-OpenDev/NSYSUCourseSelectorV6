@@ -10,6 +10,7 @@ import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 
 import { CourseService } from '@/services/courseService';
+import { AdvancedFilterService } from '@/services/advancedFilterService';
 import { useAppSelector } from '@/store/hooks';
 import {
   selectSelectedCourses,
@@ -17,6 +18,7 @@ import {
   selectSearchQuery,
   selectDisplaySelectedOnly,
   selectDisplayConflictCourses,
+  selectFilterConditions,
 } from '@/store';
 
 const StatisticsContainer = styled.div`
@@ -58,6 +60,7 @@ const CreditsStatistics: React.FC = () => {
   const searchQuery = useAppSelector(selectSearchQuery);
   const displaySelectedOnly = useAppSelector(selectDisplaySelectedOnly);
   const displayConflictCourses = useAppSelector(selectDisplayConflictCourses);
+  const filterConditions = useAppSelector(selectFilterConditions);
 
   // Calculate total credits and hours using the existing service
   const { totalCredits, totalHours } = useMemo(() => {
@@ -67,8 +70,16 @@ const CreditsStatistics: React.FC = () => {
 
   // 計算實際顯示的課程數量
   const displayedCoursesCount = useMemo(() => {
-    // 根據搜尋條件篩選課程
-    const filteredCourses = CourseService.searchCourses(courses, searchQuery);
+    // 先進行基本搜尋
+    let filteredCourses = CourseService.searchCourses(courses, searchQuery);
+
+    // 再進行精確篩選
+    if (filterConditions.length > 0) {
+      filteredCourses = AdvancedFilterService.filterCourses(
+        filteredCourses,
+        filterConditions,
+      );
+    }
 
     return filteredCourses.filter((course) => {
       const isSelected = selectedCourses.some((c) => c.id === course.id);
@@ -97,6 +108,7 @@ const CreditsStatistics: React.FC = () => {
   }, [
     courses,
     searchQuery,
+    filterConditions,
     selectedCourses,
     displaySelectedOnly,
     displayConflictCourses,

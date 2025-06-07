@@ -28,7 +28,7 @@ import {
 } from '@/store';
 import CoursesList from '#/SelectorPanel/AllCourses/CoursesList';
 import AdvancedFilterDrawer from '#/SelectorPanel/AllCourses/AdvancedFilterDrawer';
-import CreditsStatistics from '#/SelectorPanel/CreditsStatistics';
+import CreditsStatistics from '#/SelectorPanel/AllCourses/CreditsStatistics';
 
 const StyledCard = styled(Card)`
   div.ant-card-head {
