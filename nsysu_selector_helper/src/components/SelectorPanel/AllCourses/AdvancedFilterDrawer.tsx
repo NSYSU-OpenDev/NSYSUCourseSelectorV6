@@ -13,7 +13,6 @@ import {
   Typography,
   Divider,
   Empty,
-  Tooltip,
   Card,
   Popconfirm,
 } from 'antd';
