@@ -32,6 +32,10 @@ import CreditsStatistics from '#/SelectorPanel/CreditsStatistics';
 
 const StyledCard = styled(Card)`
   div.ant-card-head {
+    padding: 0;
+  }
+
+  div.ant-card-head-title {
     padding: 8px 12px;
   }
 
@@ -76,7 +80,12 @@ const AllCourses: React.FC = () => {
           allowClear
           style={{ flex: 1 }}
         />
-        <Badge count={filterConditions.length} size='small'>
+        <Badge
+          count={filterConditions.length}
+          size='small'
+          style={{ zIndex: 100 }}
+        >
+          {/* 篩選按鈕 */}
           <Button
             icon={<FilterOutlined />}
             onClick={handleOpenAdvancedFilter}

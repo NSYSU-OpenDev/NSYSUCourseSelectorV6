@@ -4,7 +4,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 export interface FilterCondition {
   field: string;
   type: 'include' | 'exclude';
-  value: string;
+  value: string | string[];
 }
 
 // State 類型定義

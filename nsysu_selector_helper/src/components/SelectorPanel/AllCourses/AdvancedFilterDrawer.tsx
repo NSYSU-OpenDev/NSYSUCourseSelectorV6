@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   Drawer,
   Space,
@@ -14,12 +14,14 @@ import {
   Divider,
   Empty,
   Tooltip,
+  Card,
 } from 'antd';
 import {
   PlusOutlined,
   DeleteOutlined,
   FilterOutlined,
   ClearOutlined,
+  ThunderboltOutlined,
 } from '@ant-design/icons';
 import styled from 'styled-components';
 
@@ -44,7 +46,7 @@ const { Text, Title } = Typography;
 
 const StyledCollapse = styled(Collapse)`
   margin-bottom: 8px;
-  
+
   .ant-collapse-item {
     border: 1px solid #d9d9d9;
     border-radius: 6px;
@@ -82,9 +84,34 @@ const getConditionDisplayText = (
   const fieldOption = fieldOptions.find((f) => f.field === condition.field);
   const fieldLabel = fieldOption?.label || condition.field;
   const typeLabel = condition.type === 'include' ? '包含' : '排除';
-  const value = condition.value || '(未設定)';
 
-  return `${fieldLabel} ${typeLabel} ${value}`;
+  let valueText = '(未設定)';
+  if (condition.value) {
+    if (Array.isArray(condition.value)) {
+      if (condition.value.length > 0) {
+        // 多個值的情況
+        const displayValues = condition.value.map((val) => {
+          const option = fieldOption?.options.find((opt) => opt.value === val);
+          return option?.label || val;
+        });
+
+        valueText =
+          displayValues.length === 1
+            ? displayValues[0]
+            : `${displayValues[0]} 等${displayValues.length}項`;
+      } else {
+        valueText = '(未設定)';
+      }
+    } else {
+      // 單一值的情況
+      const option = fieldOption?.options.find(
+        (opt) => opt.value === condition.value,
+      );
+      valueText = option?.label || condition.value || '(未設定)';
+    }
+  }
+
+  return `${fieldLabel} ${typeLabel} ${valueText}`;
 };
 
 const FilterConditionItem: React.FC<FilterConditionItemProps> = ({
@@ -94,32 +121,20 @@ const FilterConditionItem: React.FC<FilterConditionItemProps> = ({
   onUpdate,
   onRemove,
 }) => {
-  const [searchValue, setSearchValue] = useState('');
-
   const currentFieldOption = fieldOptions.find(
     (f) => f.field === condition.field,
   );
-
   const handleFieldChange = (field: string) => {
-    onUpdate(index, { ...condition, field, value: '' });
+    onUpdate(index, { ...condition, field, value: [] });
   };
 
   const handleTypeChange = (type: 'include' | 'exclude') => {
     onUpdate(index, { ...condition, type });
   };
 
-  const handleValueChange = (value: string) => {
+  const handleValueChange = (value: string | string[]) => {
     onUpdate(index, { ...condition, value });
   };
-
-  // 篩選選項（用於搜尋）
-  const filteredOptions = useMemo(() => {
-    if (!currentFieldOption || currentFieldOption.searchable) return [];
-
-    return currentFieldOption.options.filter((option) =>
-      option.label.toLowerCase().includes(searchValue.toLowerCase()),
-    );
-  }, [currentFieldOption, searchValue]);
 
   const displayText = getConditionDisplayText(condition, fieldOptions);
 
@@ -181,7 +196,6 @@ const FilterConditionItem: React.FC<FilterConditionItemProps> = ({
                       ))}
                     </Select>
                   </div>
-
                   {/* 包含/排除選擇 */}
                   <div>
                     <Text
@@ -202,7 +216,6 @@ const FilterConditionItem: React.FC<FilterConditionItemProps> = ({
                       <Radio.Button value='exclude'>排除</Radio.Button>
                     </Radio.Group>
                   </div>
-
                   {/* 篩選值輸入 */}
                   <div>
                     <Text
@@ -214,22 +227,35 @@ const FilterConditionItem: React.FC<FilterConditionItemProps> = ({
                     >
                       篩選值：
                     </Text>
-                    {currentFieldOption?.searchable ? (
+                    {currentFieldOption?.searchable &&
+                    currentFieldOption.options.length === 0 ? (
+                      // 純文本輸入字段
                       <Input
                         placeholder={`輸入${currentFieldOption.label}...`}
-                        value={condition.value}
+                        value={
+                          typeof condition.value === 'string'
+                            ? condition.value
+                            : ''
+                        }
                         onChange={(e) => handleValueChange(e.target.value)}
                         allowClear
                       />
                     ) : (
+                      // 下拉選擇字段
                       <Select
+                        mode='multiple'
                         style={{ width: '100%' }}
-                        value={condition.value}
-                        onChange={handleValueChange}
+                        value={
+                          Array.isArray(condition.value)
+                            ? condition.value
+                            : condition.value
+                              ? [condition.value]
+                              : []
+                        }
+                        onChange={(values) => handleValueChange(values)}
                         placeholder={`選擇${currentFieldOption?.label || '篩選值'}...`}
                         showSearch
                         optionFilterProp='children'
-                        onSearch={setSearchValue}
                         allowClear
                         notFoundContent={
                           <Empty
@@ -237,20 +263,25 @@ const FilterConditionItem: React.FC<FilterConditionItemProps> = ({
                             description='無匹配選項'
                           />
                         }
+                        maxTagCount={2}
+                        maxTagPlaceholder={(omittedValues) =>
+                          `+${omittedValues.length}...`
+                        }
                       >
-                        {filteredOptions.map((option) => (
-                          <Select.Option
-                            key={option.value}
-                            value={option.value}
-                          >
-                            <Space>
-                              <span>{option.label}</span>
-                              {option.count && (
-                                <Tag color='blue'>{option.count}</Tag>
-                              )}
-                            </Space>
-                          </Select.Option>
-                        ))}
+                        {currentFieldOption &&
+                          currentFieldOption.options.map((option) => (
+                            <Select.Option
+                              key={option.value}
+                              value={option.value}
+                            >
+                              <Space>
+                                <span>{option.label}</span>
+                                {option.count && (
+                                  <Tag color='blue'>{option.count}</Tag>
+                                )}
+                              </Space>
+                            </Select.Option>
+                          ))}
                       </Select>
                     )}
                   </div>
@@ -284,12 +315,11 @@ const AdvancedFilterDrawer: React.FC = () => {
   const handleClose = () => {
     dispatch(setAdvancedFilterDrawerOpen(false));
   };
-
   const handleAddCondition = () => {
     const newCondition: FilterCondition = {
       field: fieldOptions[0]?.field || 'name',
       type: 'include',
-      value: '',
+      value: [],
     };
     dispatch(addFilterCondition(newCondition));
   };
@@ -301,9 +331,25 @@ const AdvancedFilterDrawer: React.FC = () => {
   const handleRemoveCondition = (index: number) => {
     dispatch(removeFilterCondition(index));
   };
-
   const handleClearAll = () => {
     dispatch(clearAllFilterConditions());
+  };
+
+  // 快速篩選預設選項
+  const quickFilters = [
+    { label: '必修課程', field: 'compulsory', value: '必修' },
+    { label: '選修課程', field: 'compulsory', value: '選修' },
+    { label: '非英語授課', field: 'english', value: '中文授課' },
+    { label: '有剩餘名額', field: 'remaining', value: '大於0' },
+  ];
+
+  const handleQuickFilter = (filter: (typeof quickFilters)[0]) => {
+    const newCondition: FilterCondition = {
+      field: filter.field,
+      type: 'include',
+      value: [filter.value],
+    };
+    dispatch(addFilterCondition(newCondition));
   };
 
   return (
@@ -314,7 +360,9 @@ const AdvancedFilterDrawer: React.FC = () => {
           <span>課程精確篩選</span>
         </Space>
       }
-      placement='right'
+      placement='left'
+      mask={false}
+      maskClosable={false}
       width={400}
       open={open}
       onClose={handleClose}
@@ -367,7 +415,6 @@ const AdvancedFilterDrawer: React.FC = () => {
             </Col>
           </Row>
         </StatsContainer>
-
         {/* 新增篩選條件按鈕 */}
         <Button
           type='dashed'
@@ -378,9 +425,35 @@ const AdvancedFilterDrawer: React.FC = () => {
         >
           新增篩選條件
         </Button>
-
+        {/* 快速篩選 */}
+        <Card
+          size='small'
+          title={
+            <Space>
+              <ThunderboltOutlined />
+              <span>快速篩選</span>
+            </Space>
+          }
+        >
+          <Space size={[8, 8]} wrap>
+            {quickFilters.map((filter, index) => (
+              <Button
+                key={index}
+                size='small'
+                onClick={() => handleQuickFilter(filter)}
+                disabled={filterConditions.some(
+                  (condition) =>
+                    condition.field === filter.field &&
+                    Array.isArray(condition.value) &&
+                    condition.value.includes(filter.value),
+                )}
+              >
+                {filter.label}
+              </Button>
+            ))}
+          </Space>
+        </Card>
         <Divider style={{ margin: '12px 0' }} />
-
         {/* 篩選條件列表 */}
         {filterConditions.length > 0 ? (
           <div>

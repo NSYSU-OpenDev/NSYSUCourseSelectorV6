@@ -25,15 +25,56 @@ export class AdvancedFilterService {
     return courses.filter((course) => {
       return conditions.every((condition) => {
         // 檢查條件是否有效
-        if (!condition.value || condition.value.trim() === '') {
+        if (
+          !condition.value ||
+          (Array.isArray(condition.value) && condition.value.length === 0) ||
+          (typeof condition.value === 'string' && condition.value.trim() === '')
+        ) {
           return true; // 空條件不篩選
         }
 
-        const value = this.getCourseFieldValue(course, condition.field);
-        const searchValue = condition.value.toLowerCase();
-        const courseValue = (value || '').toLowerCase();
+        const courseValue = this.getCourseFieldValue(course, condition.field);
+        const normalizedCourseValue = (courseValue || '').toLowerCase();
 
-        const matches = courseValue.includes(searchValue);
+        // 將搜尋值轉為小寫並處理多個值
+        const searchValues = Array.isArray(condition.value)
+          ? condition.value
+          : [condition.value];
+
+        const matches = searchValues.some((searchValue: string) => {
+          const normalizedSearchValue = searchValue.toLowerCase();
+
+          // 特殊處理剩餘名額
+          if (condition.field === 'remaining') {
+            if (searchValue === '大於0') return course.remaining > 0;
+            if (searchValue === '等於0') return course.remaining === 0;
+            if (searchValue === '大於5') return course.remaining > 5;
+            if (searchValue === '大於10') return course.remaining > 10;
+            if (searchValue.includes('大於')) {
+              const threshold = parseInt(searchValue.replace('大於', ''));
+              return !isNaN(threshold) && course.remaining > threshold;
+            }
+          }
+
+          // 特殊處理限選人數
+          if (condition.field === 'restrict') {
+            if (searchValue === '大於50') return course.restrict > 50;
+            if (searchValue === '大於100') return course.restrict > 100;
+            if (searchValue.includes('大於')) {
+              const threshold = parseInt(searchValue.replace('大於', ''));
+              return !isNaN(threshold) && course.restrict > threshold;
+            }
+          }
+
+          // 對於其他欄位，直接檢查是否包含搜尋值
+          if (condition.field === 'tags') {
+            return course.tags.some((tag) =>
+              tag.toLowerCase().includes(normalizedSearchValue),
+            );
+          }
+
+          return normalizedCourseValue.includes(normalizedSearchValue);
+        });
 
         // 如果是包含條件，需要匹配；如果是排除條件，需要不匹配
         return condition.type === 'include' ? matches : !matches;
@@ -88,7 +129,7 @@ export class AdvancedFilterService {
         field: 'department',
         label: '開課系所',
         options: this.getUniqueOptions(courses, 'department'),
-        searchable: false,
+        searchable: true,
       },
       {
         field: 'teacher',
@@ -100,7 +141,7 @@ export class AdvancedFilterService {
         field: 'grade',
         label: '年級',
         options: this.getUniqueOptions(courses, 'grade'),
-        searchable: false,
+        searchable: true,
       },
       {
         field: 'credit',
@@ -169,7 +210,7 @@ export class AdvancedFilterService {
         field: 'tags',
         label: '學程標籤',
         options: this.getTagOptions(courses),
-        searchable: false,
+        searchable: true,
       },
       {
         field: 'name',
@@ -192,14 +233,48 @@ export class AdvancedFilterService {
       {
         field: 'remaining',
         label: '剩餘名額',
-        options: this.getUniqueOptions(courses, 'remaining'),
-        searchable: false,
+        options: [
+          {
+            value: '大於0',
+            label: '有剩餘名額',
+            count: courses.filter((c) => c.remaining > 0).length,
+          },
+          {
+            value: '等於0',
+            label: '已額滿',
+            count: courses.filter((c) => c.remaining === 0).length,
+          },
+          {
+            value: '大於5',
+            label: '剩餘5人以上',
+            count: courses.filter((c) => c.remaining > 5).length,
+          },
+          {
+            value: '大於10',
+            label: '剩餘10人以上',
+            count: courses.filter((c) => c.remaining > 10).length,
+          },
+          ...this.getUniqueOptions(courses, 'remaining'),
+        ],
+        searchable: true,
       },
       {
         field: 'restrict',
         label: '限選人數',
-        options: this.getUniqueOptions(courses, 'restrict'),
-        searchable: false,
+        options: [
+          {
+            value: '大於50',
+            label: '50人以上',
+            count: courses.filter((c) => c.restrict > 50).length,
+          },
+          {
+            value: '大於100',
+            label: '100人以上',
+            count: courses.filter((c) => c.restrict > 100).length,
+          },
+          ...this.getUniqueOptions(courses, 'restrict'),
+        ],
+        searchable: true,
       },
       {
         field: 'description',
