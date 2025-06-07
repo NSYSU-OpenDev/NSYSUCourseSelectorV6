@@ -1,5 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+// 精確篩選條件類型
+export interface FilterCondition {
+  field: string;
+  type: 'include' | 'exclude';
+  value: string;
+}
+
 // State 類型定義
 export interface UIState {
   selectedTabKey: string;
@@ -10,6 +17,9 @@ export interface UIState {
   displayConflictCourses: boolean;
   scrollToCourseId: string;
   searchQuery: string; // 搜尋關鍵字
+  // 精確篩選相關
+  advancedFilterDrawerOpen: boolean;
+  filterConditions: FilterCondition[];
 }
 
 // 初始狀態
@@ -22,6 +32,9 @@ const initialState: UIState = {
   displayConflictCourses: true,
   scrollToCourseId: '',
   searchQuery: '',
+  // 精確篩選相關
+  advancedFilterDrawerOpen: false,
+  filterConditions: [],
 };
 
 // Slice
@@ -53,6 +66,28 @@ const uiSlice = createSlice({
     setSearchQuery: (state, action: PayloadAction<string>) => {
       state.searchQuery = action.payload;
     },
+    // 精確篩選相關
+    setAdvancedFilterDrawerOpen: (state, action: PayloadAction<boolean>) => {
+      state.advancedFilterDrawerOpen = action.payload;
+    },
+    addFilterCondition: (state, action: PayloadAction<FilterCondition>) => {
+      state.filterConditions.push(action.payload);
+    },
+    removeFilterCondition: (state, action: PayloadAction<number>) => {
+      state.filterConditions.splice(action.payload, 1);
+    },
+    updateFilterCondition: (
+      state,
+      action: PayloadAction<{ index: number; condition: FilterCondition }>,
+    ) => {
+      const { index, condition } = action.payload;
+      if (index >= 0 && index < state.filterConditions.length) {
+        state.filterConditions[index] = condition;
+      }
+    },
+    clearAllFilterConditions: (state) => {
+      state.filterConditions = [];
+    },
   },
 });
 
@@ -65,6 +100,11 @@ export const {
   setDisplayConflictCourses,
   setScrollToCourseId,
   setSearchQuery,
+  setAdvancedFilterDrawerOpen,
+  addFilterCondition,
+  removeFilterCondition,
+  updateFilterCondition,
+  clearAllFilterConditions,
 } = uiSlice.actions;
 
 export default uiSlice;

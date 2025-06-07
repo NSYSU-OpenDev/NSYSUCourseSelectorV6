@@ -21,6 +21,11 @@ export {
   setDisplayConflictCourses,
   setScrollToCourseId,
   setSearchQuery,
+  setAdvancedFilterDrawerOpen,
+  addFilterCondition,
+  removeFilterCondition,
+  updateFilterCondition,
+  clearAllFilterConditions,
 } from './slices/uiSlice';
 
 // Export selectors
@@ -39,4 +44,6 @@ export {
   selectDisplayConflictCourses,
   selectScrollToCourseId,
   selectSearchQuery,
+  selectAdvancedFilterDrawerOpen,
+  selectFilterConditions,
 } from './selectors';

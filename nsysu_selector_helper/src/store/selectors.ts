@@ -28,3 +28,9 @@ export const selectDisplayConflictCourses = (state: RootState) =>
 export const selectScrollToCourseId = (state: RootState) =>
   state.ui.scrollToCourseId;
 export const selectSearchQuery = (state: RootState) => state.ui.searchQuery;
+
+// Advanced filter selectors
+export const selectAdvancedFilterDrawerOpen = (state: RootState) =>
+  state.ui.advancedFilterDrawerOpen;
+export const selectFilterConditions = (state: RootState) =>
+  state.ui.filterConditions;
