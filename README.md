@@ -75,15 +75,11 @@ nsysu_selector_helper/
 
 2. **安裝依賴**
    ```bash
-   npm install
-   # 或
-   yarn install
+   yarn
    ```
 
 3. **啟動開發伺服器**
    ```bash
-   npm run dev
-   # 或
    yarn dev
    ```
 
@@ -95,24 +91,24 @@ nsysu_selector_helper/
 ### 建構部署
 
 ```bash
+# 確保在專案根目錄下
+cd NSYSUCourseSelectorV6/nsysu_selector_helper
+
 # 建構生產版本
-npm run build
+yarn build
 
 # 預覽建構結果
-npm run preview
+yarn preview
 
-# 代碼格式化
-npm run format
-
-# 代碼檢查
-npm run lint
+# 程式碼格式化
+yarn format
 ```
 
 ## 🎯 功能特點
 
 ### 核心功能
 - [x] **課程瀏覽**：展示所有課程，支援學期篩選
-- [x] **課程搜尋**：即時搜尋課程名稱、教師、課程代碼，盡可能用單一搜尋框實現廣泛匹配
+- [x] **課程搜尋**：即時搜尋課程名稱、教師、課程程式碼，盡可能用單一搜尋框實現廣泛匹配
 - [ ] **課程精確篩選**：支援所有條件的 (包含/不包含) 精確篩選
 - [x] **選課管理**：新增、移除選課
 - [x] **課表顯示**：視覺化課表，清楚顯示上課時間和地點
@@ -173,15 +169,15 @@ interface RootState {
 
 ## 🔧 開發工具
 
-### 代碼品質
-- **ESLint**：代碼檢查和規範
-- **Prettier**：代碼格式化
+### 程式碼品質
+- **ESLint**：程式碼檢查和規範
+- **Prettier**：程式碼格式化
 - **TypeScript**：靜態類型檢查
 
 ### 開發體驗
 - **Hot Module Replacement**：快速熱重載
 - **Source Maps**：便於除錯
-- **TypeScript 嚴格模式**：確保代碼品質
+- **TypeScript 嚴格模式**：確保程式碼品質
 
 ## 📋 更新日誌
 
