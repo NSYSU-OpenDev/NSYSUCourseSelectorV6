@@ -7,7 +7,7 @@
  * @property {boolean} multipleCompulsory - 是否為多選必修課程
  * @property {string} department - 開課系所 e.g., "中學學程"
  * @property {string} grade - 年級 e.g., "0"
- * @property {string} [class] - 班級 e.g., "不分班"
+ * @property {string} [class] - 班別 e.g., "不分班"
  * @property {string} name - 課程名稱 e.g., "教育心理學"
  * @property {string} credit - 學分數 e.g., "2"
  * @property {string} yearSemester - 年期 e.g., "期"

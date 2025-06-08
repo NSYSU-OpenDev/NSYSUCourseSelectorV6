@@ -225,6 +225,12 @@ export class AdvancedFilterService {
         searchable: true,
       },
       {
+        field: 'class',
+        label: '班別',
+        options: this.getUniqueOptions(courses, 'class'),
+        searchable: true,
+      },
+      {
         field: 'room',
         label: '上課教室',
         options: this.getUniqueOptions(courses, 'room'),
