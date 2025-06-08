@@ -19,6 +19,7 @@ import {
   selectDisplaySelectedOnly,
   selectDisplayConflictCourses,
   selectFilterConditions,
+  selectSelectedTimeSlots,
 } from '@/store';
 
 const StatisticsContainer = styled.div`
@@ -61,6 +62,7 @@ const CreditsStatistics: React.FC = () => {
   const displaySelectedOnly = useAppSelector(selectDisplaySelectedOnly);
   const displayConflictCourses = useAppSelector(selectDisplayConflictCourses);
   const filterConditions = useAppSelector(selectFilterConditions);
+  const selectedTimeSlots = useAppSelector(selectSelectedTimeSlots);
 
   // Calculate total credits and hours using the existing service
   const { totalCredits, totalHours } = useMemo(() => {
@@ -78,6 +80,14 @@ const CreditsStatistics: React.FC = () => {
       filteredCourses = AdvancedFilterService.filterCourses(
         filteredCourses,
         filterConditions,
+      );
+    }
+
+    // 最後進行時間段篩選
+    if (selectedTimeSlots.length > 0) {
+      filteredCourses = CourseService.filterCoursesByTimeSlots(
+        filteredCourses,
+        selectedTimeSlots,
       );
     }
 
@@ -109,6 +119,7 @@ const CreditsStatistics: React.FC = () => {
     courses,
     searchQuery,
     filterConditions,
+    selectedTimeSlots,
     selectedCourses,
     displaySelectedOnly,
     displayConflictCourses,

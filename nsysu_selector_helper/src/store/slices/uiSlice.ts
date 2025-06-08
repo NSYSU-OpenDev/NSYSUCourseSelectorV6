@@ -7,6 +7,12 @@ export interface FilterCondition {
   value: string | string[];
 }
 
+// 時間段篩選類型
+export interface TimeSlotFilter {
+  day: number; // 0-6 代表週一到週日
+  timeSlot: string; // timeSlot key，如 '1', '2', 'A' 等
+}
+
 // State 類型定義
 export interface UIState {
   selectedTabKey: string;
@@ -20,6 +26,8 @@ export interface UIState {
   // 精確篩選相關
   advancedFilterDrawerOpen: boolean;
   filterConditions: FilterCondition[];
+  // 時間段篩選相關
+  selectedTimeSlots: TimeSlotFilter[]; // 選中的時間段
 }
 
 // 初始狀態
@@ -35,6 +43,8 @@ const initialState: UIState = {
   // 精確篩選相關
   advancedFilterDrawerOpen: false,
   filterConditions: [],
+  // 時間段篩選相關
+  selectedTimeSlots: [],
 };
 
 // Slice
@@ -88,6 +98,48 @@ const uiSlice = createSlice({
     clearAllFilterConditions: (state) => {
       state.filterConditions = [];
     },
+    // 時間段篩選相關
+    addTimeSlotFilter: (state, action: PayloadAction<TimeSlotFilter>) => {
+      // 檢查是否已經存在相同的時間段篩選
+      const exists = state.selectedTimeSlots.some(
+        (slot) =>
+          slot.day === action.payload.day &&
+          slot.timeSlot === action.payload.timeSlot,
+      );
+      if (!exists) {
+        state.selectedTimeSlots.push(action.payload);
+      }
+    },
+    removeTimeSlotFilter: (state, action: PayloadAction<TimeSlotFilter>) => {
+      state.selectedTimeSlots = state.selectedTimeSlots.filter(
+        (slot) =>
+          !(
+            slot.day === action.payload.day &&
+            slot.timeSlot === action.payload.timeSlot
+          ),
+      );
+    },
+    toggleTimeSlotFilter: (state, action: PayloadAction<TimeSlotFilter>) => {
+      const exists = state.selectedTimeSlots.some(
+        (slot) =>
+          slot.day === action.payload.day &&
+          slot.timeSlot === action.payload.timeSlot,
+      );
+      if (exists) {
+        state.selectedTimeSlots = state.selectedTimeSlots.filter(
+          (slot) =>
+            !(
+              slot.day === action.payload.day &&
+              slot.timeSlot === action.payload.timeSlot
+            ),
+        );
+      } else {
+        state.selectedTimeSlots.push(action.payload);
+      }
+    },
+    clearAllTimeSlotFilters: (state) => {
+      state.selectedTimeSlots = [];
+    },
   },
 });
 
@@ -105,6 +157,11 @@ export const {
   removeFilterCondition,
   updateFilterCondition,
   clearAllFilterConditions,
+  // 時間段篩選相關
+  addTimeSlotFilter,
+  removeTimeSlotFilter,
+  toggleTimeSlotFilter,
+  clearAllTimeSlotFilters,
 } = uiSlice.actions;
 
 export default uiSlice;

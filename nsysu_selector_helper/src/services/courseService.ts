@@ -1,4 +1,5 @@
 import type { Course } from '@/types';
+import type { TimeSlotFilter } from '@/store/slices/uiSlice';
 
 export class CourseService {
   /**
@@ -257,6 +258,38 @@ export class CourseService {
 
     // 普通子字串匹配
     return content.includes(term);
+  }
+
+  /**
+   * 根據選中的時間段篩選課程
+   * @param courses 所有課程
+   * @param selectedTimeSlots 選中的時間段
+   * @return 篩選後的課程
+   */
+  static filterCoursesByTimeSlots(
+    courses: Course[],
+    selectedTimeSlots: TimeSlotFilter[],
+  ): Course[] {
+    if (selectedTimeSlots.length === 0) {
+      return courses;
+    }
+
+    return courses.filter((course) => {
+      // 檢查課程是否在任何選中的時間段有課
+      return selectedTimeSlots.some((timeSlot) => {
+        const dayIndex = timeSlot.day;
+        const slotKey = timeSlot.timeSlot;
+
+        // 檢查課程在該天是否有課時
+        const dayTime = course.classTime[dayIndex];
+        if (!dayTime || dayTime.trim() === '') {
+          return false;
+        }
+
+        // 檢查是否包含該時間段
+        return dayTime.includes(slotKey);
+      });
+    });
   }
 
   /**

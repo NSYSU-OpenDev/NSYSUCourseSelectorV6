@@ -5,9 +5,9 @@ import {
   Typography,
   Tag,
   Switch,
-  Space,
   Button,
   Modal,
+  Flex,
 } from 'antd';
 import { EyeOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
@@ -20,11 +20,15 @@ import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import {
   selectSelectedCourses,
   selectHoveredCourseId,
+  selectSelectedTimeSlots,
   setHoveredCourseId,
   setScrollToCourseId,
   setSelectedTabKey,
   setActiveCollapseKey,
+  toggleTimeSlotFilter,
+  clearAllTimeSlotFilters,
 } from '@/store';
+import { ColumnsType } from 'antd/es/table';
 
 // Department color mapping - using Ant Design official colors
 const getDepartmentColor = (department: string): string => {
@@ -58,40 +62,80 @@ const { Text } = Typography;
 
 const StyledCard = styled(Card)`
   height: 100%;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e8e8e8;
+
+  .ant-card-head {
+    padding: 0;
+    border-bottom: none;
+    min-height: auto;
+  }
 
   .ant-card-body {
     padding: 0;
     overflow: auto;
   }
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+  }
 `;
 
 // Fix StyledTable to preserve generic type parameter
-const StyledTable = styled(Table)`
+const StyledTable = styled(Table<ScheduleTableRow>)`
+  .ant-table-thead > tr > th {
+    text-align: center;
+    background: #f8f9fa;
+    border-bottom: 2px solid #e8e8e8;
+    font-weight: 600;
+    color: #333;
+    padding: 8px 4px;
+  }
+
   .ant-table-tbody > tr > td {
-    padding: 4px;
+    padding: 2px;
     text-align: center;
     vertical-align: middle;
+    border-right: 1px solid #f0f0f0;
+  }
+
+  .ant-table-tbody > tr:nth-child(even) {
+    background: #fafafa;
+  }
+
+  .ant-table-tbody > tr:hover {
+    background: #f0f7ff !important;
   }
 
   .ant-table {
     width: 100%;
+    border-radius: 0 0 6px 6px;
+    overflow: hidden;
+  }
+
+  .ant-table-container {
+    border-left: 1px solid #f0f0f0;
+    border-right: 1px solid #f0f0f0;
+    border-bottom: 1px solid #f0f0f0;
   }
 
   // 手機版樣式調整
   @media screen and (max-width: 768px) {
     .ant-table-thead > tr > th {
-      padding: 4px;
-      font-size: 12px;
+      padding: 6px 2px;
+      font-size: 11px;
     }
 
     .ant-table-tbody > tr > td {
-      padding: 2px;
-      font-size: 11px;
+      padding: 1px;
+      font-size: 10px;
     }
 
     .ant-table-cell {
-      padding: 2px !important;
-      font-size: 11px;
+      padding: 1px !important;
+      font-size: 10px;
     }
   }
 `;
@@ -104,26 +148,35 @@ const TableWrapper = styled.div`
 
 const CourseTag = styled(Tag)<{ $isHovered?: boolean; $isActive?: boolean }>`
   width: 100%;
-  margin: 2px 0;
-  padding: 2px 4px;
-  font-size: 12px;
-  line-height: 1.2;
+  margin: 1px 0;
+  padding: 4px 6px;
+  font-size: 11px;
+  line-height: 1.3;
   white-space: pre-wrap;
   text-align: center;
   cursor: pointer;
+  border-radius: 4px;
+  font-weight: 500;
   transform: ${(props) =>
-    props.$isHovered || props.$isActive ? 'scale(1.05)' : 'none'};
+    props.$isHovered || props.$isActive ? 'scale(1.02)' : 'none'};
   box-shadow: ${(props) =>
     props.$isHovered || props.$isActive
-      ? '0 0 5px rgba(24, 144, 255, 0.5)'
-      : 'none'};
-  transition: all 0.2s;
+      ? '0 2px 8px rgba(24, 144, 255, 0.3)'
+      : '0 1px 2px rgba(0, 0, 0, 0.1)'};
+  transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
   position: relative;
   overflow: hidden;
 
+  &:hover {
+    transform: scale(1.02);
+    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+    z-index: 10;
+  }
+
   @media screen and (max-width: 768px) {
-    font-size: 10px;
-    padding: 1px 2px;
+    font-size: 9px;
+    padding: 2px 4px;
+    margin: 0.5px 0;
   }
 `;
 
@@ -171,10 +224,70 @@ const ProbabilityText = styled.div<{
 `;
 
 const CardHeader = styled.div`
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #fafafa;
+  border-radius: 6px 6px 0 0;
+
+  @media screen and (max-width: 768px) {
+    padding: 8px 12px;
+  }
+`;
+
+// 時間段單元格樣式
+const TimeSlotCell = styled.div<{
+  $isSelected?: boolean;
+  $hasContent?: boolean;
+}>`
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  min-height: 45px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 16px;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  background-color: ${(props) => {
+    if (props.$isSelected) return 'rgba(24, 144, 255, 0.12)';
+    return 'transparent';
+  }};
+  border: ${(props) => {
+    if (props.$isSelected) return '2px solid #1890ff';
+    return '2px solid transparent';
+  }};
+  transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+  user-select: none;
+
+  &:hover {
+    background-color: ${(props) => {
+      if (props.$isSelected) return 'rgba(24, 144, 255, 0.18)';
+      return 'rgba(24, 144, 255, 0.06)';
+    }};
+    border-color: ${(props) =>
+      props.$isSelected ? '#1890ff' : 'rgba(24, 144, 255, 0.4)'};
+    transform: scale(1.01);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  // 新增選中狀態的微妙動畫
+  ${(props) =>
+    props.$isSelected &&
+    `
+    &::before {
+      content: '';
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 8px;
+      height: 8px;
+      background: #1890ff;
+      border-radius: 50%;
+      box-shadow: 0 0 6px rgba(24, 144, 255, 0.6);
+    }
+  `}
 `;
 
 // Define proper interface for schedule table row data
@@ -192,6 +305,7 @@ const ScheduleTable: React.FC = () => {
   // Redux state
   const selectedCourses = useAppSelector(selectSelectedCourses);
   const hoveredCourseId = useAppSelector(selectHoveredCourseId);
+  const selectedTimeSlots = useAppSelector(selectSelectedTimeSlots);
 
   // Modal state for mobile course details
   const [modalVisible, setModalVisible] = useState(false);
@@ -224,6 +338,24 @@ const ScheduleTable: React.FC = () => {
     const probability = getSuccessProbability(select, remaining);
     return `${Math.round(probability)}%`;
   };
+
+  // 檢查時間段是否被選中用於篩選
+  const isTimeSlotSelected = (day: number, timeSlot: string): boolean => {
+    return selectedTimeSlots.some(
+      (slot) => slot.day === day && slot.timeSlot === timeSlot,
+    );
+  };
+
+  // 處理時間段點擊
+  const handleTimeSlotClick = (day: number, timeSlot: string) => {
+    dispatch(toggleTimeSlotFilter({ day, timeSlot }));
+  };
+
+  // 清除所有時間段篩選
+  const handleClearTimeSlotFilters = () => {
+    dispatch(clearAllTimeSlotFilters());
+  };
+
   // 處理課程標籤點擊 - 導航到課程列表
   const handleCourseNavigate = (courseId: string) => {
     // 觸發滾動到對應課程
@@ -378,9 +510,10 @@ const ScheduleTable: React.FC = () => {
                   key={`${course.id}-${day}-${slot.key}`}
                   color={departmentColor}
                   $isHovered={isHovered}
-                  onClick={() =>
-                    handleCourseClick(course, course.roomForThisSlot)
-                  }
+                  onClick={(e) => {
+                    e.stopPropagation(); // 防止事件冒泡到時間段單元格
+                    handleCourseClick(course, course.roomForThisSlot);
+                  }}
                   onMouseEnter={() => {
                     dispatch(setHoveredCourseId(course.id));
                   }}
@@ -419,8 +552,7 @@ const ScheduleTable: React.FC = () => {
 
   // Filter columns based on the showWeekends setting
   const visibleDays = showWeekends ? weekdays : weekdays.slice(0, 5);
-
-  const columns = [
+  const columns: ColumnsType<ScheduleTableRow> = [
     {
       title: '',
       dataIndex: 'time',
@@ -442,26 +574,71 @@ const ScheduleTable: React.FC = () => {
       dataIndex: `day${index}` as keyof ScheduleTableRow,
       key: `day${index}`,
       width: dayColumnWidth,
+      render: (content: ReactNode, record: ScheduleTableRow) => {
+        const timeSlotKey = record.key;
+        const isSelected = isTimeSlotSelected(index, timeSlotKey);
+        const hasContent = content !== null;
+
+        return (
+          <TimeSlotCell
+            $isSelected={isSelected}
+            $hasContent={hasContent}
+            onClick={() => handleTimeSlotClick(index, timeSlotKey)}
+            title={`點擊篩選 ${day} 第${timeSlotKey}節課程`}
+          >
+            {content}
+          </TimeSlotCell>
+        );
+      },
     })),
   ];
 
   // 使表格寬度與內容匹配，但不設置最小寬度
   const tableWidth = timeColumnWidth + visibleDays.length * dayColumnWidth;
-
   // Custom title component with weekend toggle
   const TitleComponent = () => (
     <CardHeader>
-      <span>{t('課程時間表')}</span>
-      <Space>
-        <Text style={{ fontSize: isMobile ? '12px' : '14px' }}>
-          {t('顯示週末')}
-        </Text>
-        <Switch
-          checked={showWeekends}
-          onChange={setShowWeekends}
-          size={isMobile ? 'small' : 'default'}
-        />
-      </Space>
+      <Flex justify='space-between' align='center' wrap='wrap' gap={8}>
+        {/* 左側 - 標題和時間段統計 */}
+        <Flex align='center' gap={12}>
+          <Text strong style={{ fontSize: isMobile ? '14px' : '16px' }}>
+            {t('課程時間表')}
+          </Text>
+          {selectedTimeSlots.length > 0 && (
+            <Tag
+              color='blue'
+              style={{
+                margin: 0,
+                padding: isMobile ? '0 6px' : '0 8px',
+              }}
+              closable={true}
+              onClose={handleClearTimeSlotFilters}
+            >
+              篩選中 ({selectedTimeSlots.length})
+            </Tag>
+          )}
+        </Flex>
+
+        {/* 右側 - 控制項 */}
+        <Flex align='center' gap={8}>
+          {/* 週末顯示開關 */}
+          <Flex align='center' gap={6}>
+            <Text
+              style={{
+                fontSize: isMobile ? '12px' : '14px',
+                color: '#666',
+              }}
+            >
+              {t('顯示週末')}
+            </Text>
+            <Switch
+              checked={showWeekends}
+              onChange={setShowWeekends}
+              size={isMobile ? 'small' : 'default'}
+            />
+          </Flex>
+        </Flex>
+      </Flex>
     </CardHeader>
   );
   return (

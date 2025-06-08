@@ -26,6 +26,11 @@ export {
   removeFilterCondition,
   updateFilterCondition,
   clearAllFilterConditions,
+  // 時間段篩選相關
+  addTimeSlotFilter,
+  removeTimeSlotFilter,
+  toggleTimeSlotFilter,
+  clearAllTimeSlotFilters,
 } from './slices/uiSlice';
 
 // Export selectors
@@ -46,4 +51,6 @@ export {
   selectSearchQuery,
   selectAdvancedFilterDrawerOpen,
   selectFilterConditions,
+  // 時間段篩選相關
+  selectSelectedTimeSlots,
 } from './selectors';

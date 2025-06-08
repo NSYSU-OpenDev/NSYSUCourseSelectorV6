@@ -21,6 +21,7 @@ import {
   selectDisplayConflictCourses,
   selectSearchQuery,
   selectFilterConditions,
+  selectSelectedTimeSlots,
   setDisplaySelectedOnly,
   setDisplayConflictCourses,
   setSearchQuery,
@@ -51,8 +52,9 @@ const AllCourses: React.FC = () => {
   const displayConflictCourses = useAppSelector(selectDisplayConflictCourses);
   const searchQuery = useAppSelector(selectSearchQuery);
   const filterConditions = useAppSelector(selectFilterConditions);
+  const selectedTimeSlots = useAppSelector(selectSelectedTimeSlots);
 
-  // 根據搜尋條件和精確篩選條件篩選課程
+  // 根據搜尋條件、精確篩選條件和時間段篩選條件篩選課程
   const filteredCourses = useMemo(() => {
     // 先進行基本搜尋
     let result = CourseService.searchCourses(courses, searchQuery);
@@ -62,12 +64,21 @@ const AllCourses: React.FC = () => {
       result = AdvancedFilterService.filterCourses(result, filterConditions);
     }
 
+    // 最後進行時間段篩選
+    if (selectedTimeSlots.length > 0) {
+      result = CourseService.filterCoursesByTimeSlots(
+        result,
+        selectedTimeSlots,
+      );
+    }
+
     return result;
-  }, [courses, searchQuery, filterConditions]);
+  }, [courses, searchQuery, filterConditions, selectedTimeSlots]);
 
   const handleOpenAdvancedFilter = () => {
     dispatch(setAdvancedFilterDrawerOpen(true));
   };
+
   const CardTitle = (
     <div>
       {/* 搜尋框和篩選按鈕 */}
