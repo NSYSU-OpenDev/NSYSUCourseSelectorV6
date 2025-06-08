@@ -3,6 +3,8 @@ name: deploy
 on:
   push:
     branches: ["main"]
+    paths:
+      - 'nsysu_selector_helper/**'
   workflow_dispatch:
 
 permissions:
