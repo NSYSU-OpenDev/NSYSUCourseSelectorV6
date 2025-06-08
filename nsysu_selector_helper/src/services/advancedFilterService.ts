@@ -15,7 +15,9 @@ export interface FieldOptions {
 }
 
 export class AdvancedFilterService {
-  // 篩選課程
+  /**
+   * 篩選課程
+   */
   static filterCourses(
     courses: Course[],
     conditions: FilterCondition[],
@@ -82,7 +84,9 @@ export class AdvancedFilterService {
     });
   }
 
-  // 獲取課程欄位值
+  /**
+   * 獲取課程欄位值
+   */
   private static getCourseFieldValue(course: Course, field: string): string {
     switch (field) {
       case 'name':
@@ -122,7 +126,9 @@ export class AdvancedFilterService {
     }
   }
 
-  // 動態計算所有篩選選項
+  /**
+   * 動態計算所有篩選選項
+   */
   static getFilterOptions(courses: Course[]): FieldOptions[] {
     const fields: FieldOptions[] = [
       {
@@ -296,7 +302,9 @@ export class AdvancedFilterService {
     );
   }
 
-  // 獲取唯一選項並計算數量
+  /**
+   * 獲取唯一選項並計算數量
+   */
   private static getUniqueOptions(
     courses: Course[],
     field: keyof Course,
@@ -315,7 +323,9 @@ export class AdvancedFilterService {
       .sort((a, b) => b.count - a.count); // 按數量排序
   }
 
-  // 獲取學程標籤選項
+  /**
+   * 獲取學程標籤選項
+   */
   private static getTagOptions(courses: Course[]): FilterOption[] {
     const tagCount = new Map<string, number>();
 
@@ -332,7 +342,9 @@ export class AdvancedFilterService {
       .sort((a, b) => b.count - a.count);
   }
 
-  // 獲取可用的篩選欄位（簡化版本，用於快速選擇）
+  /**
+   * 獲取可用的篩選欄位（簡化版本，用於快速選擇）
+   */
   static getAvailableFields(): Array<{ value: string; label: string }> {
     return [
       { value: 'name', label: '課程名稱' },

@@ -37,6 +37,7 @@ import {
   SortConfig,
   SortRule,
   SortDirection,
+  AvailableSortOptions,
 } from '@/services';
 import { DEFAULT_SORT_OPTIONS } from '@/constants';
 
@@ -107,7 +108,7 @@ const SortRuleItem: React.FC<SortRuleItemProps> = ({
     (opt) => opt.key === rule.option,
   );
 
-  const handleOptionChange = (option: string) => {
+  const handleOptionChange = (option: AvailableSortOptions) => {
     onUpdate(index, { ...rule, option });
   };
 
@@ -449,6 +450,7 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
               onClick={() =>
                 handleAddCommonSort([
                   { option: 'probability', direction: 'desc' },
+                  { option: 'available', direction: 'desc' },
                 ])
               }
             >
@@ -458,7 +460,8 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
               size='small'
               onClick={() =>
                 handleAddCommonSort([
-                  { option: 'remaining', direction: 'desc' },
+                  { option: 'available', direction: 'desc' },
+                  { option: 'probability', direction: 'desc' },
                 ])
               }
             >

@@ -12,7 +12,9 @@ export interface CustomQuickFilter {
 const STORAGE_KEY = 'NSYSUCourseSelector.customQuickFilters';
 
 export class CustomQuickFiltersService {
-  // 載入自定義快速篩選器
+  /**
+   * 載入自定義快速篩選器
+   */
   static loadCustomFilters(): CustomQuickFilter[] {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -27,7 +29,9 @@ export class CustomQuickFiltersService {
     return [];
   }
 
-  // 儲存自定義快速篩選器
+  /**
+   * 儲存自定義快速篩選器
+   */
   static saveCustomFilters(filters: CustomQuickFilter[]): void {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(filters));
@@ -36,7 +40,9 @@ export class CustomQuickFiltersService {
     }
   }
 
-  // 新增自定義快速篩選器
+  /**
+   * 新增自定義快速篩選器
+   */
   static addCustomFilter(
     label: string,
     condition: FilterCondition,
@@ -55,14 +61,18 @@ export class CustomQuickFiltersService {
     return newFilter;
   }
 
-  // 移除自定義快速篩選器
+  /**
+   * 移除自定義快速篩選器
+   */
   static removeCustomFilter(id: string): void {
     const existingFilters = this.loadCustomFilters();
     const updatedFilters = existingFilters.filter((filter) => filter.id !== id);
     this.saveCustomFilters(updatedFilters);
   }
 
-  // 更新自定義快速篩選器
+  /**
+   * 更新自定義快速篩選器
+   */
   static updateCustomFilter(
     id: string,
     updates: Partial<Pick<CustomQuickFilter, 'label' | 'condition'>>,
@@ -74,7 +84,9 @@ export class CustomQuickFiltersService {
     this.saveCustomFilters(updatedFilters);
   }
 
-  // 重置所有自定義快速篩選器
+  /**
+   * 重置所有自定義快速篩選器
+   */
   static resetCustomFilters(): void {
     try {
       localStorage.removeItem(STORAGE_KEY);
@@ -83,7 +95,9 @@ export class CustomQuickFiltersService {
     }
   }
 
-  // 檢查自定義篩選器是否已存在
+  /**
+   * 檢查自定義篩選器是否已存在
+   */
   static isFilterExists(condition: FilterCondition): boolean {
     const existingFilters = this.loadCustomFilters();
     return existingFilters.some((filter) =>
@@ -91,15 +105,20 @@ export class CustomQuickFiltersService {
     );
   }
 
-  // 生成唯一 ID
+  /**
+   * 生成唯一 ID
+   */
   private static generateId(): string {
-    return `custom_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `custom_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
   }
-  // 驗證自定義篩選器格式
+
+  /**
+   * 驗證自定義篩選器格式
+   */
   private static isValidCustomFilter(
     filter: unknown,
   ): filter is CustomQuickFilter {
-    if (!filter || typeof filter !== 'object' || filter === null) {
+    if (!filter || typeof filter !== 'object') {
       return false;
     }
 
@@ -110,8 +129,7 @@ export class CustomQuickFiltersService {
       typeof filterObj.label !== 'string' ||
       typeof filterObj.createdAt !== 'number' ||
       !filterObj.condition ||
-      typeof filterObj.condition !== 'object' ||
-      filterObj.condition === null
+      typeof filterObj.condition !== 'object'
     ) {
       return false;
     }
@@ -125,7 +143,9 @@ export class CustomQuickFiltersService {
     );
   }
 
-  // 比較兩個篩選條件是否相等
+  /**
+   * 比較兩個篩選條件是否相等
+   */
   private static areConditionsEqual(
     condition1: FilterCondition,
     condition2: FilterCondition,
@@ -155,7 +175,9 @@ export class CustomQuickFiltersService {
     );
   }
 
-  // 從現有篩選條件生成建議的標籤名稱
+  /**
+   * 從現有篩選條件生成建議的標籤名稱
+   */
   static generateSuggestedLabel(
     condition: FilterCondition,
     fieldOptions: Array<{
@@ -194,7 +216,9 @@ export class CustomQuickFiltersService {
     return `${fieldLabel}${typeLabel}${valueText}`;
   }
 
-  // 取得儲存使用情況統計
+  /**
+   * 取得儲存使用情況統計
+   */
   static getStorageStats(): { count: number; sizeKB: number } {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);

@@ -1,377 +1,487 @@
-import { describe, it, expect, beforeEach } from '@jest/globals';
-import { CourseSortingService, SortConfig } from '@/services';
+import { CourseSortingService, type SortConfig } from '@/services';
 import type { Course } from '@/types';
 
-// Mock課程資料
-const mockCourses: Course[] = [
-  {
-    id: 'CS101',
-    name: '計算機概論',
-    teacher: '張三',
-    department: '資工系',
-    credit: '3',
-    remaining: 10,
-    restrict: 30,
-    selected: 20,
-    select: 20,
-    grade: '1',
-    yearSemester: '上',
-    compulsory: true,
-    multipleCompulsory: false,
-    url: '',
-    room: '',
-    classTime: ['', '', '12', '', '', '', ''],
-    description: '',
-    tags: [],
-    english: false,
+// Mock localStorage
+const mockStorage: Record<string, string> = {};
+Object.defineProperty(window, 'localStorage', {
+  value: {
+    getItem: jest.fn((key: string) => mockStorage[key] || null),
+    setItem: jest.fn((key: string, value: string) => {
+      mockStorage[key] = value;
+    }),
+    removeItem: jest.fn((key: string) => {
+      delete mockStorage[key];
+    }),
+    clear: jest.fn(() => {
+      Object.keys(mockStorage).forEach((key) => delete mockStorage[key]);
+    }),
   },
-  {
-    id: 'MATH201',
-    name: '微積分',
-    teacher: '李四',
-    department: '數學系',
-    credit: '4',
-    remaining: 5,
-    restrict: 25,
-    selected: 20,
-    select: 20,
-    grade: '2',
-    yearSemester: '上',
-    compulsory: true,
-    multipleCompulsory: false,
-    url: '',
-    room: '',
-    classTime: ['', '34', '', '', '', '', ''],
-    description: '',
-    tags: [],
-    english: false,
-  },
-  {
-    id: 'ENG102',
-    name: '英文',
-    teacher: '王五',
-    department: '外文系',
-    credit: '2',
-    remaining: 0,
-    restrict: 20,
-    selected: 20,
-    select: 20,
-    grade: '1',
-    yearSemester: '上',
-    compulsory: true,
-    multipleCompulsory: false,
-    url: '',
-    room: '',
-    classTime: ['', '', '', '56', '', '', ''],
-    description: '',
-    tags: [],
-    english: true,
-  },
-  {
-    id: 'PHY301',
-    name: '物理學',
-    teacher: '劉六',
-    department: '物理系碩士班',
-    credit: '3',
-    remaining: 15,
-    restrict: 20,
-    selected: 5,
-    select: 5,
-    grade: '3',
-    yearSemester: '上',
-    compulsory: false,
-    multipleCompulsory: false,
-    url: '',
-    room: '',
-    classTime: ['', '', '', '', '78', '', ''],
-    description: '',
-    tags: [],
-    english: false,
-  },
-];
+  writable: true,
+});
+
+// Mock console methods
+const mockConsoleWarn = jest
+  .spyOn(console, 'warn')
+  .mockImplementation(() => {});
+const mockConsoleError = jest
+  .spyOn(console, 'error')
+  .mockImplementation(() => {});
+
+// 測試用的課程資料
+const createMockCourse = (overrides: Partial<Course> = {}): Course => ({
+  id: 'TEST001',
+  url: 'http://example.com',
+  multipleCompulsory: false,
+  department: '資訊工程學系',
+  grade: '1',
+  class: 'A',
+  name: '程式設計',
+  credit: '3',
+  yearSemester: '上',
+  compulsory: true,
+  restrict: 50,
+  select: 30,
+  selected: 30,
+  remaining: 20,
+  teacher: '張教授',
+  room: '工學院123',
+  classTime: ['', '12', '', '', '', '', ''],
+  description: '程式設計基礎課程',
+  tags: [],
+  english: false,
+  ...overrides,
+});
 
 describe('CourseSortingService', () => {
   beforeEach(() => {
-    // 清除 localStorage
-    localStorage.clear();
+    // 清空 localStorage mock
+    Object.keys(mockStorage).forEach((key) => delete mockStorage[key]);
+    mockConsoleWarn.mockClear();
+    mockConsoleError.mockClear();
   });
 
-  describe('sortCourses', () => {
-    it('should return original order for default sorting', () => {
-      const config: SortConfig = {
+  afterAll(() => {
+    mockConsoleWarn.mockRestore();
+    mockConsoleError.mockRestore();
+  });
+
+  describe('loadSortConfig', () => {
+    it('should return default config when localStorage is empty', () => {
+      const config = CourseSortingService.loadSortConfig();
+      expect(config).toEqual({
         rules: [{ option: 'default', direction: 'asc' }],
-      };
-      const result = CourseSortingService.sortCourses(mockCourses, config);
-
-      expect(result).toEqual(mockCourses);
-      expect(result).not.toBe(mockCourses); // 應該是新陣列
-    });
-    it('should sort by credit ascending', () => {
-      const config: SortConfig = {
-        rules: [{ option: 'credit', direction: 'asc' }],
-      };
-      const result = CourseSortingService.sortCourses(mockCourses, config);
-
-      expect(result[0].id).toBe('ENG102'); // 2學分
-      // CS101和PHY301都是3學分，穩定排序保持原有順序
-      expect(result[1].id).toBe('CS101'); // 3學分
-      expect(result[2].id).toBe('PHY301'); // 3學分
-      expect(result[3].id).toBe('MATH201'); // 4學分
+      });
     });
 
-    it('should sort by credit descending', () => {
-      const config: SortConfig = {
-        rules: [{ option: 'credit', direction: 'desc' }],
-      };
-      const result = CourseSortingService.sortCourses(mockCourses, config);
-
-      expect(result[0].id).toBe('MATH201'); // 4學分
-      // CS101和PHY301都是3學分，穩定排序保持原有順序
-      expect(result[1].id).toBe('CS101'); // 3學分
-      expect(result[2].id).toBe('PHY301'); // 3學分
-      expect(result[3].id).toBe('ENG102'); // 2學分
-    });
-    it('should sort by remaining seats descending', () => {
-      const config: SortConfig = {
-        rules: [{ option: 'remaining', direction: 'desc' }],
-      };
-      const result = CourseSortingService.sortCourses(mockCourses, config);
-
-      expect(result[0].id).toBe('PHY301'); // 15個剩餘名額
-      expect(result[1].id).toBe('CS101'); // 10個剩餘名額
-      expect(result[2].id).toBe('MATH201'); // 5個剩餘名額
-      expect(result[3].id).toBe('ENG102'); // 0個剩餘名額
-    });
-    it('should sort by department name', () => {
-      const config: SortConfig = {
-        rules: [{ option: 'department', direction: 'asc' }],
-      };
-      const result = CourseSortingService.sortCourses(mockCourses, config);
-      expect(result[0].department).toBe('外文系');
-      expect(result[1].department).toBe('物理系碩士班');
-      expect(result[2].department).toBe('資工系');
-      expect(result[3].department).toBe('數學系');
-    });
-    it('should sort by probability (ascending: 超收→一般概率(低到高)→100%概率)', () => {
-      const config: SortConfig = {
-        rules: [{ option: 'probability', direction: 'asc' }],
-      };
-      const result = CourseSortingService.sortCourses(mockCourses, config);
-
-      // CS101: select=20, remaining=10, 概率 = 50% (分類2)
-      // MATH201: select=20, remaining=5, 概率 = 25% (分類2)
-      // ENG102: select=20, remaining=0, 概率 = 0% (分類1-超收)
-      // PHY301: select=5, remaining=15, 概率 = 100% (分類3)
-      // 升序：分類1(ENG102) -> 分類2(MATH201,CS101) -> 分類3(PHY301)
-      // 分類2內按概率升序：MATH201(25%) -> CS101(50%)
-      expect(result[0].id).toBe('ENG102'); // 0% 超收最前
-      expect(result[1].id).toBe('MATH201'); // 25% 一般概率低的
-      expect(result[2].id).toBe('CS101'); // 50% 一般概率高的
-      expect(result[3].id).toBe('PHY301'); // 100% 最後
-    });
-
-    it('should sort by probability (descending: 100%概率→一般概率(高到低)→超收)', () => {
-      const config: SortConfig = {
-        rules: [{ option: 'probability', direction: 'desc' }],
-      };
-      const result = CourseSortingService.sortCourses(mockCourses, config);
-
-      // 降序：分類3(PHY301) -> 分類2(CS101,MATH201) -> 分類1(ENG102)
-      // 分類2內按概率降序：CS101(50%) -> MATH201(25%)
-      expect(result[0].id).toBe('PHY301'); // 100% 最前
-      expect(result[1].id).toBe('CS101'); // 50% 一般概率高的
-      expect(result[2].id).toBe('MATH201'); // 25% 一般概率低的
-      expect(result[3].id).toBe('ENG102'); // 0% 超收最後
-    });
-    it('should handle multi-level sorting', () => {
-      const config: SortConfig = {
+    it('should load valid config from localStorage', () => {
+      const validConfig: SortConfig = {
         rules: [
-          { option: 'compulsory', direction: 'asc' }, // 必修優先
-          { option: 'credit', direction: 'desc' }, // 學分高到低
+          { option: 'probability', direction: 'desc' },
+          { option: 'credit', direction: 'asc' },
         ],
       };
-      const result = CourseSortingService.sortCourses(mockCourses, config);
+      mockStorage['NSYSUCourseSelector.sortConfig'] =
+        JSON.stringify(validConfig);
 
-      // 先按必修排序：必修(CS101,MATH201,ENG102) -> 選修(PHY301)
-      // 必修內按學分降序：MATH201(4) -> CS101(3) -> ENG102(2)
-      expect(result[0].id).toBe('MATH201'); // 必修 4學分
-      expect(result[1].id).toBe('CS101'); // 必修 3學分
-      expect(result[2].id).toBe('ENG102'); // 必修 2學分
-      expect(result[3].id).toBe('PHY301'); // 選修 3學分
+      const config = CourseSortingService.loadSortConfig();
+      expect(config).toEqual(validConfig);
     });
-    it('should sort by course level', () => {
-      const config: SortConfig = {
-        rules: [{ option: 'courseLevel', direction: 'asc' }],
-      };
-      const result = CourseSortingService.sortCourses(mockCourses, config);
 
-      // 升序：大學部→碩士班→碩專→博士班
-      // CS101(資工系), MATH201(數學系), ENG102(外文系) - 大學部(優先級1)
-      // PHY301(物理系碩士班) - 碩士班(優先級2)
-      const undergradCourses = result.filter(
-        (course) => !course.department.includes('碩'),
+    it('should return default config when localStorage contains invalid data', () => {
+      mockStorage['NSYSUCourseSelector.sortConfig'] = 'invalid json';
+
+      const config = CourseSortingService.loadSortConfig();
+      expect(config).toEqual({
+        rules: [{ option: 'default', direction: 'asc' }],
+      });
+      expect(mockConsoleWarn).toHaveBeenCalledWith(
+        'Failed to load sort config:',
+        expect.any(Error),
       );
-      const gradCourses = result.filter((course) =>
-        course.department.includes('碩'),
-      );
-
-      expect(undergradCourses.length).toBe(3);
-      expect(gradCourses.length).toBe(1);
-      expect(gradCourses[0].id).toBe('PHY301');
-
-      // 驗證大學部課程排在碩士班課程前面
-      const phy301Index = result.findIndex((course) => course.id === 'PHY301');
-      expect(phy301Index).toBe(3); // 應該是最後一個
     });
 
-    it('should sort by compulsory status', () => {
-      const config: SortConfig = {
-        rules: [{ option: 'compulsory', direction: 'asc' }],
+    it('should return default config when config structure is invalid', () => {
+      const invalidConfig = {
+        rules: [{ option: 'invalid', direction: 'asc' }],
       };
-      const result = CourseSortingService.sortCourses(mockCourses, config);
+      mockStorage['NSYSUCourseSelector.sortConfig'] =
+        JSON.stringify(invalidConfig);
 
-      // 必修在前，選修在後
-      expect(result[0].compulsory).toBe(true);
-      expect(result[1].compulsory).toBe(true);
-      expect(result[2].compulsory).toBe(true);
-      expect(result[3].compulsory).toBe(false);
-    });
-    it('should sort by enrollment status', () => {
-      const config: SortConfig = {
-        rules: [{ option: 'enrollmentStatus', direction: 'asc' }],
-      };
-      const result = CourseSortingService.sortCourses(mockCourses, config);
-
-      // 升序：有名額→候補→已滿→超收
-      // CS101: remaining=10 > 0 (有名額，優先級1)
-      // PHY301: remaining=15 > 0 (有名額，優先級1)
-      // MATH201: remaining=5 > 0 (有名額，優先級1)
-      // ENG102: remaining=0 (已滿，優先級3)
-      // 有名額的課程會排在前面，已滿的在後面
-      const hasSlots = result.filter((course) => course.remaining > 0);
-      const fullCourses = result.filter((course) => course.remaining === 0);
-      expect(hasSlots.length).toBe(3);
-      expect(fullCourses.length).toBe(1);
-      expect(fullCourses[0].id).toBe('ENG102');
-    });
-
-    it('should handle courses with 100% probability correctly', () => {
-      // 添加一個100%選上的課程測試
-      const coursesWithHighProb: Course[] = [
-        ...mockCourses,
-        {
-          id: 'ART100',
-          name: '藝術概論',
-          teacher: '陳七',
-          department: '藝術系',
-          credit: '2',
-          remaining: 50,
-          restrict: 60,
-          selected: 10,
-          select: 5, // 很少人選，100%選上
-          grade: '1',
-          yearSemester: '上',
-          compulsory: false,
-          multipleCompulsory: false,
-          url: '',
-          room: '',
-          classTime: ['', '', '', '', '', '12', ''],
-          description: '',
-          tags: [],
-          english: false,
-        },
-      ];
-
-      const config: SortConfig = {
-        rules: [{ option: 'probability', direction: 'desc' }],
-      };
-      const result = CourseSortingService.sortCourses(
-        coursesWithHighProb,
-        config,
-      );
-
-      // ART100應該在最前面（100%概率）
-      expect(result[0].id).toBe('ART100');
+      const config = CourseSortingService.loadSortConfig();
+      expect(config).toEqual({
+        rules: [{ option: 'default', direction: 'asc' }],
+      });
     });
   });
 
-  describe('localStorage integration', () => {
-    it('should save sort config to localStorage', () => {
+  describe('saveSortConfig', () => {
+    it('should save config to localStorage', () => {
       const config: SortConfig = {
-        rules: [{ option: 'credit', direction: 'desc' }],
+        rules: [{ option: 'probability', direction: 'desc' }],
       };
+
       CourseSortingService.saveSortConfig(config);
-
-      const saved = localStorage.getItem('NSYSUCourseSelector.sortConfig');
-      expect(saved).toBeTruthy();
-      expect(JSON.parse(saved!)).toEqual(config);
-    });
-
-    it('should load sort config from localStorage', () => {
-      const config: SortConfig = {
-        rules: [{ option: 'remaining', direction: 'asc' }],
-      };
-      localStorage.setItem(
+      expect(localStorage.setItem).toHaveBeenCalledWith(
         'NSYSUCourseSelector.sortConfig',
         JSON.stringify(config),
       );
-
-      const loaded = CourseSortingService.loadSortConfig();
-      expect(loaded).toEqual(config);
     });
 
-    it('should return default config if localStorage is empty', () => {
-      const loaded = CourseSortingService.loadSortConfig();
-      expect(loaded).toEqual({
-        rules: [{ option: 'default', direction: 'asc' }],
+    it('should handle save errors gracefully', () => {
+      const config: SortConfig = {
+        rules: [{ option: 'probability', direction: 'desc' }],
+      };
+
+      // Mock setItem to throw error
+      (localStorage.setItem as jest.Mock).mockImplementationOnce(() => {
+        throw new Error('Storage full');
       });
+
+      expect(() => CourseSortingService.saveSortConfig(config)).not.toThrow();
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Failed to save sort config:',
+        expect.any(Error),
+      );
+    });
+  });
+
+  describe('isValidSortConfig', () => {
+    it('should validate correct config', () => {
+      const validConfig: SortConfig = {
+        rules: [
+          { option: 'probability', direction: 'desc' },
+          { option: 'credit', direction: 'asc' },
+        ],
+      };
+      expect(CourseSortingService.isValidSortConfig(validConfig)).toBe(true);
     });
 
-    it('should return default config if localStorage contains invalid data', () => {
-      localStorage.setItem('NSYSUCourseSelector.sortConfig', 'invalid json');
+    it('should reject null/undefined', () => {
+      expect(CourseSortingService.isValidSortConfig(null)).toBe(false);
+      expect(CourseSortingService.isValidSortConfig(undefined)).toBe(false);
+    });
 
-      const loaded = CourseSortingService.loadSortConfig();
-      expect(loaded).toEqual({
-        rules: [{ option: 'default', direction: 'asc' }],
+    it('should reject non-object types', () => {
+      expect(CourseSortingService.isValidSortConfig('string')).toBe(false);
+      expect(CourseSortingService.isValidSortConfig(123)).toBe(false);
+      expect(CourseSortingService.isValidSortConfig([])).toBe(false);
+    });
+
+    it('should reject config without rules array', () => {
+      expect(CourseSortingService.isValidSortConfig({})).toBe(false);
+      expect(
+        CourseSortingService.isValidSortConfig({ rules: 'not array' }),
+      ).toBe(false);
+    });
+
+    it('should reject config with empty rules array', () => {
+      expect(CourseSortingService.isValidSortConfig({ rules: [] })).toBe(false);
+    });
+
+    it('should reject invalid rule structure', () => {
+      const invalidConfigs = [
+        { rules: [{ option: 'invalid', direction: 'asc' }] },
+        { rules: [{ option: 'probability', direction: 'invalid' }] },
+        { rules: [{ option: 'probability' }] },
+        { rules: [{ direction: 'asc' }] },
+        { rules: ['not object'] },
+      ];
+
+      invalidConfigs.forEach((config) => {
+        expect(CourseSortingService.isValidSortConfig(config)).toBe(false);
       });
     });
   });
 
-  describe('utility methods', () => {
-    it('should get sort option by key', () => {
-      const option = CourseSortingService.getSortOption('credit');
-      expect(option).toBeTruthy();
-      expect(option?.label).toBe('學分數');
+  describe('sortCourses', () => {
+    let mockCourses: Course[];
+
+    beforeEach(() => {
+      mockCourses = [
+        createMockCourse({
+          id: 'COURSE1',
+          name: '程式設計',
+          credit: '3',
+          remaining: 10,
+          select: 5,
+          compulsory: true,
+          department: '資訊工程學系', // 大學部
+        }),
+        createMockCourse({
+          id: 'COURSE2',
+          name: '資料結構',
+          credit: '2',
+          remaining: -2,
+          select: 25,
+          compulsory: false,
+          department: '資訊工程學系碩士班', // 碩士班
+        }),
+        createMockCourse({
+          id: 'COURSE3',
+          name: '演算法',
+          credit: '4',
+          remaining: 0,
+          select: 20,
+          compulsory: true,
+          department: '資訊工程學系博士班', // 博士班
+        }),
+        createMockCourse({
+          id: 'COURSE4',
+          name: '軟體工程',
+          credit: '2',
+          remaining: 15,
+          select: 10,
+          compulsory: false,
+          department: '資訊工程學系碩專班', // 碩專班
+        }),
+      ];
     });
 
-    it('should return undefined for invalid sort option key', () => {
-      const option = CourseSortingService.getSortOption('invalid');
-      expect(option).toBeUndefined();
+    it('should return original order for default sort', () => {
+      const config: SortConfig = {
+        rules: [{ option: 'default', direction: 'asc' }],
+      };
+      const sorted = CourseSortingService.sortCourses(mockCourses, config);
+
+      expect(sorted.map((c) => c.id)).toEqual([
+        'COURSE1',
+        'COURSE2',
+        'COURSE3',
+        'COURSE4',
+      ]);
+      expect(sorted).not.toBe(mockCourses); // Should return new array
+    });
+    it('should sort by probability (ascending)', () => {
+      const config: SortConfig = {
+        rules: [{ option: 'probability', direction: 'asc' }],
+      };
+      const sorted = CourseSortingService.sortCourses(mockCourses, config);
+
+      // 預期順序：0% (COURSE2, COURSE3) -> 100% (COURSE1, COURSE4)
+      // COURSE2: remaining=-2, probability=0
+      // COURSE3: remaining=0, probability=0
+      // COURSE4: remaining=15, select=10, probability=100 (limited by Math.min)
+      // COURSE1: remaining=10, select=5, probability=100 (limited by Math.min)
+      // 由於 COURSE1 和 COURSE4 概率相同，順序會保持穩定
+      expect(sorted.map((c) => c.id)).toEqual([
+        'COURSE2',
+        'COURSE3',
+        'COURSE1',
+        'COURSE4',
+      ]);
+    });
+    it('should sort by probability (descending)', () => {
+      const config: SortConfig = {
+        rules: [{ option: 'probability', direction: 'desc' }],
+      };
+      const sorted = CourseSortingService.sortCourses(mockCourses, config);
+
+      // 降序：100% -> 100% -> 0% -> 0%
+      // 相同概率的課程會保持原始順序
+      expect(sorted.map((c) => c.id)).toEqual([
+        'COURSE1',
+        'COURSE4',
+        'COURSE2',
+        'COURSE3',
+      ]);
     });
 
-    it('should toggle sort direction', () => {
-      expect(CourseSortingService.toggleDirection('asc')).toBe('desc');
-      expect(CourseSortingService.toggleDirection('desc')).toBe('asc');
+    it('should sort by credit (ascending)', () => {
+      const config: SortConfig = {
+        rules: [{ option: 'credit', direction: 'asc' }],
+      };
+      const sorted = CourseSortingService.sortCourses(mockCourses, config);
+
+      // 學分升序：2學分 -> 3學分 -> 4學分
+      const sortedCredits = sorted.map((c) => parseInt(c.credit));
+      expect(sortedCredits).toEqual([2, 2, 3, 4]);
     });
 
-    it('should validate sort config', () => {
-      expect(
-        CourseSortingService.isValidSortConfig({
-          rules: [{ option: 'credit', direction: 'asc' }],
-        }),
-      ).toBe(true);
+    it('should sort by credit (descending)', () => {
+      const config: SortConfig = {
+        rules: [{ option: 'credit', direction: 'desc' }],
+      };
+      const sorted = CourseSortingService.sortCourses(mockCourses, config);
 
-      expect(
-        CourseSortingService.isValidSortConfig({
-          rules: [{ option: 'invalid', direction: 'asc' }],
-        }),
-      ).toBe(false);
+      // 學分降序：4學分 -> 3學分 -> 2學分
+      const sortedCredits = sorted.map((c) => parseInt(c.credit));
+      expect(sortedCredits).toEqual([4, 3, 2, 2]);
+    });
 
-      expect(
-        CourseSortingService.isValidSortConfig({
-          rules: [{ option: 'credit', direction: 'invalid' as any }],
-        }),
-      ).toBe(false);
+    it('should sort by remaining (ascending)', () => {
+      const config: SortConfig = {
+        rules: [{ option: 'remaining', direction: 'asc' }],
+      };
+      const sorted = CourseSortingService.sortCourses(mockCourses, config);
+
+      // 剩餘名額升序：-2 -> 0 -> 10 -> 15
+      const sortedRemaining = sorted.map((c) => c.remaining);
+      expect(sortedRemaining).toEqual([-2, 0, 10, 15]);
+    });
+
+    it('should sort by available (ascending)', () => {
+      const config: SortConfig = {
+        rules: [{ option: 'available', direction: 'asc' }],
+      };
+      const sorted = CourseSortingService.sortCourses(mockCourses, config);
+
+      // 可選名額 = remaining - select
+      // COURSE2: -2 - 25 = -27
+      // COURSE3: 0 - 20 = -20
+      // COURSE1: 10 - 5 = 5
+      // COURSE4: 15 - 10 = 5
+      const availables = sorted.map((c) => c.remaining - c.select);
+      expect(availables).toEqual([-27, -20, 5, 5]);
+    });
+
+    it('should sort by course level (ascending)', () => {
+      const config: SortConfig = {
+        rules: [{ option: 'courseLevel', direction: 'asc' }],
+      };
+      const sorted = CourseSortingService.sortCourses(mockCourses, config);
+
+      // 課程等級升序：大學部 -> 碩士班 -> 碩專班 -> 博士班
+      const departments = sorted.map((c) => c.department);
+      expect(departments).toEqual([
+        '資訊工程學系', // 大學部
+        '資訊工程學系碩士班', // 碩士班
+        '資訊工程學系碩專班', // 碩專班
+        '資訊工程學系博士班', // 博士班
+      ]);
+    });
+
+    it('should sort by compulsory (ascending)', () => {
+      const config: SortConfig = {
+        rules: [{ option: 'compulsory', direction: 'asc' }],
+      };
+      const sorted = CourseSortingService.sortCourses(mockCourses, config);
+      // 必修優先升序：必修課程在前
+      const compulsoryCount = sorted.filter((c) => c.compulsory).length;
+
+      // 檢查前面都是必修，後面都是選修
+      expect(sorted.slice(0, compulsoryCount).every((c) => c.compulsory)).toBe(
+        true,
+      );
+      expect(sorted.slice(compulsoryCount).every((c) => !c.compulsory)).toBe(
+        true,
+      );
+    });
+
+    it('should sort by compulsory (descending)', () => {
+      const config: SortConfig = {
+        rules: [{ option: 'compulsory', direction: 'desc' }],
+      };
+      const sorted = CourseSortingService.sortCourses(mockCourses, config);
+
+      // 必修優先降序：選修課程在前
+      const electiveCount = sorted.filter((c) => !c.compulsory).length;
+
+      // 檢查前面都是選修，後面都是必修
+      expect(sorted.slice(0, electiveCount).every((c) => !c.compulsory)).toBe(
+        true,
+      );
+      expect(sorted.slice(electiveCount).every((c) => c.compulsory)).toBe(true);
+    });
+
+    it('should handle multiple sort rules', () => {
+      // 先按學分升序，再按剩餘名額降序
+      const config: SortConfig = {
+        rules: [
+          { option: 'credit', direction: 'asc' },
+          { option: 'remaining', direction: 'desc' },
+        ],
+      };
+      const sorted = CourseSortingService.sortCourses(mockCourses, config);
+
+      // 先按學分分組，同學分內按剩餘名額降序
+      // 2學分組：COURSE4(15) -> COURSE2(-2)
+      // 3學分組：COURSE1(10)
+      // 4學分組：COURSE3(0)
+      expect(sorted.map((c) => c.id)).toEqual([
+        'COURSE4',
+        'COURSE2',
+        'COURSE1',
+        'COURSE3',
+      ]);
+    });
+
+    it('should handle empty rules array', () => {
+      const config: SortConfig = { rules: [] };
+      const sorted = CourseSortingService.sortCourses(mockCourses, config);
+
+      expect(sorted.map((c) => c.id)).toEqual([
+        'COURSE1',
+        'COURSE2',
+        'COURSE3',
+        'COURSE4',
+      ]);
+    });
+
+    it('should not mutate original array', () => {
+      const config: SortConfig = {
+        rules: [{ option: 'credit', direction: 'desc' }],
+      };
+      const originalOrder = mockCourses.map((c) => c.id);
+
+      const sorted = CourseSortingService.sortCourses(mockCourses, config);
+
+      expect(mockCourses.map((c) => c.id)).toEqual(originalOrder);
+      expect(sorted).not.toBe(mockCourses);
+    });
+
+    it('should handle unknown sort option gracefully', () => {
+      // 使用類型斷言來測試未知的排序選項
+      const config = {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        rules: [{ option: 'unknown' as any, direction: 'asc' as const }],
+      };
+
+      const sorted = CourseSortingService.sortCourses(mockCourses, config);
+      expect(sorted.map((c) => c.id)).toEqual([
+        'COURSE1',
+        'COURSE2',
+        'COURSE3',
+        'COURSE4',
+      ]);
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle empty course array', () => {
+      const config: SortConfig = {
+        rules: [{ option: 'probability', direction: 'asc' }],
+      };
+      const sorted = CourseSortingService.sortCourses([], config);
+
+      expect(sorted).toEqual([]);
+    });
+
+    it('should handle single course', () => {
+      const singleCourse = [createMockCourse()];
+      const config: SortConfig = {
+        rules: [{ option: 'probability', direction: 'asc' }],
+      };
+      const sorted = CourseSortingService.sortCourses(singleCourse, config);
+
+      expect(sorted).toHaveLength(1);
+      expect(sorted[0]).toEqual(singleCourse[0]);
+    });
+
+    it('should handle courses with identical sort values', () => {
+      const identicalCourses = [
+        createMockCourse({ id: 'SAME1', credit: '3', remaining: 10 }),
+        createMockCourse({ id: 'SAME2', credit: '3', remaining: 10 }),
+        createMockCourse({ id: 'SAME3', credit: '3', remaining: 10 }),
+      ];
+
+      const config: SortConfig = {
+        rules: [{ option: 'credit', direction: 'asc' }],
+      };
+      const sorted = CourseSortingService.sortCourses(identicalCourses, config);
+
+      expect(sorted).toHaveLength(3);
+      // 順序應該保持穩定
+      expect(sorted.map((c) => c.id)).toEqual(['SAME1', 'SAME2', 'SAME3']);
     });
   });
 });
