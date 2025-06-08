@@ -251,6 +251,7 @@ const SortRuleItem: React.FC<SortRuleItemProps> = ({
     />
   );
 };
+
 interface CourseSortSelectorProps {
   visible: boolean;
   onClose: () => void;
@@ -263,6 +264,7 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
   const dispatch = useAppDispatch();
   const currentSortConfig = useAppSelector(selectSortConfig);
   const [tempConfig, setTempConfig] = useState<SortConfig>(currentSortConfig);
+
   // 更新本地配置當外部配置變化時
   React.useEffect(() => {
     setTempConfig(currentSortConfig);
@@ -278,8 +280,10 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
   }, [tempConfig, currentSortConfig, dispatch]);
 
   const handleAddRule = () => {
-    // 找到尚未使用的排序選項
-    const usedOptions = tempConfig.rules.map((rule) => rule.option);
+    // 找到尚未使用的排序選項，排除 default 選項
+    const usedOptions = tempConfig.rules
+      .filter((rule) => rule.option !== 'default')
+      .map((rule) => rule.option);
     const availableOptions = DEFAULT_SORT_OPTIONS.filter(
       (opt) => opt.key !== 'default' && !usedOptions.includes(opt.key),
     );
@@ -289,8 +293,42 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
         option: availableOptions[0].key,
         direction: 'asc',
       };
+
+      // 如果當前是預設排序，則替換為新規則；否則添加到現有規則
+      const isDefaultConfig =
+        tempConfig.rules.length === 1 &&
+        tempConfig.rules[0].option === 'default';
       setTempConfig({
-        rules: [...tempConfig.rules, newRule],
+        rules: isDefaultConfig ? [newRule] : [...tempConfig.rules, newRule],
+      });
+    }
+  };
+
+  // 添加常用排序規則的處理函數
+  const handleAddCommonSort = (rules: SortRule[]) => {
+    // 過濾掉已經存在的排序選項
+    const existingOptions = tempConfig.rules
+      .filter((rule) => rule.option !== 'default')
+      .map((rule) => rule.option);
+
+    const newRules = rules.filter(
+      (rule) => !existingOptions.includes(rule.option),
+    );
+
+    if (newRules.length > 0) {
+      // 如果當前是預設排序，則替換為新規則；否則添加到現有規則
+      const isDefaultConfig =
+        tempConfig.rules.length === 1 &&
+        tempConfig.rules[0].option === 'default';
+      const updatedRules = isDefaultConfig
+        ? newRules
+        : [
+            ...tempConfig.rules.filter((rule) => rule.option !== 'default'),
+            ...newRules,
+          ];
+
+      setTempConfig({
+        rules: updatedRules,
       });
     }
   };
@@ -328,6 +366,7 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
       handleMoveRule(index, index + 1);
     }
   };
+
   const handleReset = () => {
     const defaultConfig: SortConfig = {
       rules: [{ option: 'default', direction: 'asc' }],
@@ -338,10 +377,12 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
     CourseSortingService.saveSortConfig(defaultConfig);
   };
 
-  // 檢查是否還能添加更多規則
-  const usedOptions = tempConfig.rules.map((rule) => rule.option);
+  // 檢查是否還能添加更多規則，修復邏輯
+  const usedOptionsForCheck = tempConfig.rules
+    .filter((rule) => rule.option !== 'default')
+    .map((rule) => rule.option);
   const availableOptions = DEFAULT_SORT_OPTIONS.filter(
-    (opt) => opt.key !== 'default' && !usedOptions.includes(opt.key),
+    (opt) => opt.key !== 'default' && !usedOptionsForCheck.includes(opt.key),
   );
   const canAddMore = availableOptions.length > 0;
 
@@ -389,12 +430,16 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
             可設定多層排序條件，排序將依照優先級依次執行。變更會即時套用到課程列表中。
           </Text>
         </Card>
+
         {/* 快速排序預設 */}
         <Card
           size='small'
           title={
             <Space>
               <Tag color='green'>常用排序</Tag>
+              <Text type='secondary' style={{ fontSize: '11px' }}>
+                點擊添加到當前排序
+              </Text>
             </Space>
           }
         >
@@ -402,9 +447,9 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
             <Button
               size='small'
               onClick={() =>
-                setTempConfig({
-                  rules: [{ option: 'probability', direction: 'desc' }],
-                })
+                handleAddCommonSort([
+                  { option: 'probability', direction: 'desc' },
+                ])
               }
             >
               <AimOutlined /> 依概率
@@ -412,9 +457,9 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
             <Button
               size='small'
               onClick={() =>
-                setTempConfig({
-                  rules: [{ option: 'remaining', direction: 'desc' }],
-                })
+                handleAddCommonSort([
+                  { option: 'remaining', direction: 'desc' },
+                ])
               }
             >
               <BarChartOutlined /> 依剩餘名額
@@ -422,18 +467,17 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
             <Button
               size='small'
               onClick={() =>
-                setTempConfig({
-                  rules: [
-                    { option: 'compulsory', direction: 'asc' },
-                    { option: 'courseLevel', direction: 'asc' },
-                  ],
-                })
+                handleAddCommonSort([
+                  { option: 'compulsory', direction: 'asc' },
+                  { option: 'courseLevel', direction: 'asc' },
+                ])
               }
             >
               <BookOutlined /> 必修+課程等級
             </Button>
           </Space>
         </Card>
+
         {/* 新增排序規則按鈕 */}
         <Button
           type='dashed'
@@ -446,7 +490,9 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
           {availableOptions.length > 0 &&
             `(還可新增 ${availableOptions.length} 個)`}
         </Button>
+
         <Divider style={{ margin: '12px 0' }} />
+
         {/* 排序規則列表 */}
         {tempConfig.rules.length > 0 &&
         tempConfig.rules[0].option !== 'default' ? (
@@ -476,6 +522,7 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
             />
           </Card>
         )}
+
         {/* 排序預覽 */}
         {tempConfig.rules.length > 0 &&
           tempConfig.rules[0].option !== 'default' && (
