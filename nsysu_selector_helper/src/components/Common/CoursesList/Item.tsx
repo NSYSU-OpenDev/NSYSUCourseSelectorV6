@@ -12,7 +12,7 @@ import {
 } from 'antd';
 
 import type { Course } from '@/types';
-import { useAppDispatch } from '@/store/hooks';
+import { useAppDispatch } from '@/store/hooks.ts';
 import { selectCourse, setHoveredCourseId } from '@/store';
 import { useWindowSize } from '@/hooks';
 import { GetProbability } from '@/utils';

@@ -27,7 +27,7 @@ import {
   setSearchQuery,
   setAdvancedFilterDrawerOpen,
 } from '@/store';
-import CoursesList from '#/SelectorPanel/AllCourses/CoursesList';
+import CoursesList from '#/Common/CoursesList';
 import AdvancedFilterDrawer from '#/SelectorPanel/AllCourses/AdvancedFilterDrawer';
 import CreditsStatistics from '#/SelectorPanel/AllCourses/CreditsStatistics';
 
@@ -139,7 +139,11 @@ const AllCourses: React.FC = () => {
     <>
       <StyledCard title={CardTitle}>
         <CreditsStatistics />
-        <CoursesList filteredCourses={filteredCourses} />
+        <CoursesList
+          filteredCourses={filteredCourses}
+          displayConflictCourses={displayConflictCourses}
+          displaySelectedOnly={displaySelectedOnly}
+        />
       </StyledCard>
       <AdvancedFilterDrawer />
     </>

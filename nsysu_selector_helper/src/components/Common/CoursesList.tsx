@@ -4,32 +4,34 @@ import { Empty } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import { CourseService } from '@/services/courseService.ts';
-import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { useAppSelector, useAppDispatch } from '@/store/hooks.ts';
 import {
   selectSelectedCourses,
   selectHoveredCourseId,
-  selectDisplaySelectedOnly,
-  selectDisplayConflictCourses,
   selectScrollToCourseId,
   setScrollToCourseId,
 } from '@/store';
 import { Course } from '@/types';
-import Header from '#/SelectorPanel/AllCourses/CoursesList/Header';
-import Item from '#/SelectorPanel/AllCourses/CoursesList/Item';
+import Header from '#/Common/CoursesList/Header';
+import Item from '#/Common/CoursesList/Item';
 
 interface CoursesListProps {
   filteredCourses: Course[];
+  displaySelectedOnly: boolean;
+  displayConflictCourses: boolean;
 }
 
-const CoursesList: React.FC<CoursesListProps> = ({ filteredCourses }) => {
+const CoursesList: React.FC<CoursesListProps> = ({
+  filteredCourses,
+  displaySelectedOnly,
+  displayConflictCourses,
+}) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   // Redux state
   const selectedCourses = useAppSelector(selectSelectedCourses);
   const hoveredCourseId = useAppSelector(selectHoveredCourseId);
-  const displaySelectedOnly = useAppSelector(selectDisplaySelectedOnly);
-  const displayConflictCourses = useAppSelector(selectDisplayConflictCourses);
   const scrollToCourseId = useAppSelector(selectScrollToCourseId);
 
   // 根據顯示設定過濾課程，避免在虛擬列表渲染階段返回 null
