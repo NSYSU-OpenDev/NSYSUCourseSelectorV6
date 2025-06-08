@@ -194,9 +194,9 @@ export class CourseService {
     // 將 expression 以小寫處理
     const expr = expression.trim();
     // 處理 OR
-    if (/(\bOR\b|\|)/.test(expr)) {
+    if (/(\bOR\b|\|)/i.test(expr)) {
       const orParts = expr
-        .split(/\s*(?:OR|\|)\s*/) // 不保留分隔符
+        .split(/\s*(?:OR|\|)\s*/i) // 不保留分隔符
         .filter((part) => part.trim() !== '');
       return orParts.some((part) =>
         this.evaluateAndExpression(part.trim(), content),
@@ -212,12 +212,27 @@ export class CourseService {
     expression: string,
     content: string,
   ): boolean {
-    // 處理 AND（空格、AND、&）
-    const andParts = expression
-      .split(/\s*(?:AND|&|\s+)\s*/)
-      .filter((part) => part.trim() !== '');
+    // 將 AND 關鍵字視為空白處理，避免與詞項分離
+    const cleaned = expression.replace(/\b(?:AND|&)\b/gi, ' ');
+    const tokens =
+      cleaned.match(/(?:NOT\s+|\+|!|-)?[^()\s]+/gi)?.filter(Boolean) ?? [];
 
-    return andParts.every((term) => this.evaluateTerm(term.trim(), content));
+    const hasPlus = tokens.some((t) => t.trim().startsWith('+'));
+
+    return tokens.every((raw) => {
+      const term = raw.trim();
+      if (term.startsWith('+')) {
+        return this.evaluateTerm(term, content);
+      }
+      if (/^(?:NOT\s+|!|-)/i.test(term)) {
+        return this.evaluateTerm(term, content);
+      }
+      if (hasPlus) {
+        // 有 + 條件時，其他詞項視為可選
+        return true;
+      }
+      return this.evaluateTerm(term, content);
+    });
   }
 
   /**
@@ -248,7 +263,11 @@ export class CourseService {
    * 簡單的 AND 搜尋（回退機制）
    */
   private static simpleAndSearch(query: string, content: string): boolean {
-    const searchTerms = query.split(/\s+/).filter((term) => term.length > 0);
+    // 移除可能導致解析錯誤的括號等符號
+    const sanitized = query.replace(/[()]/g, ' ');
+    const searchTerms = sanitized
+      .split(/\s+/)
+      .filter((term) => term.length > 0);
 
     return searchTerms.every((term) => content.includes(term));
   }
