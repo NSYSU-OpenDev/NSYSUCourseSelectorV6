@@ -43,7 +43,6 @@ const CoursesList: React.FC<CoursesListProps> = ({ filteredCourses }) => {
         virtuosoRef.current.scrollToIndex({
           index: courseIndex + 1,
           align: 'center',
-          behavior: 'smooth',
         });
         // 清除滾動狀態，避免重複滾動
         dispatch(setScrollToCourseId(''));
