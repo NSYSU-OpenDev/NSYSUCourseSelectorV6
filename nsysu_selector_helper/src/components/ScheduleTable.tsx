@@ -167,16 +167,19 @@ const CourseTag = styled(Tag)<{ $isHovered?: boolean; $isActive?: boolean }>`
   position: relative;
   overflow: hidden;
 
-  &:hover {
-    transform: scale(1.02);
-    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
-    z-index: 10;
+  // 只在非觸摸設備上啟用 hover 效果
+  @media (hover: hover) {
+    &:hover {
+      transform: scale(1.02);
+      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+      z-index: 10;
+    }
   }
 
   @media screen and (max-width: 768px) {
     font-size: 9px;
     padding: 2px 4px;
-    margin: 0.5px 0;
+    margin: 1px 0;
   }
 `;
 
@@ -258,14 +261,17 @@ const TimeSlotCell = styled.div<{
   transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
   user-select: none;
 
-  &:hover {
-    background-color: ${(props) => {
-      if (props.$isSelected) return 'rgba(24, 144, 255, 0.18)';
-      return 'rgba(24, 144, 255, 0.06)';
-    }};
-    border-color: ${(props) =>
-      props.$isSelected ? '#1890ff' : 'rgba(24, 144, 255, 0.4)'};
-    transform: scale(1.01);
+  // 只在非觸摸設備上啟用 hover 效果
+  @media (hover: hover) {
+    &:hover {
+      background-color: ${(props) => {
+        if (props.$isSelected) return 'rgba(24, 144, 255, 0.18)';
+        return 'rgba(24, 144, 255, 0.06)';
+      }};
+      border-color: ${(props) =>
+        props.$isSelected ? '#1890ff' : 'rgba(24, 144, 255, 0.4)'};
+      transform: scale(1.01);
+    }
   }
 
   &:active {
@@ -373,7 +379,6 @@ const ScheduleTable: React.FC = () => {
     setSelectedCourse({ ...course, roomForThisSlot });
     setModalVisible(true);
   };
-
   // 處理課程標籤點擊
   const handleCourseClick = (course: Course, roomForThisSlot?: string) => {
     if (isMobile) {
@@ -382,6 +387,13 @@ const ScheduleTable: React.FC = () => {
     } else {
       // 桌面端：直接導航
       handleCourseNavigate(course.id);
+    }
+  };
+
+  // 處理手機版長按課程標籤
+  const handleCourseLongPress = (course: Course, roomForThisSlot?: string) => {
+    if (isMobile) {
+      handleMobileCourseClick(course, roomForThisSlot || '未知');
     }
   };
 
@@ -511,8 +523,50 @@ const ScheduleTable: React.FC = () => {
                   color={departmentColor}
                   $isHovered={isHovered}
                   onClick={(e) => {
+                    if (isMobile) {
+                      // 手機版：阻止事件冒泡，但不執行課程點擊
+                      e.stopPropagation();
+                      return;
+                    }
                     e.stopPropagation(); // 防止事件冒泡到時間段單元格
                     handleCourseClick(course, course.roomForThisSlot);
+                  }}
+                  onTouchStart={(e) => {
+                    if (isMobile) {
+                      // 手機版：長按觸發課程詳情，短按觸發時間篩選
+                      const touchStartTime = Date.now();
+                      const targetElement = e.currentTarget; // 保存元素引用
+                      let longPressTriggered = false;
+
+                      const timer = setTimeout(() => {
+                        longPressTriggered = true;
+                        e.stopPropagation();
+                        handleCourseLongPress(course, course.roomForThisSlot);
+                      }, 500); // 500ms 長按
+
+                      const onTouchEnd = (touchEvent: TouchEvent) => {
+                        clearTimeout(timer);
+                        if (
+                          !longPressTriggered &&
+                          Date.now() - touchStartTime < 500
+                        ) {
+                          // 短按：手動觸發時間格子的點擊事件
+                          touchEvent.stopPropagation();
+                          touchEvent.preventDefault();
+                          handleTimeSlotClick(day, slot.key);
+                        }
+                        if (targetElement) {
+                          targetElement.removeEventListener(
+                            'touchend',
+                            onTouchEnd,
+                          );
+                        }
+                      };
+
+                      if (targetElement) {
+                        targetElement.addEventListener('touchend', onTouchEnd);
+                      }
+                    }
                   }}
                   onMouseEnter={() => {
                     dispatch(setHoveredCourseId(course.id));

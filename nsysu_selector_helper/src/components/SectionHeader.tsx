@@ -114,16 +114,6 @@ const SectionHeader: FC<HeaderProps> = ({
       icon: <BookOutlined />,
     },
     {
-      key: 'semesterCompulsory',
-      label: t('semesterCompulsory'),
-      icon: <BookFilled />,
-    },
-    {
-      key: 'courseDetective',
-      label: t('courseDetective'),
-      icon: <FileSearchOutlined />,
-    },
-    {
       key: 'selectedExport',
       label: t('selectedExport'),
       icon: <FileDoneOutlined />,

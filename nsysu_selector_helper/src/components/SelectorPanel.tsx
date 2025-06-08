@@ -13,10 +13,6 @@ const SelectorPanel: React.FC = () => {
     switch (tabKey) {
       case 'allCourses':
         return <AllCourses />;
-      case 'semesterCompulsory':
-        return <h1>Semester Compulsory</h1>;
-      case 'courseDetective':
-        return <h1>Course Detective</h1>;
       case 'selectedExport':
         return <h1>Selected Export</h1>;
       case 'announcements':
