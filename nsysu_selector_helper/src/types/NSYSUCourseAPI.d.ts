@@ -15,7 +15,7 @@
  * @property {number} restrict - 限選人數
  * @property {number} select - 已選人數
  * @property {number} selected - 已選人數
- * @property {number} remaining - 剩餘名額
+ * @property {number} remaining - 剩餘名額 (可能為負數表示超收)
  * @property {string} teacher - 授課教師 e.g., "馮雅群"
  * @property {string} room - 上課教室 e.g., "三5,6(社SS 2001)"
  * @property {string[]} classTime - 上課時間 e.g., ["", "", "56", "", "", "", ""]

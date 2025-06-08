@@ -95,20 +95,33 @@ export class CustomQuickFiltersService {
   private static generateId(): string {
     return `custom_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
-
   // 驗證自定義篩選器格式
-  private static isValidCustomFilter(filter: any): filter is CustomQuickFilter {
+  private static isValidCustomFilter(
+    filter: unknown,
+  ): filter is CustomQuickFilter {
+    if (!filter || typeof filter !== 'object' || filter === null) {
+      return false;
+    }
+
+    const filterObj = filter as Record<string, unknown>;
+
+    if (
+      typeof filterObj.id !== 'string' ||
+      typeof filterObj.label !== 'string' ||
+      typeof filterObj.createdAt !== 'number' ||
+      !filterObj.condition ||
+      typeof filterObj.condition !== 'object' ||
+      filterObj.condition === null
+    ) {
+      return false;
+    }
+
+    const condition = filterObj.condition as Record<string, unknown>;
+
     return (
-      filter &&
-      typeof filter.id === 'string' &&
-      typeof filter.label === 'string' &&
-      typeof filter.createdAt === 'number' &&
-      filter.condition &&
-      typeof filter.condition.field === 'string' &&
-      (filter.condition.type === 'include' ||
-        filter.condition.type === 'exclude') &&
-      (typeof filter.condition.value === 'string' ||
-        Array.isArray(filter.condition.value))
+      typeof condition.field === 'string' &&
+      (condition.type === 'include' || condition.type === 'exclude') &&
+      (typeof condition.value === 'string' || Array.isArray(condition.value))
     );
   }
 

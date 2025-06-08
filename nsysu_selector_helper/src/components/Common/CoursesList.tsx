@@ -78,7 +78,9 @@ const CoursesList: React.FC<CoursesListProps> = ({
   const renderItem = (index: number) => {
     if (index === 0) {
       return <Header />;
-    } // 由於頂部有一個固定項目，所以所有後續項目的索引都要向前移動一位
+    }
+
+    // 由於頂部有一個固定項目，所以所有後續項目的索引都要向前移動一位
     const course = displayCourses[index - 1];
 
     // 如果課程不存在，則不渲染該課程，動態篩選時可能會發生

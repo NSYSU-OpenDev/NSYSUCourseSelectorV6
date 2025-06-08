@@ -122,7 +122,7 @@ const AllCourses: React.FC = () => {
             精確篩選
           </Button>
         </Badge>
-      </Flex>{' '}
+      </Flex>
       {/* 控制選項 */}
       <Flex justify='space-between' align='center' wrap='wrap' gap={8}>
         {/* 左側：排序按鈕 */}
@@ -158,7 +158,6 @@ const AllCourses: React.FC = () => {
   );
   return (
     <>
-      {' '}
       <StyledCard title={CardTitle}>
         <CreditsStatistics />
         <CoursesList

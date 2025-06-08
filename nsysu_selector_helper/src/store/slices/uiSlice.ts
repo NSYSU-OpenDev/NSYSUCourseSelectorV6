@@ -51,12 +51,13 @@ const initialState: UIState = {
   advancedFilterDrawerOpen: false,
   filterConditions: [],
   // 時間段篩選相關
-  selectedTimeSlots: [], // 自定義快速篩選器相關
+  selectedTimeSlots: [],
+  // 自定義快速篩選器相關
   customQuickFilters: [],
   showCustomFilterModal: false,
   editingCustomFilter: null,
   // 課程排序相關
-  sortConfig: { option: 'default', direction: 'asc' },
+  sortConfig: { rules: [{ option: 'default', direction: 'asc' }] },
 };
 
 // Slice
