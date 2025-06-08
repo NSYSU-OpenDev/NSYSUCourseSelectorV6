@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { Empty } from 'antd';
 import { useTranslation } from 'react-i18next';
@@ -32,10 +32,33 @@ const CoursesList: React.FC<CoursesListProps> = ({ filteredCourses }) => {
   const displayConflictCourses = useAppSelector(selectDisplayConflictCourses);
   const scrollToCourseId = useAppSelector(selectScrollToCourseId);
 
+  // 根據顯示設定過濾課程，避免在虛擬列表渲染階段返回 null
+  const displayCourses = useMemo(() => {
+    const selectedIds = new Set(selectedCourses.map((c) => c.id));
+    const selectedCoursesSet = new Set(selectedCourses);
+    return filteredCourses.filter((course) => {
+      const isSelected = selectedIds.has(course.id);
+      if (displaySelectedOnly && !isSelected) {
+        return false;
+      }
+
+      if (!isSelected && !displayConflictCourses) {
+        return !CourseService.detectTimeConflict(course, selectedCoursesSet);
+      }
+
+      return true;
+    });
+  }, [
+    filteredCourses,
+    selectedCourses,
+    displaySelectedOnly,
+    displayConflictCourses,
+  ]);
+
   // 處理滾動到特定課程
   useEffect(() => {
     if (scrollToCourseId && virtuosoRef.current) {
-      const courseIndex = filteredCourses.findIndex(
+      const courseIndex = displayCourses.findIndex(
         (c) => c.id === scrollToCourseId,
       );
       if (courseIndex !== -1) {
@@ -48,13 +71,13 @@ const CoursesList: React.FC<CoursesListProps> = ({ filteredCourses }) => {
         dispatch(setScrollToCourseId(''));
       }
     }
-  }, [scrollToCourseId, filteredCourses, dispatch]);
+  }, [scrollToCourseId, displayCourses, dispatch]);
 
   const renderItem = (index: number) => {
     if (index === 0) {
       return <Header />;
     } // 由於頂部有一個固定項目，所以所有後續項目的索引都要向前移動一位
-    const course = filteredCourses[index - 1];
+    const course = displayCourses[index - 1];
 
     // 如果課程不存在，則不渲染該課程，動態篩選時可能會發生
     if (!course) return null;
@@ -62,21 +85,10 @@ const CoursesList: React.FC<CoursesListProps> = ({ filteredCourses }) => {
     const isHovered = hoveredCourseId === course.id;
     let isConflict = false;
 
-    // 如果設定為僅顯示已選擇的課程，且當前課程未被選擇，則不渲染該課程
-    if (displaySelectedOnly && !isSelected) {
-      return null;
-    }
-
     // 只對未選課程檢測時間衝突
     if (!isSelected) {
       const selectedCoursesSet = new Set(selectedCourses);
       isConflict = CourseService.detectTimeConflict(course, selectedCoursesSet);
-
-      // 如果設定為不顯示衝突課程，且當前課程有衝突，則不渲染該課程
-      // 但已選課程永遠不被隱藏
-      if (!displayConflictCourses && isConflict) {
-        return null;
-      }
     }
 
     // 渲染課程項目
@@ -91,7 +103,7 @@ const CoursesList: React.FC<CoursesListProps> = ({ filteredCourses }) => {
     );
   };
 
-  if (filteredCourses.length === 0) {
+  if (displayCourses.length === 0) {
     return (
       <>
         <Header />
@@ -100,7 +112,7 @@ const CoursesList: React.FC<CoursesListProps> = ({ filteredCourses }) => {
     );
   }
 
-  const dataWithHeader = [{}, ...filteredCourses];
+  const dataWithHeader = [{}, ...displayCourses];
   return (
     <Virtuoso
       ref={virtuosoRef}
