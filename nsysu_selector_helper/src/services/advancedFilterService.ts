@@ -215,13 +215,13 @@ export class AdvancedFilterService {
       {
         field: 'name',
         label: '課程名稱',
-        options: [],
+        options: this.getUniqueOptions(courses, 'name'),
         searchable: true,
       },
       {
         field: 'id',
         label: '課程代碼',
-        options: [],
+        options: this.getUniqueOptions(courses, 'id'),
         searchable: true,
       },
       {
