@@ -15,6 +15,7 @@ import {
   Empty,
   Card,
   Popconfirm,
+  Tooltip,
 } from 'antd';
 import {
   PlusOutlined,
@@ -22,6 +23,7 @@ import {
   FilterOutlined,
   ClearOutlined,
   ThunderboltOutlined,
+  InfoOutlined,
 } from '@ant-design/icons';
 import styled from 'styled-components';
 
@@ -337,11 +339,11 @@ const AdvancedFilterDrawer: React.FC = () => {
     dispatch(clearAllFilterConditions());
   };
 
-  const handleQuickFilter = (filter: (typeof QUICK_FILTER)[0]) => {
+  const handleQuickFilter = (filter: FilterCondition & { label: string }) => {
     const newCondition: FilterCondition = {
       field: filter.field,
-      type: 'include',
-      value: [filter.value],
+      type: filter.type,
+      value: filter.value,
     };
     dispatch(addFilterCondition(newCondition));
   };
@@ -390,10 +392,13 @@ const AdvancedFilterDrawer: React.FC = () => {
             <Space>
               <ThunderboltOutlined />
               <span>系統快速篩選</span>
+              <Tooltip title='"年級一" 會包含所有學士一年級、碩士一年級和博士一年級的課程，其它年級同理。'>
+                <InfoOutlined />
+              </Tooltip>
             </Space>
           }
         >
-          <Space size={[8, 8]} wrap>
+          <Space size={[4, 4]} wrap>
             {QUICK_FILTER.map((filter, index) => (
               <Button
                 key={index}
@@ -403,7 +408,7 @@ const AdvancedFilterDrawer: React.FC = () => {
                   (condition) =>
                     condition.field === filter.field &&
                     Array.isArray(condition.value) &&
-                    condition.value.includes(filter.value),
+                    condition.value.every((val) => filter.value.includes(val)),
                 )}
               >
                 {filter.label}

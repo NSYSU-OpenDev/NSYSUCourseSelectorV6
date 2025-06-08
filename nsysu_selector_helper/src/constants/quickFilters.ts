@@ -1,13 +1,39 @@
-export const QUICK_FILTER = [
-  { label: '必修課程', field: 'compulsory', value: '必修' },
-  { label: '選修課程', field: 'compulsory', value: '選修' },
-  { label: '非英語授課', field: 'english', value: '中文授課' },
-  { label: '有剩餘名額', field: 'remaining', value: '大於0' },
-  { label: '博雅課程', field: 'department', value: '博雅' },
-  { label: '體育必修', field: 'department', value: '運動健康(必)' },
-  { label: '年級一', field: 'grade', value: '1' },
-  { label: '年級二', field: 'grade', value: '2' },
-  { label: '年級三', field: 'grade', value: '3' },
-  { label: '年級四', field: 'grade', value: '4' },
-  { label: '年級不分', field: 'grade', value: '0' },
+import type { FilterCondition } from '@/store/slices/uiSlice.ts';
+
+export const QUICK_FILTER: (FilterCondition & {
+  label: string;
+})[] = [
+  { label: '必修', field: 'compulsory', value: ['必修'], type: 'include' },
+  { label: '選修', field: 'compulsory', value: ['選修'], type: 'include' },
+  { label: '中文授課', field: 'english', value: ['中文授課'], type: 'include' },
+  {
+    label: '有剩餘名額',
+    field: 'remaining',
+    value: ['大於0'],
+    type: 'include',
+  },
+  { label: '博雅課', field: 'department', value: ['博雅'], type: 'include' },
+  {
+    label: '體育(必修)',
+    field: 'name',
+    value: ['運動與健康：初級游泳', '運動與健康：體適能'],
+    type: 'include',
+  },
+  {
+    label: '中文思辯與表達(必修)',
+    field: 'department',
+    value: ['中文思辨與表達'],
+    type: 'include',
+  },
+  {
+    label: '英文中高級',
+    field: 'department',
+    value: ['英文中高級'],
+    type: 'include',
+  },
+  { label: '年級一', field: 'grade', value: ['1'], type: 'include' },
+  { label: '年級二', field: 'grade', value: ['2'], type: 'include' },
+  { label: '年級三', field: 'grade', value: ['3'], type: 'include' },
+  { label: '年級四', field: 'grade', value: ['4'], type: 'include' },
+  { label: '不分年級', field: 'grade', value: ['0'], type: 'include' },
 ];
