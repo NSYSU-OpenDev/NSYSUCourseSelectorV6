@@ -46,3 +46,6 @@ export const selectShowCustomFilterModal = (state: RootState) =>
   state.ui.showCustomFilterModal;
 export const selectEditingCustomFilter = (state: RootState) =>
   state.ui.editingCustomFilter;
+
+// Course sorting selectors
+export const selectSortConfig = (state: RootState) => state.ui.sortConfig;

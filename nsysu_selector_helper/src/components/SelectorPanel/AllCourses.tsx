@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Card,
   Flex,
@@ -15,6 +15,7 @@ import styled from 'styled-components';
 import { CourseService } from '@/services/courseService';
 import { AdvancedFilterService } from '@/services/advancedFilterService';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { useCourseSorting } from '@/hooks';
 import {
   selectCourses,
   selectDisplaySelectedOnly,
@@ -30,6 +31,8 @@ import {
 import CoursesList from '#/Common/CoursesList';
 import AdvancedFilterDrawer from '#/SelectorPanel/AllCourses/AdvancedFilterDrawer';
 import CreditsStatistics from '#/SelectorPanel/AllCourses/CreditsStatistics';
+import CompactSortButton from '#/SelectorPanel/AllCourses/CompactSortButton';
+import CourseSortSelector from '#/SelectorPanel/AllCourses/CourseSortSelector';
 
 const StyledCard = styled(Card)`
   div.ant-card-head {
@@ -54,6 +57,9 @@ const AllCourses: React.FC = () => {
   const filterConditions = useAppSelector(selectFilterConditions);
   const selectedTimeSlots = useAppSelector(selectSelectedTimeSlots);
 
+  // 排序相關狀態
+  const [sortSelectorVisible, setSortSelectorVisible] = useState(false);
+
   // 根據搜尋條件、精確篩選條件和時間段篩選條件篩選課程
   const filteredCourses = useMemo(() => {
     // 先進行基本搜尋
@@ -75,8 +81,19 @@ const AllCourses: React.FC = () => {
     return result;
   }, [courses, searchQuery, filterConditions, selectedTimeSlots]);
 
+  // 使用排序 hook
+  const { sortedCourses } = useCourseSorting(filteredCourses);
+
   const handleOpenAdvancedFilter = () => {
     dispatch(setAdvancedFilterDrawerOpen(true));
+  };
+
+  const handleOpenSortSelector = () => {
+    setSortSelectorVisible(true);
+  };
+
+  const handleCloseSortSelector = () => {
+    setSortSelectorVisible(false);
   };
 
   const CardTitle = (
@@ -105,9 +122,13 @@ const AllCourses: React.FC = () => {
             精確篩選
           </Button>
         </Badge>
-      </Flex>
+      </Flex>{' '}
       {/* 控制選項 */}
-      <Flex justify='flex-end' align='center' wrap='wrap' gap={8}>
+      <Flex justify='space-between' align='center' wrap='wrap' gap={8}>
+        {/* 左側：排序按鈕 */}
+        <CompactSortButton onClick={handleOpenSortSelector} />
+
+        {/* 右側：開關選項 */}
         <Space size='small'>
           <Space size={4}>
             <Typography.Text style={{ fontSize: '12px' }}>
@@ -137,15 +158,20 @@ const AllCourses: React.FC = () => {
   );
   return (
     <>
+      {' '}
       <StyledCard title={CardTitle}>
         <CreditsStatistics />
         <CoursesList
-          filteredCourses={filteredCourses}
+          filteredCourses={sortedCourses}
           displayConflictCourses={displayConflictCourses}
           displaySelectedOnly={displaySelectedOnly}
         />
       </StyledCard>
       <AdvancedFilterDrawer />
+      <CourseSortSelector
+        visible={sortSelectorVisible}
+        onClose={handleCloseSortSelector}
+      />
     </>
   );
 };

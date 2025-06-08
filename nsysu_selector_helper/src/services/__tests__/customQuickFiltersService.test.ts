@@ -7,8 +7,15 @@ describe('CustomQuickFiltersService', () => {
   });
 
   it('應該新增並載入自定義篩選器', () => {
-    const condition: FilterCondition = { field: 'teacher', type: 'include', value: '張三' };
-    const filter = CustomQuickFiltersService.addCustomFilter('教師張三', condition);
+    const condition: FilterCondition = {
+      field: 'teacher',
+      type: 'include',
+      value: '張三',
+    };
+    const filter = CustomQuickFiltersService.addCustomFilter(
+      '教師張三',
+      condition,
+    );
     const loaded = CustomQuickFiltersService.loadCustomFilters();
 
     expect(loaded).toHaveLength(1);
@@ -16,8 +23,16 @@ describe('CustomQuickFiltersService', () => {
   });
 
   it('應該移除自定義篩選器', () => {
-    const cond1: FilterCondition = { field: 'teacher', type: 'include', value: '張三' };
-    const cond2: FilterCondition = { field: 'department', type: 'include', value: '資訊工程學系' };
+    const cond1: FilterCondition = {
+      field: 'teacher',
+      type: 'include',
+      value: '張三',
+    };
+    const cond2: FilterCondition = {
+      field: 'department',
+      type: 'include',
+      value: '資訊工程學系',
+    };
     const f1 = CustomQuickFiltersService.addCustomFilter('教師張三', cond1);
     const f2 = CustomQuickFiltersService.addCustomFilter('資工系', cond2);
 
@@ -29,7 +44,11 @@ describe('CustomQuickFiltersService', () => {
   });
 
   it('應該更新自定義篩選器', () => {
-    const cond: FilterCondition = { field: 'teacher', type: 'include', value: '張三' };
+    const cond: FilterCondition = {
+      field: 'teacher',
+      type: 'include',
+      value: '張三',
+    };
     const filter = CustomQuickFiltersService.addCustomFilter('教師張三', cond);
 
     CustomQuickFiltersService.updateCustomFilter(filter.id, {
@@ -43,7 +62,11 @@ describe('CustomQuickFiltersService', () => {
   });
 
   it('應該重置所有自定義篩選器', () => {
-    const cond: FilterCondition = { field: 'teacher', type: 'include', value: '張三' };
+    const cond: FilterCondition = {
+      field: 'teacher',
+      type: 'include',
+      value: '張三',
+    };
     CustomQuickFiltersService.addCustomFilter('教師張三', cond);
 
     CustomQuickFiltersService.resetCustomFilters();
@@ -53,7 +76,11 @@ describe('CustomQuickFiltersService', () => {
   });
 
   it('應該檢查篩選條件是否存在', () => {
-    const cond: FilterCondition = { field: 'teacher', type: 'include', value: '張三' };
+    const cond: FilterCondition = {
+      field: 'teacher',
+      type: 'include',
+      value: '張三',
+    };
     CustomQuickFiltersService.addCustomFilter('教師張三', cond);
 
     expect(CustomQuickFiltersService.isFilterExists(cond)).toBe(true);
@@ -67,7 +94,11 @@ describe('CustomQuickFiltersService', () => {
   });
 
   it('應該生成建議的篩選器標籤', () => {
-    const cond: FilterCondition = { field: 'department', type: 'include', value: 'CS' };
+    const cond: FilterCondition = {
+      field: 'department',
+      type: 'include',
+      value: 'CS',
+    };
     const options = [
       {
         field: 'department',
@@ -79,14 +110,25 @@ describe('CustomQuickFiltersService', () => {
       },
     ];
 
-    const label = CustomQuickFiltersService.generateSuggestedLabel(cond, options);
+    const label = CustomQuickFiltersService.generateSuggestedLabel(
+      cond,
+      options,
+    );
     expect(label).toBe('系所包含資訊工程學系');
   });
 
   it('應該取得儲存統計資訊', () => {
-    const cond: FilterCondition = { field: 'teacher', type: 'include', value: '張三' };
+    const cond: FilterCondition = {
+      field: 'teacher',
+      type: 'include',
+      value: '張三',
+    };
     CustomQuickFiltersService.addCustomFilter('F1', cond);
-    CustomQuickFiltersService.addCustomFilter('F2', { field: 'department', type: 'include', value: '資工' });
+    CustomQuickFiltersService.addCustomFilter('F2', {
+      field: 'department',
+      type: 'include',
+      value: '資工',
+    });
 
     const stats = CustomQuickFiltersService.getStorageStats();
     expect(stats.count).toBe(2);

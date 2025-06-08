@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { CustomQuickFilter } from '@/services/customQuickFiltersService';
+import type { SortConfig } from '@/services/courseSortingService';
 
 // 精確篩選條件類型
 export interface FilterCondition {
@@ -28,11 +29,12 @@ export interface UIState {
   advancedFilterDrawerOpen: boolean;
   filterConditions: FilterCondition[];
   // 時間段篩選相關
-  selectedTimeSlots: TimeSlotFilter[]; // 選中的時間段
-  // 自定義快速篩選器相關
+  selectedTimeSlots: TimeSlotFilter[]; // 選中的時間段  // 自定義快速篩選器相關
   customQuickFilters: CustomQuickFilter[];
   showCustomFilterModal: boolean;
   editingCustomFilter: CustomQuickFilter | null;
+  // 課程排序相關
+  sortConfig: SortConfig;
 }
 
 // 初始狀態
@@ -49,11 +51,12 @@ const initialState: UIState = {
   advancedFilterDrawerOpen: false,
   filterConditions: [],
   // 時間段篩選相關
-  selectedTimeSlots: [],
-  // 自定義快速篩選器相關
+  selectedTimeSlots: [], // 自定義快速篩選器相關
   customQuickFilters: [],
   showCustomFilterModal: false,
   editingCustomFilter: null,
+  // 課程排序相關
+  sortConfig: { option: 'default', direction: 'asc' },
 };
 
 // Slice
@@ -194,6 +197,10 @@ const uiSlice = createSlice({
     ) => {
       state.editingCustomFilter = action.payload;
     },
+    // 課程排序相關
+    setSortConfig: (state, action: PayloadAction<SortConfig>) => {
+      state.sortConfig = action.payload;
+    },
   },
 });
 
@@ -224,6 +231,8 @@ export const {
   clearAllCustomQuickFilters,
   setShowCustomFilterModal,
   setEditingCustomFilter,
+  // 課程排序相關
+  setSortConfig,
 } = uiSlice.actions;
 
 export default uiSlice;
