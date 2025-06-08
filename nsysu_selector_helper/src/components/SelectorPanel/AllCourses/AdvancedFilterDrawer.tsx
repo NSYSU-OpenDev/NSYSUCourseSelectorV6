@@ -30,10 +30,6 @@ import {
   selectAdvancedFilterDrawerOpen,
   selectFilterConditions,
   selectCourses,
-  selectSearchQuery,
-  selectSelectedCourses,
-  selectDisplaySelectedOnly,
-  selectDisplayConflictCourses,
   setAdvancedFilterDrawerOpen,
   addFilterCondition,
   removeFilterCondition,
@@ -44,10 +40,20 @@ import {
   AdvancedFilterService,
   type FieldOptions,
 } from '@/services/advancedFilterService';
-import { CourseService } from '@/services/courseService';
 import type { FilterCondition } from '@/store/slices/uiSlice';
+import { QUICK_FILTER } from '@/constants';
 
 const { Text, Title } = Typography;
+
+const StyledDrawer = styled(Drawer)`
+  .ant-drawer-header {
+    padding: 6px 8px;
+  }
+
+  .ant-drawer-body {
+    padding: 12px;
+  }
+`;
 
 const StyledCollapse = styled(Collapse)`
   margin-bottom: 8px;
@@ -64,13 +70,6 @@ const StyledCollapse = styled(Collapse)`
   .ant-collapse-content-box {
     padding: 12px 16px;
   }
-`;
-
-const StatsContainer = styled.div`
-  background: #f5f5f5;
-  padding: 8px;
-  border-radius: 6px;
-  margin-bottom: 12px;
 `;
 
 interface FilterConditionItemProps {
@@ -301,59 +300,11 @@ const AdvancedFilterDrawer: React.FC = () => {
   const open = useAppSelector(selectAdvancedFilterDrawerOpen);
   const filterConditions = useAppSelector(selectFilterConditions);
   const courses = useAppSelector(selectCourses);
-  const searchQuery = useAppSelector(selectSearchQuery);
-  const selectedCourses = useAppSelector(selectSelectedCourses);
-  const displaySelectedOnly = useAppSelector(selectDisplaySelectedOnly);
-  const displayConflictCourses = useAppSelector(selectDisplayConflictCourses);
 
   // 動態計算篩選選項
   const fieldOptions = useMemo(() => {
     return AdvancedFilterService.getFilterOptions(courses);
   }, [courses]);
-
-  // 計算篩選後的課程數量 (與主要列表和統計組件保持一致)
-  const filteredCoursesCount = useMemo(() => {
-    // 先進行基本搜尋
-    let result = CourseService.searchCourses(courses, searchQuery);
-
-    // 再進行精確篩選
-    if (filterConditions.length > 0) {
-      result = AdvancedFilterService.filterCourses(result, filterConditions);
-    }
-
-    // 應用與 CoursesList 和 CreditsStatistics 相同的顯示篩選邏輯
-    return result.filter((course) => {
-      const isSelected = selectedCourses.some((c) => c.id === course.id);
-
-      // 如果設定為僅顯示已選擇的課程，且當前課程未被選擇，則不顯示
-      if (displaySelectedOnly && !isSelected) {
-        return false;
-      }
-
-      // 只對未選課程檢測時間衝突
-      if (!isSelected) {
-        const selectedCoursesSet = new Set(selectedCourses);
-        const isConflict = CourseService.detectTimeConflict(
-          course,
-          selectedCoursesSet,
-        );
-
-        // 如果設定為不顯示衝突課程，且當前課程有衝突，則不顯示
-        if (!displayConflictCourses && isConflict) {
-          return false;
-        }
-      }
-
-      return true;
-    }).length;
-  }, [
-    courses,
-    searchQuery,
-    filterConditions,
-    selectedCourses,
-    displaySelectedOnly,
-    displayConflictCourses,
-  ]);
 
   const handleClose = () => {
     dispatch(setAdvancedFilterDrawerOpen(false));
@@ -378,15 +329,7 @@ const AdvancedFilterDrawer: React.FC = () => {
     dispatch(clearAllFilterConditions());
   };
 
-  // 快速篩選預設選項
-  const quickFilters = [
-    { label: '必修課程', field: 'compulsory', value: '必修' },
-    { label: '選修課程', field: 'compulsory', value: '選修' },
-    { label: '非英語授課', field: 'english', value: '中文授課' },
-    { label: '有剩餘名額', field: 'remaining', value: '大於0' },
-  ];
-
-  const handleQuickFilter = (filter: (typeof quickFilters)[0]) => {
+  const handleQuickFilter = (filter: (typeof QUICK_FILTER)[0]) => {
     const newCondition: FilterCondition = {
       field: filter.field,
       type: 'include',
@@ -396,7 +339,7 @@ const AdvancedFilterDrawer: React.FC = () => {
   };
 
   return (
-    <Drawer
+    <StyledDrawer
       title={
         <Space>
           <FilterOutlined />
@@ -426,52 +369,7 @@ const AdvancedFilterDrawer: React.FC = () => {
         </Space>
       }
     >
-      <Space direction='vertical' style={{ width: '100%' }} size='middle'>
-        {/* 統計資訊 */}
-        <StatsContainer>
-          <Row gutter={16}>
-            <Col span={12}>
-              <div style={{ textAlign: 'center' }}>
-                <div
-                  style={{
-                    fontSize: '20px',
-                    fontWeight: 'bold',
-                    color: '#1890ff',
-                  }}
-                >
-                  {filteredCoursesCount}
-                </div>
-                <div style={{ fontSize: '12px', color: '#666' }}>
-                  篩選後課程
-                </div>
-              </div>
-            </Col>
-            <Col span={12}>
-              <div style={{ textAlign: 'center' }}>
-                <div
-                  style={{
-                    fontSize: '20px',
-                    fontWeight: 'bold',
-                    color: '#52c41a',
-                  }}
-                >
-                  {filterConditions.length}
-                </div>
-                <div style={{ fontSize: '12px', color: '#666' }}>篩選條件</div>
-              </div>
-            </Col>
-          </Row>
-        </StatsContainer>
-        {/* 新增篩選條件按鈕 */}
-        <Button
-          type='dashed'
-          icon={<PlusOutlined />}
-          onClick={handleAddCondition}
-          block
-          disabled={fieldOptions.length === 0}
-        >
-          新增篩選條件
-        </Button>
+      <Space direction='vertical' style={{ width: '100%' }} size='small'>
         {/* 快速篩選 */}
         <Card
           size='small'
@@ -483,7 +381,7 @@ const AdvancedFilterDrawer: React.FC = () => {
           }
         >
           <Space size={[8, 8]} wrap>
-            {quickFilters.map((filter, index) => (
+            {QUICK_FILTER.map((filter, index) => (
               <Button
                 key={index}
                 size='small'
@@ -500,6 +398,16 @@ const AdvancedFilterDrawer: React.FC = () => {
             ))}
           </Space>
         </Card>
+        {/* 新增篩選條件按鈕 */}
+        <Button
+          type='dashed'
+          icon={<PlusOutlined />}
+          onClick={handleAddCondition}
+          block
+          disabled={fieldOptions.length === 0}
+        >
+          新增篩選條件
+        </Button>
         <Divider style={{ margin: '12px 0' }} />
         {/* 篩選條件列表 */}
         {filterConditions.length > 0 ? (
@@ -525,7 +433,7 @@ const AdvancedFilterDrawer: React.FC = () => {
           />
         )}
       </Space>
-    </Drawer>
+    </StyledDrawer>
   );
 };
 
