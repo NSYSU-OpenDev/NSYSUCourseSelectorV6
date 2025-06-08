@@ -25,11 +25,13 @@ export {
   addFilterCondition,
   removeFilterCondition,
   updateFilterCondition,
+  setFilterConditions,
   clearAllFilterConditions, // 時間段篩選相關
   addTimeSlotFilter,
   removeTimeSlotFilter,
   toggleTimeSlotFilter,
   clearAllTimeSlotFilters,
+  setSelectedTimeSlots,
   // 課程排序相關
   setSortConfig,
 } from './slices/uiSlice';

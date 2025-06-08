@@ -15,7 +15,7 @@ import styled from 'styled-components';
 import { CourseService } from '@/services/courseService';
 import { AdvancedFilterService } from '@/services/advancedFilterService';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { useCourseSorting } from '@/hooks';
+import { useCourseSorting, useFilterPersistence } from '@/hooks';
 import {
   selectCourses,
   selectDisplaySelectedOnly,
@@ -49,6 +49,7 @@ const StyledCard = styled(Card)`
 `;
 
 const AllCourses: React.FC = () => {
+  useFilterPersistence();
   const dispatch = useAppDispatch();
   const courses = useAppSelector(selectCourses);
   const displaySelectedOnly = useAppSelector(selectDisplaySelectedOnly);
