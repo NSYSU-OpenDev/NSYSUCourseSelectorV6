@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import type { CustomQuickFilter } from '@/services/customQuickFiltersService';
 
 // 精確篩選條件類型
 export interface FilterCondition {
@@ -28,6 +29,10 @@ export interface UIState {
   filterConditions: FilterCondition[];
   // 時間段篩選相關
   selectedTimeSlots: TimeSlotFilter[]; // 選中的時間段
+  // 自定義快速篩選器相關
+  customQuickFilters: CustomQuickFilter[];
+  showCustomFilterModal: boolean;
+  editingCustomFilter: CustomQuickFilter | null;
 }
 
 // 初始狀態
@@ -45,6 +50,10 @@ const initialState: UIState = {
   filterConditions: [],
   // 時間段篩選相關
   selectedTimeSlots: [],
+  // 自定義快速篩選器相關
+  customQuickFilters: [],
+  showCustomFilterModal: false,
+  editingCustomFilter: null,
 };
 
 // Slice
@@ -140,6 +149,51 @@ const uiSlice = createSlice({
     clearAllTimeSlotFilters: (state) => {
       state.selectedTimeSlots = [];
     },
+    // 自定義快速篩選器相關
+    setCustomQuickFilters: (
+      state,
+      action: PayloadAction<CustomQuickFilter[]>,
+    ) => {
+      state.customQuickFilters = action.payload;
+    },
+    addCustomQuickFilter: (state, action: PayloadAction<CustomQuickFilter>) => {
+      state.customQuickFilters.push(action.payload);
+    },
+    removeCustomQuickFilter: (state, action: PayloadAction<string>) => {
+      state.customQuickFilters = state.customQuickFilters.filter(
+        (filter) => filter.id !== action.payload,
+      );
+    },
+    updateCustomQuickFilter: (
+      state,
+      action: PayloadAction<{
+        id: string;
+        updates: Partial<CustomQuickFilter>;
+      }>,
+    ) => {
+      const { id, updates } = action.payload;
+      const index = state.customQuickFilters.findIndex(
+        (filter) => filter.id === id,
+      );
+      if (index !== -1) {
+        state.customQuickFilters[index] = {
+          ...state.customQuickFilters[index],
+          ...updates,
+        };
+      }
+    },
+    clearAllCustomQuickFilters: (state) => {
+      state.customQuickFilters = [];
+    },
+    setShowCustomFilterModal: (state, action: PayloadAction<boolean>) => {
+      state.showCustomFilterModal = action.payload;
+    },
+    setEditingCustomFilter: (
+      state,
+      action: PayloadAction<CustomQuickFilter | null>,
+    ) => {
+      state.editingCustomFilter = action.payload;
+    },
   },
 });
 
@@ -162,6 +216,14 @@ export const {
   removeTimeSlotFilter,
   toggleTimeSlotFilter,
   clearAllTimeSlotFilters,
+  // 自定義快速篩選器相關
+  setCustomQuickFilters,
+  addCustomQuickFilter,
+  removeCustomQuickFilter,
+  updateCustomQuickFilter,
+  clearAllCustomQuickFilters,
+  setShowCustomFilterModal,
+  setEditingCustomFilter,
 } = uiSlice.actions;
 
 export default uiSlice;

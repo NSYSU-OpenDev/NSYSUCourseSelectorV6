@@ -38,3 +38,11 @@ export const selectFilterConditions = (state: RootState) =>
 // Time slot filter selectors
 export const selectSelectedTimeSlots = (state: RootState) =>
   state.ui.selectedTimeSlots;
+
+// Custom quick filters selectors
+export const selectCustomQuickFilters = (state: RootState) =>
+  state.ui.customQuickFilters;
+export const selectShowCustomFilterModal = (state: RootState) =>
+  state.ui.showCustomFilterModal;
+export const selectEditingCustomFilter = (state: RootState) =>
+  state.ui.editingCustomFilter;

@@ -11,10 +11,8 @@ import {
 } from 'antd';
 import { useTranslation } from 'react-i18next';
 import {
-  BookFilled,
   BookOutlined,
   FileDoneOutlined,
-  FileSearchOutlined,
   NotificationOutlined,
   MenuOutlined,
 } from '@ant-design/icons';

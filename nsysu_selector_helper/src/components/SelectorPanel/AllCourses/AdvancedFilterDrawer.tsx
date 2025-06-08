@@ -30,18 +30,23 @@ import {
   selectAdvancedFilterDrawerOpen,
   selectFilterConditions,
   selectCourses,
+} from '@/store/selectors';
+import {
   setAdvancedFilterDrawerOpen,
   addFilterCondition,
   removeFilterCondition,
   updateFilterCondition,
   clearAllFilterConditions,
-} from '@/store';
+} from '@/store/slices/uiSlice';
 import {
   AdvancedFilterService,
   type FieldOptions,
 } from '@/services/advancedFilterService';
 import type { FilterCondition } from '@/store/slices/uiSlice';
 import { QUICK_FILTER } from '@/constants';
+import { useCustomQuickFilters } from '@/hooks';
+import CustomQuickFilters from './CustomQuickFilters';
+import CustomFilterModal from './CustomFilterModal';
 
 const { Text, Title } = Typography;
 
@@ -301,6 +306,9 @@ const AdvancedFilterDrawer: React.FC = () => {
   const filterConditions = useAppSelector(selectFilterConditions);
   const courses = useAppSelector(selectCourses);
 
+  // 使用自定義快速篩選器 hook
+  useCustomQuickFilters();
+
   // 動態計算篩選選項
   const fieldOptions = useMemo(() => {
     return AdvancedFilterService.getFilterOptions(courses);
@@ -370,13 +378,18 @@ const AdvancedFilterDrawer: React.FC = () => {
       }
     >
       <Space direction='vertical' style={{ width: '100%' }} size='small'>
-        {/* 快速篩選 */}
+        {/* 自定義快速篩選器 */}
+        <CustomQuickFilters fieldOptions={fieldOptions} />
+
+        <Divider style={{ margin: '8px 0' }} />
+
+        {/* 系統預設快速篩選 */}
         <Card
           size='small'
           title={
             <Space>
               <ThunderboltOutlined />
-              <span>快速篩選</span>
+              <span>系統快速篩選</span>
             </Space>
           }
         >
@@ -433,6 +446,7 @@ const AdvancedFilterDrawer: React.FC = () => {
           />
         )}
       </Space>
+      <CustomFilterModal fieldOptions={fieldOptions} />
     </StyledDrawer>
   );
 };
