@@ -111,7 +111,7 @@ const AllCourses: React.FC = () => {
         <Space size='small'>
           <Space size={4}>
             <Typography.Text style={{ fontSize: '12px' }}>
-              僅顯示已選課程：
+              僅顯示已選：
             </Typography.Text>
             <Switch
               checked={displaySelectedOnly}
@@ -121,7 +121,7 @@ const AllCourses: React.FC = () => {
           </Space>
           <Space size={4}>
             <Typography.Text style={{ fontSize: '12px' }}>
-              顯示衝突課程：
+              顯示衝突：
             </Typography.Text>
             <Switch
               checked={displayConflictCourses}
