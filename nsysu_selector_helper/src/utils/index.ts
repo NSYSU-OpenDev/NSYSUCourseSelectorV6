@@ -1,0 +1,1 @@
+export { GetProbability } from './getProbability';

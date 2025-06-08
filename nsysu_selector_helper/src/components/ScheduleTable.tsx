@@ -1,15 +1,6 @@
 import React, { ReactNode, useEffect, useState } from 'react';
-import {
-  Card,
-  Table,
-  Typography,
-  Tag,
-  Switch,
-  Button,
-  Modal,
-  Flex,
-} from 'antd';
-import { EyeOutlined } from '@ant-design/icons';
+import { Card, Table, Typography, Tag, Switch, Flex } from 'antd';
+import { ColumnsType } from 'antd/es/table';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 
@@ -28,7 +19,8 @@ import {
   toggleTimeSlotFilter,
   clearAllTimeSlotFilters,
 } from '@/store';
-import { ColumnsType } from 'antd/es/table';
+import { GetProbability } from '@/utils';
+import MobileCourseDetailsModal from '#/ScheduleTable/MobileCourseDetailsModal';
 
 // Department color mapping - using Ant Design official colors
 const getDepartmentColor = (department: string): string => {
@@ -319,32 +311,6 @@ const ScheduleTable: React.FC = () => {
     (Course & { roomForThisSlot?: string }) | null
   >(null);
 
-  // 計算選上機率
-  const getSuccessProbability = (select: number, remaining: number): number => {
-    if (remaining <= 0) return 0; // 已滿或超額
-    if (select <= 0) return 100; // 沒人搶，100%選上
-
-    // 簡化計算：remaining / select * 100，但限制在0-100之間
-    const probability = Math.min((remaining / select) * 100, 100);
-    return Math.max(probability, 0);
-  };
-
-  const getProbabilityStatus = (
-    remaining: number,
-  ): 'full' | 'overbooked' | 'normal' => {
-    if (remaining === 0) return 'full'; // 剛好滿額
-    if (remaining < 0) return 'overbooked'; // 超額（加簽等）
-    return 'normal'; // 正常
-  };
-
-  const getProbabilityText = (select: number, remaining: number): string => {
-    if (remaining <= 0) {
-      return remaining === 0 ? '已滿' : `超額${Math.abs(remaining)}`;
-    }
-    const probability = getSuccessProbability(select, remaining);
-    return `${Math.round(probability)}%`;
-  };
-
   // 檢查時間段是否被選中用於篩選
   const isTimeSlotSelected = (day: number, timeSlot: string): boolean => {
     return selectedTimeSlots.some(
@@ -374,11 +340,14 @@ const ScheduleTable: React.FC = () => {
     if (isMobile) {
       dispatch(setActiveCollapseKey(['selectorPanel']));
     }
-  }; // 處理手機端課程標籤點擊 - 顯示 Modal
+  };
+
+  // 處理手機端課程標籤點擊 - 顯示 Modal
   const handleMobileCourseClick = (course: Course, roomForThisSlot: string) => {
     setSelectedCourse({ ...course, roomForThisSlot });
     setModalVisible(true);
   };
+
   // 處理課程標籤點擊
   const handleCourseClick = (course: Course, roomForThisSlot?: string) => {
     if (isMobile) {
@@ -576,11 +545,13 @@ const ScheduleTable: React.FC = () => {
                   }}
                 >
                   <ProbabilityIndicator
-                    $probability={getSuccessProbability(
+                    $probability={GetProbability.getSuccessProbability(
                       course.select,
                       course.remaining,
                     )}
-                    $status={getProbabilityStatus(course.remaining)}
+                    $status={GetProbability.getProbabilityStatus(
+                      course.remaining,
+                    )}
                   />
                   <CourseTagContent>
                     {!isMobile
@@ -589,9 +560,14 @@ const ScheduleTable: React.FC = () => {
                         ? `${course.name.substring(0, 6)}...`
                         : course.name}
                     <ProbabilityText
-                      $status={getProbabilityStatus(course.remaining)}
+                      $status={GetProbability.getProbabilityStatus(
+                        course.remaining,
+                      )}
                     >
-                      {getProbabilityText(course.select, course.remaining)}
+                      {GetProbability.getProbabilityText(
+                        course.select,
+                        course.remaining,
+                      )}
                     </ProbabilityText>
                   </CourseTagContent>
                 </CourseTag>
@@ -695,6 +671,7 @@ const ScheduleTable: React.FC = () => {
       </Flex>
     </CardHeader>
   );
+
   return (
     <>
       <StyledCard title={<TitleComponent />}>
@@ -711,59 +688,11 @@ const ScheduleTable: React.FC = () => {
       </StyledCard>
 
       {/* Mobile Course Details Modal */}
-      <Modal
-        title='課程詳情'
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        footer={[
-          <Button key='cancel' onClick={() => setModalVisible(false)}>
-            關閉
-          </Button>,
-          <Button
-            key='navigate'
-            type='primary'
-            icon={<EyeOutlined />}
-            onClick={() => {
-              if (selectedCourse) {
-                handleCourseNavigate(selectedCourse.id);
-                setModalVisible(false);
-              }
-            }}
-          >
-            查看課程
-          </Button>,
-        ]}
-        centered
-      >
-        {selectedCourse && (
-          <div>
-            <div style={{ marginBottom: '12px' }}>
-              <strong>課程名稱：</strong>
-              {selectedCourse.name}
-            </div>
-            <div style={{ marginBottom: '12px' }}>
-              <strong>授課教師：</strong>
-              {selectedCourse.teacher}
-            </div>
-            <div style={{ marginBottom: '12px' }}>
-              <strong>課程代號：</strong>
-              {selectedCourse.id}
-            </div>
-            <div style={{ marginBottom: '12px' }}>
-              <strong>學分數：</strong>
-              {selectedCourse.credit}
-            </div>
-            <div style={{ marginBottom: '12px' }}>
-              <strong>教室：</strong>
-              {selectedCourse.roomForThisSlot || '未知'}
-            </div>
-            <div style={{ marginBottom: '12px' }}>
-              <strong>系所：</strong>
-              {selectedCourse.department}
-            </div>
-          </div>
-        )}
-      </Modal>
+      <MobileCourseDetailsModal
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        selectedCourse={selectedCourse}
+      />
     </>
   );
 };

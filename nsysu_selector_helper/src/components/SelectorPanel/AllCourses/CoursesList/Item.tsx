@@ -15,6 +15,7 @@ import type { Course } from '@/types';
 import { useAppDispatch } from '@/store/hooks';
 import { selectCourse, setHoveredCourseId } from '@/store';
 import { useWindowSize } from '@/hooks';
+import { GetProbability } from '@/utils';
 
 const StyledTag = styled(Tag)`
   font-size: 10px;
@@ -156,32 +157,6 @@ const Item: React.FC<ItemProps> = ({
 
   const hideModal = () => {
     setIsModalVisible(false);
-  };
-
-  // 計算選上機率
-  const getSuccessProbability = (select: number, remaining: number): number => {
-    if (remaining <= 0) return 0; // 已滿或超額
-    if (select <= 0) return 100; // 沒人搶，100%選上
-
-    // 簡化計算：remaining / select * 100，但限制在0-100之間
-    const probability = Math.min((remaining / select) * 100, 100);
-    return Math.max(probability, 0);
-  };
-
-  const getProbabilityStatus = (
-    remaining: number,
-  ): 'full' | 'overbooked' | 'normal' => {
-    if (remaining === 0) return 'full'; // 剛好滿額
-    if (remaining < 0) return 'overbooked'; // 超額（加簽等）
-    return 'normal'; // 正常
-  };
-
-  const getProbabilityText = (select: number, remaining: number): string => {
-    if (remaining <= 0) {
-      return remaining === 0 ? '已滿' : `超額${Math.abs(remaining)}`;
-    }
-    const probability = getSuccessProbability(select, remaining);
-    return `${Math.round(probability)}%`;
   };
 
   const {
@@ -442,8 +417,10 @@ const Item: React.FC<ItemProps> = ({
           alignItems: 'center',
         }}
       >
-        <ProbabilityText $status={getProbabilityStatus(remaining)}>
-          選上機率: {getProbabilityText(select, remaining)}
+        <ProbabilityText
+          $status={GetProbability.getProbabilityStatus(remaining)}
+        >
+          選上機率: {GetProbability.getProbabilityText(select, remaining)}
         </ProbabilityText>
         <span style={{ fontSize: '9px', color: '#999' }}>
           點選: {select} | 剩餘: {remaining}
@@ -451,8 +428,8 @@ const Item: React.FC<ItemProps> = ({
       </div>
       <ProbabilityBar>
         <ProbabilityFill
-          $probability={getSuccessProbability(select, remaining)}
-          $status={getProbabilityStatus(remaining)}
+          $probability={GetProbability.getSuccessProbability(select, remaining)}
+          $status={GetProbability.getProbabilityStatus(remaining)}
         />
       </ProbabilityBar>
     </CourseRow>
