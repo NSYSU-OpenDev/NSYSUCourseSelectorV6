@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useMemo } from 'react';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
-import { Empty } from 'antd';
+import { Empty, Skeleton } from 'antd';
 import { useTranslation } from 'react-i18next';
 
 import { CourseService } from '@/services/courseService.ts';
@@ -14,6 +14,12 @@ import {
 import { Course } from '@/types';
 import Header from '#/Common/CoursesList/Header';
 import Item from '#/Common/CoursesList/Item';
+
+const ScrollSeekPlaceholder: React.FC<{ height: number }> = ({ height }) => (
+  <div style={{ height, padding: '8px', boxSizing: 'border-box' }}>
+    <Skeleton active title={false} paragraph={{ rows: 1 }} />
+  </div>
+);
 
 interface CoursesListProps {
   filteredCourses: Course[];
@@ -124,6 +130,11 @@ const CoursesList: React.FC<CoursesListProps> = ({
       data={dataWithHeader}
       itemContent={renderItem}
       topItemCount={1}
+      components={{ ScrollSeekPlaceholder }}
+      scrollSeekConfiguration={{
+        enter: (velocity) => Math.abs(velocity) > 100,
+        exit: (velocity) => Math.abs(velocity) < 30,
+      }}
     />
   );
 };
