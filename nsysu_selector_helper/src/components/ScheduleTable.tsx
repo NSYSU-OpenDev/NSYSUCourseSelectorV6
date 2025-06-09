@@ -500,8 +500,9 @@ const ScheduleTable: React.FC = () => {
                   style={
                     labelStyle
                       ? {
-                          background: labelStyle.bgColor,
+                          backgroundColor: labelStyle.bgColor,
                           borderColor: labelStyle.borderColor,
+                          color: labelStyle.textColor,
                         }
                       : undefined
                   }
