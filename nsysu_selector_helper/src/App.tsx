@@ -85,15 +85,6 @@ const App: React.FC = () => {
         </ContentWrapper>
       ),
     },
-    {
-      key: 'selectorPanel',
-      label: '課程控制面板',
-      children: (
-        <ContentWrapper>
-          <SelectorPanel />
-        </ContentWrapper>
-      ),
-    },
   ];
 
   // 初始化 - 獲取可用學期
@@ -140,6 +131,9 @@ const App: React.FC = () => {
           bordered={false}
           items={collapseItems}
         />
+        <ContentWrapper>
+          <SelectorPanel />
+        </ContentWrapper>
       </MobileLayout>
     </ConfigProvider>
   );

@@ -5,11 +5,6 @@ import {
   Space,
   Typography,
   Card,
-  Select,
-  Radio,
-  Collapse,
-  Row,
-  Col,
   Empty,
   Divider,
   Popconfirm,
@@ -17,12 +12,8 @@ import {
 } from 'antd';
 import {
   SortAscendingOutlined,
-  SortDescendingOutlined,
   PlusOutlined,
-  DeleteOutlined,
   ClearOutlined,
-  ArrowUpOutlined,
-  ArrowDownOutlined,
   BulbOutlined,
   AimOutlined,
   BarChartOutlined,
@@ -32,14 +23,10 @@ import styled from 'styled-components';
 
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { selectSortConfig, setSortConfig } from '@/store';
-import {
-  CourseSortingService,
-  SortConfig,
-  SortRule,
-  SortDirection,
-  AvailableSortOptions,
-} from '@/services';
+import { CourseSortingService, SortConfig, SortRule } from '@/services';
 import { DEFAULT_SORT_OPTIONS } from '@/constants';
+import SortRuleItem from './SortRuleItem';
+import { getSortRuleDisplayText } from '@/utils';
 
 const { Text, Title } = Typography;
 
@@ -52,206 +39,6 @@ const StyledDrawer = styled(Drawer)`
     padding: 12px;
   }
 `;
-
-const StyledCollapse = styled(Collapse)`
-  margin-bottom: 8px;
-
-  .ant-collapse-item {
-    border: 1px solid #d9d9d9;
-    border-radius: 6px;
-  }
-
-  .ant-collapse-header {
-    padding: 8px 16px !important;
-  }
-
-  .ant-collapse-content-box {
-    padding: 12px 16px;
-  }
-`;
-
-interface SortRuleItemProps {
-  rule: SortRule;
-  index: number;
-  onUpdate: (index: number, rule: SortRule) => void;
-  onRemove: (index: number) => void;
-  onMoveUp?: (index: number) => void;
-  onMoveDown?: (index: number) => void;
-  isFirst?: boolean;
-  isLast?: boolean;
-}
-
-// 生成排序規則的顯示文字
-const getRuleDisplayText = (rule: SortRule): string => {
-  const option = DEFAULT_SORT_OPTIONS.find((opt) => opt.key === rule.option);
-  const optionLabel = option?.label || rule.option;
-  const directionLabel = rule.direction === 'asc' ? '升序' : '降序';
-
-  if (rule.option === 'default') {
-    return '預設排序';
-  }
-
-  return `${optionLabel} (${directionLabel})`;
-};
-
-const SortRuleItem: React.FC<SortRuleItemProps> = ({
-  rule,
-  index,
-  onUpdate,
-  onRemove,
-  onMoveUp,
-  onMoveDown,
-  isFirst,
-  isLast,
-}) => {
-  const currentOption = DEFAULT_SORT_OPTIONS.find(
-    (opt) => opt.key === rule.option,
-  );
-
-  const handleOptionChange = (option: AvailableSortOptions) => {
-    onUpdate(index, { ...rule, option });
-  };
-
-  const handleDirectionChange = (direction: SortDirection) => {
-    onUpdate(index, { ...rule, direction });
-  };
-
-  const displayText = getRuleDisplayText(rule);
-
-  return (
-    <StyledCollapse
-      size='small'
-      items={[
-        {
-          key: `rule-${index}`,
-          label: (
-            <Space>
-              <SortAscendingOutlined />
-              <Text>{displayText}</Text>
-              <Tag color='blue'>第 {index + 1} 優先</Tag>
-            </Space>
-          ),
-          extra: (
-            <Space size='small'>
-              {!isFirst && (
-                <Button
-                  type='text'
-                  size='small'
-                  icon={<ArrowUpOutlined />}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onMoveUp?.(index);
-                  }}
-                  title='提高優先級'
-                />
-              )}
-              {!isLast && (
-                <Button
-                  type='text'
-                  size='small'
-                  icon={<ArrowDownOutlined />}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onMoveDown?.(index);
-                  }}
-                  title='降低優先級'
-                />
-              )}
-              <Button
-                type='text'
-                size='small'
-                icon={<DeleteOutlined />}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRemove(index);
-                }}
-                danger
-                title='刪除此排序'
-              />
-            </Space>
-          ),
-          children: (
-            <Row gutter={[8, 8]}>
-              <Col span={24}>
-                <Space
-                  direction='vertical'
-                  style={{ width: '100%' }}
-                  size='small'
-                >
-                  {/* 排序選項 */}
-                  <div>
-                    <Text
-                      style={{
-                        fontSize: '12px',
-                        marginBottom: '4px',
-                        display: 'block',
-                      }}
-                    >
-                      排序方式：
-                    </Text>
-                    <Select
-                      style={{ width: '100%' }}
-                      value={rule.option}
-                      onChange={handleOptionChange}
-                      placeholder='選擇排序方式'
-                      options={DEFAULT_SORT_OPTIONS.filter(
-                        (opt) => opt.key !== 'default',
-                      ).map((option) => ({
-                        value: option.key,
-                        label: option.label,
-                      }))}
-                    />
-                    {currentOption?.description &&
-                      currentOption?.description
-                        .split('；')
-                        .map((desc, idx) => (
-                          <Text
-                            key={idx}
-                            type='secondary'
-                            style={{
-                              fontSize: '11px',
-                              marginTop: '4px',
-                              display: 'block',
-                            }}
-                          >
-                            {desc}
-                          </Text>
-                        ))}
-                  </div>
-
-                  {/* 排序方向 */}
-                  <div>
-                    <Text
-                      style={{
-                        fontSize: '12px',
-                        marginBottom: '4px',
-                        display: 'block',
-                      }}
-                    >
-                      排序方向：
-                    </Text>
-                    <Radio.Group
-                      value={rule.direction}
-                      onChange={(e) => handleDirectionChange(e.target.value)}
-                      size='small'
-                    >
-                      <Radio.Button value='asc'>
-                        <SortAscendingOutlined /> 升序
-                      </Radio.Button>
-                      <Radio.Button value='desc'>
-                        <SortDescendingOutlined /> 降序
-                      </Radio.Button>
-                    </Radio.Group>
-                  </div>
-                </Space>
-              </Col>
-            </Row>
-          ),
-        },
-      ]}
-    />
-  );
-};
 
 interface CourseSortSelectorProps {
   visible: boolean;
@@ -266,19 +53,21 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
   const currentSortConfig = useAppSelector(selectSortConfig);
   const [tempConfig, setTempConfig] = useState<SortConfig>(currentSortConfig);
 
-  // 更新本地配置當外部配置變化時
+  // 更新本地配置當外部配置變化時（僅在 Drawer 打開時同步）
   React.useEffect(() => {
-    setTempConfig(currentSortConfig);
-  }, [currentSortConfig]);
-
-  // 動態應用排序配置變更
-  React.useEffect(() => {
-    // 避免在初始化時觸發，只在配置真正變更時觸發
-    if (JSON.stringify(tempConfig) !== JSON.stringify(currentSortConfig)) {
-      dispatch(setSortConfig(tempConfig));
-      CourseSortingService.saveSortConfig(tempConfig);
+    if (visible) {
+      setTempConfig(currentSortConfig);
     }
-  }, [tempConfig, currentSortConfig, dispatch]);
+  }, [currentSortConfig, visible]);
+
+  // 手動應用排序配置變更
+  const applySortConfig = React.useCallback(
+    (config: SortConfig) => {
+      dispatch(setSortConfig(config));
+      CourseSortingService.saveSortConfig(config);
+    },
+    [dispatch],
+  );
 
   const handleAddRule = () => {
     // 找到尚未使用的排序選項，排除 default 選項
@@ -293,15 +82,15 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
       const newRule: SortRule = {
         option: availableOptions[0].key,
         direction: 'asc',
-      };
-
-      // 如果當前是預設排序，則替換為新規則；否則添加到現有規則
+      }; // 如果當前是預設排序，則替換為新規則；否則添加到現有規則
       const isDefaultConfig =
         tempConfig.rules.length === 1 &&
         tempConfig.rules[0].option === 'default';
-      setTempConfig({
+      const newConfig = {
         rules: isDefaultConfig ? [newRule] : [...tempConfig.rules, newRule],
-      });
+      };
+      setTempConfig(newConfig);
+      applySortConfig(newConfig);
     }
   };
 
@@ -327,33 +116,38 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
             ...tempConfig.rules.filter((rule) => rule.option !== 'default'),
             ...newRules,
           ];
-
-      setTempConfig({
+      const newConfig = {
         rules: updatedRules,
-      });
+      };
+      setTempConfig(newConfig);
+      applySortConfig(newConfig);
     }
   };
-
   const handleUpdateRule = (index: number, rule: SortRule) => {
     const newRules = [...tempConfig.rules];
     newRules[index] = rule;
-    setTempConfig({ rules: newRules });
+    const newConfig = { rules: newRules };
+    setTempConfig(newConfig);
+    applySortConfig(newConfig);
   };
-
   const handleRemoveRule = (index: number) => {
     const newRules = tempConfig.rules.filter((_, i) => i !== index);
     // 如果刪除所有規則，添加一個預設規則
     if (newRules.length === 0) {
       newRules.push({ option: 'default', direction: 'asc' });
     }
-    setTempConfig({ rules: newRules });
+    const newConfig = { rules: newRules };
+    setTempConfig(newConfig);
+    applySortConfig(newConfig);
   };
 
   const handleMoveRule = (from: number, to: number) => {
     const newRules = [...tempConfig.rules];
     const [moved] = newRules.splice(from, 1);
     newRules.splice(to, 0, moved);
-    setTempConfig({ rules: newRules });
+    const newConfig = { rules: newRules };
+    setTempConfig(newConfig);
+    applySortConfig(newConfig);
   };
 
   const handleMoveUp = (index: number) => {
@@ -541,7 +335,7 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
               >
                 {tempConfig.rules.map((rule, index) => (
                   <Text key={index} style={{ fontSize: '12px' }}>
-                    {index + 1}. {getRuleDisplayText(rule)}
+                    {index + 1}. {getSortRuleDisplayText(rule)}
                   </Text>
                 ))}
               </Space>
