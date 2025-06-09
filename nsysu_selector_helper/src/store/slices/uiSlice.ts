@@ -1,7 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { CustomQuickFilter } from '@/services/customQuickFiltersService';
-import { CourseSortingService } from '@/services';
-import type { SortConfig } from '@/services/courseSortingService';
+
+import {
+  CourseSortingService,
+  type CustomQuickFilter,
+  type SortConfig,
+} from '@/services';
 
 // 精確篩選條件類型
 export interface FilterCondition {
