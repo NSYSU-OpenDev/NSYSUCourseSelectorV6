@@ -31,6 +31,7 @@ import {
   setDisplayConflictCourses,
   setSearchQuery,
   setAdvancedFilterDrawerOpen,
+  selectCourseLabelMap,
 } from '@/store';
 import CoursesList from '#/Common/CoursesList';
 import AdvancedFilterDrawer from '#/SelectorPanel/AllCourses/AdvancedFilterDrawer';

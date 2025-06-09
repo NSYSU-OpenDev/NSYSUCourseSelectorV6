@@ -1,5 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { CourseLabelsService, CourseLabel } from '@/services/courseLabelsService';
+import {
+  CourseLabelsService,
+  CourseLabel,
+} from '@/services/courseLabelsService';
 
 export interface CourseLabelsState {
   labels: CourseLabel[];
