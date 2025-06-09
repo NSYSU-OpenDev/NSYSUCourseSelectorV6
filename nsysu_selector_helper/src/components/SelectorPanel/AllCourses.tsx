@@ -15,7 +15,11 @@ import styled from 'styled-components';
 import { CourseService } from '@/services/courseService';
 import { AdvancedFilterService } from '@/services/advancedFilterService';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { useCourseSorting, useFilterPersistence, useSortPersistence } from '@/hooks';
+import {
+  useCourseSorting,
+  useFilterPersistence,
+  useSortPersistence,
+} from '@/hooks';
 import {
   selectCourses,
   selectDisplaySelectedOnly,

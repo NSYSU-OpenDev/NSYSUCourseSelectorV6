@@ -33,4 +33,3 @@ export const useFilterPersistence = () => {
     FilterPersistenceService.saveFilters(filterConditions, selectedTimeSlots);
   }, [filterConditions, selectedTimeSlots]);
 };
-

@@ -39,10 +39,7 @@ export class FilterPersistenceService {
 
   static saveFilterConditions(conditions: FilterCondition[]): void {
     try {
-      localStorage.setItem(
-        FILTER_CONDITIONS_KEY,
-        JSON.stringify(conditions),
-      );
+      localStorage.setItem(FILTER_CONDITIONS_KEY, JSON.stringify(conditions));
     } catch (error) {
       console.error('Failed to save filter conditions:', error);
     }
@@ -65,10 +62,7 @@ export class FilterPersistenceService {
 
   static saveTimeSlotFilters(filters: TimeSlotFilter[]): void {
     try {
-      localStorage.setItem(
-        TIME_SLOT_FILTERS_KEY,
-        JSON.stringify(filters),
-      );
+      localStorage.setItem(TIME_SLOT_FILTERS_KEY, JSON.stringify(filters));
     } catch (error) {
       console.error('Failed to save time slot filters:', error);
     }
@@ -94,4 +88,3 @@ export class FilterPersistenceService {
     return typeof obj.day === 'number' && typeof obj.timeSlot === 'string';
   }
 }
-

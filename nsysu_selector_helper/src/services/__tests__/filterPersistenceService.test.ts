@@ -43,4 +43,3 @@ describe('FilterPersistenceService', () => {
     expect(loaded.timeSlots).toEqual(slots);
   });
 });
-
