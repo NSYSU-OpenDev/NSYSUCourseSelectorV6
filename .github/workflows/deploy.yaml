@@ -5,6 +5,10 @@ on:
     branches: ["main"]
     paths:
       - 'nsysu_selector_helper/**'
+  pull_request:
+    branches: ["main"]
+    paths:
+      - 'nsysu_selector_helper/**'
   workflow_dispatch:
 
 permissions:

@@ -8,7 +8,13 @@ describe('CourseLabelService', () => {
   it('應該保存並載入標籤資料', () => {
     const state = {
       labels: [
-        { id: 'test', name: '測試', bgColor: '#fff', borderColor: '#000' },
+        {
+          id: 'test',
+          name: '測試',
+          bgColor: '#fff',
+          borderColor: '#000',
+          textColor: '#fff',
+        },
       ],
       courseLabels: { CS101: ['test'] },
     };
