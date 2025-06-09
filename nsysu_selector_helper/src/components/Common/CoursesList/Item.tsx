@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import {
   Card,
   Checkbox,
+  Button,
   Flex,
   Modal,
   Popover,
@@ -18,9 +19,12 @@ import {
   selectCourseLabelMap,
   selectCourse,
   setHoveredCourseId,
+  assignLabel,
+  removeCourseLabel,
 } from '@/store';
 import { useWindowSize } from '@/hooks';
 import { GetProbability } from '@/utils';
+import { TagOutlined } from '@ant-design/icons';
 
 const StyledTag = styled(Tag)`
   font-size: 10px;
@@ -294,6 +298,20 @@ const Item: React.FC<ItemProps> = ({
         );
       })
     : '';
+  const labelOptions = labelDefs.map((l) => ({ label: l.name, value: l.id }));
+  const handleLabelChange = (values: string[]) => {
+    const prev = labelMap[id] || [];
+    prev.forEach((labelId) => {
+      if (!values.includes(labelId)) {
+        dispatch(removeCourseLabel({ courseId: id, labelId }));
+      }
+    });
+    values.forEach((labelId) => {
+      if (!prev.includes(labelId)) {
+        dispatch(assignLabel({ courseId: id, labelId }));
+      }
+    });
+  };
   return (
     <CourseRow
       $isHovered={isHovered}
@@ -427,6 +445,18 @@ const Item: React.FC<ItemProps> = ({
           <Flex align={'center'} justify={'center'} vertical={true} gap={5}>
             {displayTags}
             {displayLabels}
+            <Popover
+              trigger='click'
+              content={
+                <Checkbox.Group
+                  options={labelOptions}
+                  value={labelMap[id] || []}
+                  onChange={(vals) => handleLabelChange(vals as string[])}
+                />
+              }
+            >
+              <Button type='text' size='small' icon={<TagOutlined />} />
+            </Popover>
           </Flex>
         </CourseInfo>
       </CourseMainRow>

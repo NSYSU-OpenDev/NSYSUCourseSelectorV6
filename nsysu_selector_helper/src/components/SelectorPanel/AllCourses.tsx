@@ -9,7 +9,7 @@ import {
   Button,
   Badge,
 } from 'antd';
-import { SearchOutlined, FilterOutlined } from '@ant-design/icons';
+import { SearchOutlined, FilterOutlined, TagOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 
 import { CourseService } from '@/services/courseService';
@@ -27,10 +27,13 @@ import {
   selectSearchQuery,
   selectFilterConditions,
   selectSelectedTimeSlots,
+  selectCourseLabelMap,
   setDisplaySelectedOnly,
   setDisplayConflictCourses,
   setSearchQuery,
   setAdvancedFilterDrawerOpen,
+import CourseLabelManager from '#/SelectorPanel/AllCourses/CourseLabelManager';
+  const [labelManagerVisible, setLabelManagerVisible] = useState(false);
   selectCourseLabelMap,
 } from '@/store';
 import CoursesList from '#/Common/CoursesList';
@@ -108,6 +111,11 @@ const AllCourses: React.FC = () => {
     setSortSelectorVisible(false);
   };
 
+        <Button icon={<TagOutlined />} onClick={() => setLabelManagerVisible(true)} />
+      <CourseLabelManager
+        open={labelManagerVisible}
+        onClose={() => setLabelManagerVisible(false)}
+      />
   const CardTitle = (
     <div>
       {/* 搜尋框和篩選按鈕 */}
