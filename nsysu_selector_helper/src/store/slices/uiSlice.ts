@@ -1,6 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { CustomQuickFilter } from '@/services/customQuickFiltersService';
-import type { SortConfig } from '@/services/courseSortingService';
+
+import {
+  CourseSortingService,
+  type CustomQuickFilter,
+  type SortConfig,
+} from '@/services';
 
 // 精確篩選條件類型
 export interface FilterCondition {
@@ -57,7 +61,7 @@ const initialState: UIState = {
   showCustomFilterModal: false,
   editingCustomFilter: null,
   // 課程排序相關
-  sortConfig: { rules: [{ option: 'default', direction: 'asc' }] },
+  sortConfig: CourseSortingService.loadSortConfig(),
 };
 
 // Slice
@@ -111,6 +115,9 @@ const uiSlice = createSlice({
     clearAllFilterConditions: (state) => {
       state.filterConditions = [];
     },
+    setFilterConditions: (state, action: PayloadAction<FilterCondition[]>) => {
+      state.filterConditions = action.payload;
+    },
     // 時間段篩選相關
     addTimeSlotFilter: (state, action: PayloadAction<TimeSlotFilter>) => {
       // 檢查是否已經存在相同的時間段篩選
@@ -152,6 +159,9 @@ const uiSlice = createSlice({
     },
     clearAllTimeSlotFilters: (state) => {
       state.selectedTimeSlots = [];
+    },
+    setSelectedTimeSlots: (state, action: PayloadAction<TimeSlotFilter[]>) => {
+      state.selectedTimeSlots = action.payload;
     },
     // 自定義快速篩選器相關
     setCustomQuickFilters: (
@@ -219,11 +229,13 @@ export const {
   removeFilterCondition,
   updateFilterCondition,
   clearAllFilterConditions,
+  setFilterConditions,
   // 時間段篩選相關
   addTimeSlotFilter,
   removeTimeSlotFilter,
   toggleTimeSlotFilter,
   clearAllTimeSlotFilters,
+  setSelectedTimeSlots,
   // 自定義快速篩選器相關
   setCustomQuickFilters,
   addCustomQuickFilter,
