@@ -1,5 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { CourseLabel, CourseLabelState } from '@/services/courseLabelService';
+import type {
+  CourseLabel,
+  CourseLabelState,
+} from '@/services/courseLabelService';
 import { CourseLabelService } from '@/services/courseLabelService';
 
 const defaultLabels: CourseLabel[] = [
