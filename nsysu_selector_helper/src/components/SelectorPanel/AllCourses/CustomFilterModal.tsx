@@ -26,6 +26,7 @@ import {
 import { CustomQuickFiltersService } from '@/services/customQuickFiltersService';
 import type { FilterCondition } from '@/store/slices/uiSlice';
 import type { FieldOptions } from '@/services/advancedFilterService';
+import { BulbOutlined } from '@ant-design/icons';
 
 const { Text } = Typography;
 
@@ -153,7 +154,7 @@ const CustomFilterModal: React.FC<CustomFilterModalProps> = ({
           {editingFilter ? '更新' : '保存'}
         </Button>,
       ]}
-      destroyOnClose
+      destroyOnHidden
     >
       <Form
         form={form}
@@ -239,7 +240,7 @@ const CustomFilterModal: React.FC<CustomFilterModalProps> = ({
             <Divider />
             <Space direction='vertical' size='small' style={{ width: '100%' }}>
               <Text type='secondary' style={{ fontSize: '12px' }}>
-                💡 提示：表單已根據您當前的篩選條件預填
+                <BulbOutlined /> 提示：表單已根據您當前的篩選條件預填
               </Text>
             </Space>
           </>
