@@ -32,13 +32,13 @@ import styled from 'styled-components';
 
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { selectSortConfig, setSortConfig } from '@/store';
+import { CourseSortingService } from '@/services';
 import {
-  CourseSortingService,
-  SortConfig,
-  SortRule,
-  SortDirection,
-  AvailableSortOptions,
-} from '@/services';
+  type SortConfig,
+  type SortRule,
+  type SortDirection,
+  type AvailableSortOptions,
+} from '@/types/sorting';
 import { DEFAULT_SORT_OPTIONS } from '@/constants';
 
 const { Text, Title } = Typography;

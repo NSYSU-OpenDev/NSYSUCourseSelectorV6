@@ -1,37 +1,7 @@
 import type { Course } from '@/types';
+import type { SortConfig } from '@/types/sorting';
 import { DEFAULT_SORT_OPTIONS } from '@/constants';
 import { GetProbability } from '@/utils';
-
-// 可用的排序選項
-export type AvailableSortOptions =
-  | 'default'
-  | 'probability'
-  | 'remaining'
-  | 'available'
-  | 'credit'
-  | 'courseLevel'
-  | 'compulsory';
-
-// 排序選項類型
-export interface SortOption {
-  key: AvailableSortOptions;
-  label: string;
-  description: string;
-}
-
-// 排序方向
-export type SortDirection = 'asc' | 'desc';
-
-// 單一排序配置
-export interface SortRule {
-  option: AvailableSortOptions;
-  direction: SortDirection;
-}
-
-// 多重排序配置
-export interface SortConfig {
-  rules: SortRule[];
-}
 
 // 儲存鍵名
 const STORAGE_KEY = 'NSYSUCourseSelector.sortConfig';

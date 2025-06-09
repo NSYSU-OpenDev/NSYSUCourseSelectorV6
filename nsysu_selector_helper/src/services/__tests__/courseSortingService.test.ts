@@ -1,4 +1,5 @@
-import { CourseSortingService, type SortConfig } from '@/services';
+import { CourseSortingService } from '@/services';
+import type { SortConfig } from '@/types/sorting';
 import type { Course } from '@/types';
 
 // Mock localStorage

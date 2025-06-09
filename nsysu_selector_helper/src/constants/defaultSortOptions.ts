@@ -1,5 +1,5 @@
 // 預設排序選項
-import { SortOption } from '@/services';
+import type { SortOption } from '@/types/sorting';
 
 export const DEFAULT_SORT_OPTIONS: SortOption[] = [
   {
