@@ -1,5 +1,6 @@
 import type { Course } from '@/types';
 import type { FilterCondition } from '@/store/slices/uiSlice';
+import type { CourseLabel } from './courseLabelService';
 
 export interface FilterOption {
   value: string;
@@ -109,6 +110,10 @@ export class AdvancedFilterService {
         return course.id;
       case 'tags':
         return course.tags.join(', ');
+      case 'labels':
+        return Array.isArray((course as any).labels)
+          ? (course as any).labels.join(', ')
+          : '';
       case 'compulsory':
         return course.compulsory ? '必修' : '選修';
       case 'english':
@@ -129,7 +134,10 @@ export class AdvancedFilterService {
   /**
    * 動態計算所有篩選選項
    */
-  static getFilterOptions(courses: Course[]): FieldOptions[] {
+  static getFilterOptions(
+    courses: Course[],
+    labels: CourseLabel[] = [],
+  ): FieldOptions[] {
     const fields: FieldOptions[] = [
       {
         field: 'department',
@@ -217,6 +225,12 @@ export class AdvancedFilterService {
         label: '學程標籤',
         options: this.getTagOptions(courses),
         searchable: true,
+      },
+      {
+        field: 'labels',
+        label: '自訂標籤',
+        options: labels.map((l) => ({ value: l.id, label: l.name })),
+        searchable: false,
       },
       {
         field: 'name',
@@ -357,6 +371,7 @@ export class AdvancedFilterService {
       { value: 'english', label: '授課語言' },
       { value: 'multipleCompulsory', label: '多選必修' },
       { value: 'tags', label: '學程標籤' },
+      { value: 'labels', label: '自訂標籤' },
       { value: 'room', label: '上課教室' },
       { value: 'id', label: '課程代碼' },
     ];

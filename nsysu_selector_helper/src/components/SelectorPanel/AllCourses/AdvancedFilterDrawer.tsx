@@ -32,6 +32,7 @@ import {
   selectAdvancedFilterDrawerOpen,
   selectFilterConditions,
   selectCourses,
+  selectLabels,
 } from '@/store/selectors';
 import {
   setAdvancedFilterDrawerOpen,
@@ -307,14 +308,15 @@ const AdvancedFilterDrawer: React.FC = () => {
   const open = useAppSelector(selectAdvancedFilterDrawerOpen);
   const filterConditions = useAppSelector(selectFilterConditions);
   const courses = useAppSelector(selectCourses);
+  const labels = useAppSelector(selectLabels);
 
   // 使用自定義快速篩選器 hook
   useCustomQuickFilters();
 
   // 動態計算篩選選項
   const fieldOptions = useMemo(() => {
-    return AdvancedFilterService.getFilterOptions(courses);
-  }, [courses]);
+    return AdvancedFilterService.getFilterOptions(courses, labels);
+  }, [courses, labels]);
 
   const handleClose = () => {
     dispatch(setAdvancedFilterDrawerOpen(false));

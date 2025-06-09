@@ -49,3 +49,8 @@ export const selectEditingCustomFilter = (state: RootState) =>
 
 // Course sorting selectors
 export const selectSortConfig = (state: RootState) => state.ui.sortConfig;
+
+// Course labels selectors
+export const selectLabels = (state: RootState) => state.courseLabels.labels;
+export const selectCourseLabelMap = (state: RootState) =>
+  state.courseLabels.courseLabels;

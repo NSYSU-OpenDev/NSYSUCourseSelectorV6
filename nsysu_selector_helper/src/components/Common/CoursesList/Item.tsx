@@ -10,10 +10,17 @@ import {
   Space,
   Tag,
 } from 'antd';
+import { EditOutlined } from '@ant-design/icons';
 
 import type { Course } from '@/types';
-import { useAppDispatch } from '@/store/hooks.ts';
-import { selectCourse, setHoveredCourseId } from '@/store';
+import { useAppDispatch, useAppSelector } from '@/store/hooks.ts';
+import {
+  selectCourse,
+  setHoveredCourseId,
+  selectLabels,
+  selectCourseLabelMap,
+} from '@/store';
+import { LabelEditModal } from '#/Common/Labels';
 import { useWindowSize } from '@/hooks';
 import { GetProbability } from '@/utils';
 
@@ -141,6 +148,7 @@ const Item: React.FC<ItemProps> = ({
   const dispatch = useAppDispatch();
   const { width } = useWindowSize();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [labelModalOpen, setLabelModalOpen] = useState(false);
   const isMobile = width < 768;
 
   const handleSelectCourse = (isSelected: boolean) => {
@@ -158,6 +166,9 @@ const Item: React.FC<ItemProps> = ({
   const hideModal = () => {
     setIsModalVisible(false);
   };
+
+  const openLabelModal = () => setLabelModalOpen(true);
+  const closeLabelModal = () => setLabelModalOpen(false);
 
   const {
     id,
@@ -263,6 +274,21 @@ const Item: React.FC<ItemProps> = ({
           );
         })
     : '';
+
+  const labels = useAppSelector(selectLabels);
+  const labelMap = useAppSelector(selectCourseLabelMap);
+  const courseLabels = labelMap[id] || [];
+  const labelTags = courseLabels
+    .map((lid) => labels.find((l) => l.id === lid))
+    .filter(Boolean)
+    .map((label) => (
+      <StyledTag
+        key={label!.id}
+        style={{ background: label!.bgColor, borderColor: label!.borderColor }}
+      >
+        {label!.name}
+      </StyledTag>
+    ));
 
   const displayTags = tags
     ? tags
@@ -432,6 +458,19 @@ const Item: React.FC<ItemProps> = ({
           $status={GetProbability.getProbabilityStatus(remaining)}
         />
       </ProbabilityBar>
+      <Button
+        icon={<EditOutlined />}
+        type='text'
+        size='small'
+        onClick={openLabelModal}
+        style={{ float: 'right' }}
+      />
+      <div>{labelTags}</div>
+      <LabelEditModal
+        courseId={id}
+        open={labelModalOpen}
+        onClose={closeLabelModal}
+      />
     </CourseRow>
   );
 };

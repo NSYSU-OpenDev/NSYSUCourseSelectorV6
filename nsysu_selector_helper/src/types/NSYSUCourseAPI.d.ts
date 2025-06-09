@@ -21,6 +21,7 @@
  * @property {string[]} classTime - 上課時間 e.g., ["", "", "56", "", "", "", ""]
  * @property {string} description - 課程描述 e.g., "《講授類》\n本課程為教育學程課程"
  * @property {string[]} tags - 課程學程標籤 e.g., []
+ * @property {string[]} [labels] - 自訂標籤 ID
  * @property {boolean} english - 是否為英文授課課程
  */
 export type Course = {
@@ -45,6 +46,7 @@ export type Course = {
   classTime: string[];
   description: string;
   tags: string[];
+  labels?: string[];
   english: boolean;
 };
 
