@@ -74,6 +74,12 @@ export class AdvancedFilterService {
               tag.toLowerCase().includes(normalizedSearchValue),
             );
           }
+          if (condition.field === 'labels') {
+            const labels = (course as any).labels || [];
+            return (labels as string[]).some((tag) =>
+              tag.toLowerCase().includes(normalizedSearchValue),
+            );
+          }
 
           return normalizedCourseValue.includes(normalizedSearchValue);
         });
@@ -109,6 +115,8 @@ export class AdvancedFilterService {
         return course.id;
       case 'tags':
         return course.tags.join(', ');
+      case 'labels':
+        return ((course as any).labels || []).join(', ');
       case 'compulsory':
         return course.compulsory ? '必修' : '選修';
       case 'english':
@@ -216,6 +224,12 @@ export class AdvancedFilterService {
         field: 'tags',
         label: '學程標籤',
         options: this.getTagOptions(courses),
+        searchable: true,
+      },
+      {
+        field: 'labels',
+        label: '自訂標籤',
+        options: this.getLabelOptions(courses),
         searchable: true,
       },
       {
@@ -343,6 +357,26 @@ export class AdvancedFilterService {
   }
 
   /**
+   * 獲取自訂標籤選項
+   */
+  private static getLabelOptions(courses: Course[]): FilterOption[] {
+    const labelCount = new Map<string, number>();
+
+    courses.forEach((course) => {
+      const labels = (course as any).labels as string[] | undefined;
+      labels?.forEach((tag) => {
+        if (tag && tag.trim()) {
+          labelCount.set(tag, (labelCount.get(tag) || 0) + 1);
+        }
+      });
+    });
+
+    return Array.from(labelCount.entries())
+      .map(([value, count]) => ({ value, label: value, count }))
+      .sort((a, b) => b.count - a.count);
+  }
+
+  /**
    * 獲取可用的篩選欄位（簡化版本，用於快速選擇）
    */
   static getAvailableFields(): Array<{ value: string; label: string }> {
@@ -357,6 +391,7 @@ export class AdvancedFilterService {
       { value: 'english', label: '授課語言' },
       { value: 'multipleCompulsory', label: '多選必修' },
       { value: 'tags', label: '學程標籤' },
+      { value: 'labels', label: '自訂標籤' },
       { value: 'room', label: '上課教室' },
       { value: 'id', label: '課程代碼' },
     ];

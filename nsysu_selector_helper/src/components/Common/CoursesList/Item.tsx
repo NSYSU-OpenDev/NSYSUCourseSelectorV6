@@ -12,8 +12,13 @@ import {
 } from 'antd';
 
 import type { Course } from '@/types';
-import { useAppDispatch } from '@/store/hooks.ts';
-import { selectCourse, setHoveredCourseId } from '@/store';
+import { useAppDispatch, useAppSelector } from '@/store/hooks.ts';
+import {
+  selectCourseLabels,
+  selectCourseLabelMap,
+  selectCourse,
+  setHoveredCourseId,
+} from '@/store';
 import { useWindowSize } from '@/hooks';
 import { GetProbability } from '@/utils';
 
@@ -142,6 +147,8 @@ const Item: React.FC<ItemProps> = ({
   const { width } = useWindowSize();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const isMobile = width < 768;
+  const labelDefs = useAppSelector(selectCourseLabels);
+  const labelMap = useAppSelector(selectCourseLabelMap);
 
   const handleSelectCourse = (isSelected: boolean) => {
     dispatch(selectCourse({ course, isSelected }));
@@ -272,6 +279,20 @@ const Item: React.FC<ItemProps> = ({
             {tag}
           </StyledTag>
         ))
+    : '';
+  const displayLabels = labelMap[id]
+    ? labelMap[id].map((labelId) => {
+        const def = labelDefs.find((l) => l.id === labelId);
+        if (!def) return null;
+        return (
+          <StyledTag
+            key={labelId}
+            style={{ backgroundColor: def.color, borderColor: def.borderColor }}
+          >
+            {def.name}
+          </StyledTag>
+        );
+      })
     : '';
   return (
     <CourseRow
@@ -405,6 +426,7 @@ const Item: React.FC<ItemProps> = ({
         <CourseInfo>
           <Flex align={'center'} justify={'center'} vertical={true} gap={5}>
             {displayTags}
+            {displayLabels}
           </Flex>
         </CourseInfo>
       </CourseMainRow>

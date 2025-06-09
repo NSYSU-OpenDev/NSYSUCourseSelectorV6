@@ -12,6 +12,8 @@ import {
   selectSelectedCourses,
   selectHoveredCourseId,
   selectSelectedTimeSlots,
+  selectCourseLabels,
+  selectCourseLabelMap,
   setHoveredCourseId,
   setScrollToCourseId,
   setSelectedTabKey,
@@ -304,6 +306,8 @@ const ScheduleTable: React.FC = () => {
   const selectedCourses = useAppSelector(selectSelectedCourses);
   const hoveredCourseId = useAppSelector(selectHoveredCourseId);
   const selectedTimeSlots = useAppSelector(selectSelectedTimeSlots);
+  const labelDefs = useAppSelector(selectCourseLabels);
+  const labelMap = useAppSelector(selectCourseLabelMap);
 
   // Modal state for mobile course details
   const [modalVisible, setModalVisible] = useState(false);
@@ -458,6 +462,7 @@ const ScheduleTable: React.FC = () => {
             const courseWithRoom = {
               ...course,
               roomForThisSlot: roomInfo[dayIndex]?.[slot] || '未知',
+              labels: labelMap[course.id] || [],
             };
             scheduleMap[slot][dayIndex].push(courseWithRoom);
           }
@@ -485,11 +490,17 @@ const ScheduleTable: React.FC = () => {
               const departmentColor = getDepartmentColor(
                 course.department || '其他',
               );
+              const labels = (course as any).labels as string[] | undefined;
+              let displayColor = departmentColor;
+              if (labels && labels.length > 0) {
+                const def = labelDefs.find((l) => l.id === labels[0]);
+                if (def) displayColor = def.color;
+              }
               const isHovered = hoveredCourseId === course.id;
               return (
                 <CourseTag
                   key={`${course.id}-${day}-${slot.key}`}
-                  color={departmentColor}
+                  color={displayColor}
                   $isHovered={isHovered}
                   onClick={(e) => {
                     if (isMobile) {

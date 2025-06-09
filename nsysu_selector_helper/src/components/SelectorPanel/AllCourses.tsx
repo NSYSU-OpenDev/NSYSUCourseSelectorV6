@@ -62,14 +62,19 @@ const AllCourses: React.FC = () => {
   const searchQuery = useAppSelector(selectSearchQuery);
   const filterConditions = useAppSelector(selectFilterConditions);
   const selectedTimeSlots = useAppSelector(selectSelectedTimeSlots);
+  const labelMap = useAppSelector(selectCourseLabelMap);
 
   // 排序相關狀態
   const [sortSelectorVisible, setSortSelectorVisible] = useState(false);
 
   // 根據搜尋條件、精確篩選條件和時間段篩選條件篩選課程
   const filteredCourses = useMemo(() => {
-    // 先進行基本搜尋
-    let result = CourseService.searchCourses(courses, searchQuery);
+    // 先進行基本搜尋並附加自訂標籤
+    const coursesWithLabels = courses.map((c) => ({
+      ...c,
+      labels: labelMap[c.id] || [],
+    }));
+    let result = CourseService.searchCourses(coursesWithLabels, searchQuery);
 
     // 再進行精確篩選
     if (filterConditions.length > 0) {
@@ -85,7 +90,7 @@ const AllCourses: React.FC = () => {
     }
 
     return result;
-  }, [courses, searchQuery, filterConditions, selectedTimeSlots]);
+  }, [courses, searchQuery, filterConditions, selectedTimeSlots, labelMap]);
 
   // 使用排序 hook
   const { sortedCourses } = useCourseSorting(filteredCourses);
