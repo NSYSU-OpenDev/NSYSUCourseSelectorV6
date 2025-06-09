@@ -1,27 +1,15 @@
-name: deploy
+name: Automated CI for Pull Requests
 
 on:
-  push:
+  pull_request:
     branches: ["main"]
     paths:
       - 'nsysu_selector_helper/**'
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  ci:
     runs-on: ubuntu-latest
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,25 +22,21 @@ jobs:
           cache-dependency-path: 'nsysu_selector_helper/yarn.lock'
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
+        working-directory: nsysu_selector_helper/
+
+      - name: Check code formatting
+        run: yarn prettier --check .
         working-directory: nsysu_selector_helper/
 
       - name: TypeScript type check
         run: yarn tsc -b --noEmit
         working-directory: nsysu_selector_helper/
 
+      - name: Run tests
+        run: yarn test --coverage --watchAll=false
+        working-directory: nsysu_selector_helper/
+
       - name: Build
         run: yarn build
         working-directory: nsysu_selector_helper/
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: 'nsysu_selector_helper/dist'
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
