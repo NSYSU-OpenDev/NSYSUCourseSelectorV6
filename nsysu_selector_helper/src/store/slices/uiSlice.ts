@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { CustomQuickFilter } from '@/services/customQuickFiltersService';
+import { CourseSortingService } from '@/services';
 import type { SortConfig } from '@/services/courseSortingService';
 
 // 精確篩選條件類型
@@ -57,7 +58,7 @@ const initialState: UIState = {
   showCustomFilterModal: false,
   editingCustomFilter: null,
   // 課程排序相關
-  sortConfig: { rules: [{ option: 'default', direction: 'asc' }] },
+  sortConfig: CourseSortingService.loadSortConfig(),
 };
 
 // Slice
