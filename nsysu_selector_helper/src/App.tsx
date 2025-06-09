@@ -21,6 +21,7 @@ import SectionHeader from '#/SectionHeader.tsx';
 import EntryNotification from '#/EntryNotification.tsx';
 import SelectorPanel from '#/SelectorPanel.tsx';
 import ScheduleTable from '#/ScheduleTable.tsx';
+import ErrorBoundary from '#/ErrorBoundary.tsx';
 
 const StyledSplitter = styled(Splitter)`
   height: calc(100vh - 52px);
@@ -100,42 +101,44 @@ const App: React.FC = () => {
   }, [dispatch, selectedSemester]);
 
   return (
-    <ConfigProvider theme={themeConfig}>
-      {isLoading && <Spin spinning={true} fullscreen />}
-      <EntryNotification />
-      <SectionHeader
-        selectedKey={selectedTabKey}
-        setSelectedKey={(key: string) => dispatch(setSelectedTabKey(key))}
-        availableSemesters={availableSemesters}
-        selectedSemester={selectedSemester}
-        setSelectedSemester={(semester: string) =>
-          dispatch(setSelectedSemester(semester))
-        }
-      />
-      {/* 桌面版 */}
-      <StyledSplitter>
-        <Splitter.Panel collapsible={true} style={{ width: '100%' }}>
-          <ScheduleTable />
-        </Splitter.Panel>
-        <Splitter.Panel>
-          <SelectorPanel />
-        </Splitter.Panel>
-      </StyledSplitter>
-      {/* 手機版垂直布局 - 使用 antd Collapse */}
-      <MobileLayout>
-        <StyledCollapse
-          activeKey={activeKey}
-          onChange={handleCollapseChange}
-          expandIconPosition='end'
-          style={{ borderRadius: 0 }}
-          bordered={false}
-          items={collapseItems}
+    <ErrorBoundary>
+      <ConfigProvider theme={themeConfig}>
+        {isLoading && <Spin spinning={true} fullscreen />}
+        <EntryNotification />
+        <SectionHeader
+          selectedKey={selectedTabKey}
+          setSelectedKey={(key: string) => dispatch(setSelectedTabKey(key))}
+          availableSemesters={availableSemesters}
+          selectedSemester={selectedSemester}
+          setSelectedSemester={(semester: string) =>
+            dispatch(setSelectedSemester(semester))
+          }
         />
-        <ContentWrapper>
-          <SelectorPanel />
-        </ContentWrapper>
-      </MobileLayout>
-    </ConfigProvider>
+        {/* 桌面版 */}
+        <StyledSplitter>
+          <Splitter.Panel collapsible={true} style={{ width: '100%' }}>
+            <ScheduleTable />
+          </Splitter.Panel>
+          <Splitter.Panel>
+            <SelectorPanel />
+          </Splitter.Panel>
+        </StyledSplitter>
+        {/* 手機版垂直布局 - 使用 antd Collapse */}
+        <MobileLayout>
+          <StyledCollapse
+            activeKey={activeKey}
+            onChange={handleCollapseChange}
+            expandIconPosition='end'
+            style={{ borderRadius: 0 }}
+            bordered={false}
+            items={collapseItems}
+          />
+          <ContentWrapper>
+            <SelectorPanel />
+          </ContentWrapper>
+        </MobileLayout>
+      </ConfigProvider>
+    </ErrorBoundary>
   );
 };
 
