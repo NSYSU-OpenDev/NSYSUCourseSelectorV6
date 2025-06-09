@@ -1,1 +1,1 @@
-export { default as LabelEditModal } from './LabelEditModal';
+export { default as LabelEditDrawer } from './LabelEditDrawer';

@@ -3,6 +3,7 @@ export interface CourseLabel {
   name: string;
   bgColor: string;
   borderColor: string;
+  textColor: string;
 }
 
 export interface CourseLabelState {

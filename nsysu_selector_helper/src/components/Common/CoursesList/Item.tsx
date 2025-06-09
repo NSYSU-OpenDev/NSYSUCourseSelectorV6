@@ -21,7 +21,7 @@ import {
   selectLabels,
   selectCourseLabelMap,
 } from '@/store';
-import { LabelEditModal } from '#/Common/Labels';
+import { LabelEditDrawer } from '#/Common/Labels';
 import { useWindowSize } from '@/hooks';
 import { GetProbability } from '@/utils';
 
@@ -294,7 +294,7 @@ const Item: React.FC<ItemProps> = ({
         style={{
           background: label!.bgColor,
           borderColor: label!.borderColor,
-          color: '#fff',
+          color: label!.textColor,
         }}
       >
         {label!.name}
@@ -495,7 +495,7 @@ const Item: React.FC<ItemProps> = ({
           $status={GetProbability.getProbabilityStatus(remaining)}
         />
       </ProbabilityBar>
-      <LabelEditModal
+      <LabelEditDrawer
         courseId={id}
         open={labelModalOpen}
         onClose={closeLabelModal}
