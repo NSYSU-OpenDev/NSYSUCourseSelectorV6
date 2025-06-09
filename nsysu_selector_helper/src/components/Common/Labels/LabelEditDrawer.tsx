@@ -39,6 +39,7 @@ import {
 } from '@/store/slices/courseLabelsSlice';
 import type { CourseLabel } from '@/services/courseLabelService';
 import type { Color } from 'antd/es/color-picker';
+import { DEFAULT_LABELS } from '@/constants';
 
 const { Text } = Typography;
 
@@ -310,6 +311,9 @@ const LabelEditDrawer: React.FC<LabelEditDrawerProps> = ({
       icon: <DeleteOutlined />,
       danger: true,
       onClick: () => handleDeleteLabel(label.id),
+      disabled: DEFAULT_LABELS.some(
+        (defaultLabel) => defaultLabel.id === label.id,
+      ), // 禁用系統預設標籤刪除
     },
   ]; // 處理表單提交
   const handleFormSubmit = (
@@ -351,9 +355,7 @@ const LabelEditDrawer: React.FC<LabelEditDrawerProps> = ({
             <span>標籤管理</span>
           </Space>
         }
-        placement='right'
-        mask={false}
-        maskClosable={false}
+        placement='left'
         open={open}
         onClose={onClose}
         width={400}

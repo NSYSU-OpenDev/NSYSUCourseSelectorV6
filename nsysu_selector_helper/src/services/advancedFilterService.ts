@@ -22,6 +22,7 @@ export class AdvancedFilterService {
   static filterCourses(
     courses: Course[],
     conditions: FilterCondition[],
+    courseLabelMap: Record<string, string[]> = {},
   ): Course[] {
     if (conditions.length === 0) return courses;
 
@@ -36,7 +37,11 @@ export class AdvancedFilterService {
           return true; // 空條件不篩選
         }
 
-        const courseValue = this.getCourseFieldValue(course, condition.field);
+        const courseValue = this.getCourseFieldValue(
+          course,
+          condition.field,
+          courseLabelMap,
+        );
         const normalizedCourseValue = (courseValue || '').toLowerCase();
 
         // 將搜尋值轉為小寫並處理多個值
@@ -84,11 +89,14 @@ export class AdvancedFilterService {
       });
     });
   }
-
   /**
    * 獲取課程欄位值
    */
-  private static getCourseFieldValue(course: Course, field: string): string {
+  private static getCourseFieldValue(
+    course: Course,
+    field: string,
+    courseLabelMap: Record<string, string[]> = {},
+  ): string {
     switch (field) {
       case 'name':
         return course.name;
@@ -110,10 +118,11 @@ export class AdvancedFilterService {
         return course.id;
       case 'tags':
         return course.tags.join(', ');
-      case 'labels':
-        return Array.isArray((course as any).labels)
-          ? (course as any).labels.join(', ')
-          : '';
+      case 'labels': {
+        // 從課程標籤映射中獲取該課程的標籤 ID 陣列
+        const labelIds = courseLabelMap[course.id] || [];
+        return labelIds.join(', ');
+      }
       case 'compulsory':
         return course.compulsory ? '必修' : '選修';
       case 'english':
@@ -143,6 +152,18 @@ export class AdvancedFilterService {
         field: 'department',
         label: '開課系所',
         options: this.getUniqueOptions(courses, 'department'),
+        searchable: true,
+      },
+      {
+        field: 'labels',
+        label: '自訂標籤',
+        options: labels.map((l) => ({ value: l.id, label: l.name })),
+        searchable: false,
+      },
+      {
+        field: 'tags',
+        label: '學程標籤',
+        options: this.getTagOptions(courses),
         searchable: true,
       },
       {
@@ -218,18 +239,6 @@ export class AdvancedFilterService {
             count: courses.filter((c) => !c.multipleCompulsory).length,
           },
         ],
-        searchable: false,
-      },
-      {
-        field: 'tags',
-        label: '學程標籤',
-        options: this.getTagOptions(courses),
-        searchable: true,
-      },
-      {
-        field: 'labels',
-        label: '自訂標籤',
-        options: labels.map((l) => ({ value: l.id, label: l.name })),
         searchable: false,
       },
       {
@@ -326,7 +335,7 @@ export class AdvancedFilterService {
     const valueCount = new Map<string, number>();
 
     courses.forEach((course) => {
-      const value = this.getCourseFieldValue(course, field);
+      const value = this.getCourseFieldValue(course, field, {});
       if (value && value.trim()) {
         valueCount.set(value, (valueCount.get(value) || 0) + 1);
       }
@@ -361,6 +370,7 @@ export class AdvancedFilterService {
    */
   static getAvailableFields(): Array<{ value: string; label: string }> {
     return [
+      { value: 'labels', label: '自訂標籤' },
       { value: 'name', label: '課程名稱' },
       { value: 'teacher', label: '授課教師' },
       { value: 'department', label: '開課系所' },
@@ -371,7 +381,6 @@ export class AdvancedFilterService {
       { value: 'english', label: '授課語言' },
       { value: 'multipleCompulsory', label: '多選必修' },
       { value: 'tags', label: '學程標籤' },
-      { value: 'labels', label: '自訂標籤' },
       { value: 'room', label: '上課教室' },
       { value: 'id', label: '課程代碼' },
     ];
