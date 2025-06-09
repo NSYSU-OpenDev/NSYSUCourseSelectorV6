@@ -36,4 +36,11 @@ export const QUICK_FILTER: (FilterCondition & {
   { label: '年級三', field: 'grade', value: ['3'], type: 'include' },
   { label: '年級四', field: 'grade', value: ['4'], type: 'include' },
   { label: '不分年級', field: 'grade', value: ['0'], type: 'include' },
+  { label: '我的最愛', field: 'labels', value: ['favorite'], type: 'include' },
+  {
+    label: '候選中課程',
+    field: 'labels',
+    value: ['candidate'],
+    type: 'include',
+  },
 ];

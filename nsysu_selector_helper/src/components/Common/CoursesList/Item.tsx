@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import {
+  Button,
   Card,
   Checkbox,
   Flex,
@@ -10,10 +11,17 @@ import {
   Space,
   Tag,
 } from 'antd';
+import { EditOutlined } from '@ant-design/icons';
 
 import type { Course } from '@/types';
-import { useAppDispatch } from '@/store/hooks.ts';
-import { selectCourse, setHoveredCourseId } from '@/store';
+import { useAppDispatch, useAppSelector } from '@/store/hooks.ts';
+import {
+  selectCourse,
+  setHoveredCourseId,
+  selectLabels,
+  selectCourseLabelMap,
+} from '@/store';
+import { LabelEditDrawer } from '#/Common/Labels';
 import { useWindowSize } from '@/hooks';
 import { GetProbability } from '@/utils';
 
@@ -23,6 +31,14 @@ const StyledTag = styled(Tag)`
   white-space: pre-wrap;
   text-align: center;
   margin: 0 auto;
+`;
+
+const LabelTag = styled(Tag)`
+  font-size: 9px;
+  padding: 1px 4px;
+  margin: 1px;
+  border-radius: 8px;
+  line-height: 1.2;
 `;
 
 const CourseRow = styled.div<{ $isHovered?: boolean; $isConflict?: boolean }>`
@@ -36,7 +52,6 @@ const CourseRow = styled.div<{ $isHovered?: boolean; $isConflict?: boolean }>`
     return props.$isHovered ? '#f0f0f0' : '#fafafa';
   }};
   border-left: ${(props) => (props.$isConflict ? '4px solid #ff4d4f' : 'none')};
-  gap: 3px;
   transition: background-color 0.2s ease;
 
   &:hover {
@@ -56,7 +71,6 @@ const ProbabilityBar = styled.div`
   background-color: #f0f0f0;
   border-radius: 2px;
   overflow: hidden;
-  margin-top: 2px;
 `;
 
 const ProbabilityFill = styled.div<{
@@ -141,6 +155,7 @@ const Item: React.FC<ItemProps> = ({
   const dispatch = useAppDispatch();
   const { width } = useWindowSize();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [labelModalOpen, setLabelModalOpen] = useState(false);
   const isMobile = width < 768;
 
   const handleSelectCourse = (isSelected: boolean) => {
@@ -158,6 +173,9 @@ const Item: React.FC<ItemProps> = ({
   const hideModal = () => {
     setIsModalVisible(false);
   };
+
+  const openLabelModal = () => setLabelModalOpen(true);
+  const closeLabelModal = () => setLabelModalOpen(false);
 
   const {
     id,
@@ -263,6 +281,25 @@ const Item: React.FC<ItemProps> = ({
           );
         })
     : '';
+
+  const labels = useAppSelector(selectLabels);
+  const labelMap = useAppSelector(selectCourseLabelMap);
+  const courseLabels = labelMap[id] || [];
+  const labelTags = courseLabels
+    .map((lid) => labels.find((l) => l.id === lid))
+    .filter(Boolean)
+    .map((label) => (
+      <LabelTag
+        key={label!.id}
+        style={{
+          background: label!.bgColor,
+          borderColor: label!.borderColor,
+          color: label!.textColor,
+        }}
+      >
+        {label!.name}
+      </LabelTag>
+    ));
 
   const displayTags = tags
     ? tags
@@ -408,23 +445,49 @@ const Item: React.FC<ItemProps> = ({
           </Flex>
         </CourseInfo>
       </CourseMainRow>
-
-      {/* 選上機率條 */}
+      {/* 機率條上方區域 - 整合資訊與標籤 */}
       <div
         style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
+          minHeight: '18px',
         }}
       >
-        <ProbabilityText
-          $status={GetProbability.getProbabilityStatus(remaining)}
-        >
-          選上機率: {GetProbability.getProbabilityText(select, remaining)}
-        </ProbabilityText>
-        <span style={{ fontSize: '9px', color: '#999' }}>
-          點選: {select} | 剩餘: {remaining}
-        </span>
+        {/* 左側：統計資訊 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <ProbabilityText
+            $status={GetProbability.getProbabilityStatus(remaining)}
+          >
+            選上機率: {GetProbability.getProbabilityText(select, remaining)}
+          </ProbabilityText>
+          <span style={{ fontSize: '9px', color: '#666', fontWeight: '500' }}>
+            點選: {select} | 剩餘: {remaining}
+          </span>
+        </div>
+
+        {/* 右側：標籤與編輯按鈕 */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          {labelTags.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+              {labelTags}
+            </div>
+          )}
+          <Button
+            icon={<EditOutlined />}
+            type='text'
+            size='small'
+            onClick={openLabelModal}
+            style={{
+              padding: '2px 4px',
+              height: 'auto',
+              minWidth: 'auto',
+              opacity: 0.6,
+              color: '#666',
+            }}
+            title='編輯標籤'
+          />
+        </div>
       </div>
       <ProbabilityBar>
         <ProbabilityFill
@@ -432,6 +495,11 @@ const Item: React.FC<ItemProps> = ({
           $status={GetProbability.getProbabilityStatus(remaining)}
         />
       </ProbabilityBar>
+      <LabelEditDrawer
+        courseId={id}
+        open={labelModalOpen}
+        onClose={closeLabelModal}
+      />
     </CourseRow>
   );
 };

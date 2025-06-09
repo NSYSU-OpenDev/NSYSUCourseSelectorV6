@@ -36,6 +36,14 @@ export {
   setSortConfig,
 } from './slices/uiSlice';
 
+export {
+  addLabel,
+  updateLabel,
+  removeLabel,
+  assignLabel,
+  removeCourseLabel,
+} from './slices/courseLabelsSlice';
+
 // Export selectors
 export {
   selectCourses,
@@ -58,4 +66,6 @@ export {
   selectSelectedTimeSlots,
   // 課程排序相關
   selectSortConfig,
+  selectLabels,
+  selectCourseLabelMap,
 } from './selectors';

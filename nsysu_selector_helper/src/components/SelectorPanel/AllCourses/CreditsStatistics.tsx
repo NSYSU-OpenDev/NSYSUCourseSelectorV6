@@ -20,6 +20,7 @@ import {
   selectDisplayConflictCourses,
   selectFilterConditions,
   selectSelectedTimeSlots,
+  selectCourseLabelMap,
 } from '@/store';
 
 const StatisticsContainer = styled.div`
@@ -63,6 +64,7 @@ const CreditsStatistics: React.FC = () => {
   const displayConflictCourses = useAppSelector(selectDisplayConflictCourses);
   const filterConditions = useAppSelector(selectFilterConditions);
   const selectedTimeSlots = useAppSelector(selectSelectedTimeSlots);
+  const courseLabelMap = useAppSelector(selectCourseLabelMap);
 
   // Calculate total credits and hours using the existing service
   const { totalCredits, totalHours } = useMemo(() => {
@@ -73,13 +75,12 @@ const CreditsStatistics: React.FC = () => {
   // 計算實際顯示的課程數量
   const displayedCoursesCount = useMemo(() => {
     // 先進行基本搜尋
-    let filteredCourses = CourseService.searchCourses(courses, searchQuery);
-
-    // 再進行精確篩選
+    let filteredCourses = CourseService.searchCourses(courses, searchQuery); // 再進行精確篩選
     if (filterConditions.length > 0) {
       filteredCourses = AdvancedFilterService.filterCourses(
         filteredCourses,
         filterConditions,
+        courseLabelMap,
       );
     }
 
@@ -123,6 +124,7 @@ const CreditsStatistics: React.FC = () => {
     selectedCourses,
     displaySelectedOnly,
     displayConflictCourses,
+    courseLabelMap,
   ]);
   return (
     <StatisticsContainer>

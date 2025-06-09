@@ -11,6 +11,8 @@ import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import {
   selectSelectedCourses,
   selectHoveredCourseId,
+  selectLabels,
+  selectCourseLabelMap,
   selectSelectedTimeSlots,
   setHoveredCourseId,
   setScrollToCourseId,
@@ -304,6 +306,8 @@ const ScheduleTable: React.FC = () => {
   const selectedCourses = useAppSelector(selectSelectedCourses);
   const hoveredCourseId = useAppSelector(selectHoveredCourseId);
   const selectedTimeSlots = useAppSelector(selectSelectedTimeSlots);
+  const labelMap = useAppSelector(selectCourseLabelMap);
+  const labels = useAppSelector(selectLabels);
 
   // Modal state for mobile course details
   const [modalVisible, setModalVisible] = useState(false);
@@ -457,6 +461,7 @@ const ScheduleTable: React.FC = () => {
             // 為這個時間段添加對應的教室信息
             const courseWithRoom = {
               ...course,
+              labels: labelMap[course.id] || [],
               roomForThisSlot: roomInfo[dayIndex]?.[slot] || '未知',
             };
             scheduleMap[slot][dayIndex].push(courseWithRoom);
@@ -485,11 +490,22 @@ const ScheduleTable: React.FC = () => {
               const departmentColor = getDepartmentColor(
                 course.department || '其他',
               );
+              const firstLabel = course.labels?.[0];
+              const labelStyle = labels.find((l) => l.id === firstLabel);
               const isHovered = hoveredCourseId === course.id;
               return (
                 <CourseTag
                   key={`${course.id}-${day}-${slot.key}`}
-                  color={departmentColor}
+                  color={labelStyle ? undefined : departmentColor}
+                  style={
+                    labelStyle
+                      ? {
+                          backgroundColor: labelStyle.bgColor,
+                          borderColor: labelStyle.borderColor,
+                          color: labelStyle.textColor,
+                        }
+                      : undefined
+                  }
                   $isHovered={isHovered}
                   onClick={(e) => {
                     if (isMobile) {

@@ -49,3 +49,17 @@ export const selectEditingCustomFilter = (state: RootState) =>
 
 // Course sorting selectors
 export const selectSortConfig = (state: RootState) => state.ui.sortConfig;
+
+// Course labels selectors
+export const selectLabels = (state: RootState) => state.courseLabels.labels;
+export const selectCourseLabelMap = (state: RootState) =>
+  state.courseLabels.courseLabels;
+
+// 取得特定課程的標籤
+export const selectCourseLabels = (courseId: string) => (state: RootState) => {
+  const labelIds = state.courseLabels.courseLabels[courseId] || [];
+  const allLabels = state.courseLabels.labels;
+  return labelIds
+    .map((id) => allLabels.find((label) => label.id === id))
+    .filter((label): label is NonNullable<typeof label> => label !== undefined);
+};

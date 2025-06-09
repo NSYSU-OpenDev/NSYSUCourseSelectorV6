@@ -98,5 +98,12 @@
     "hours": "小時",
     "courses": "課程",
     "coursesSelected": "門課程已選"
+  },
+  "labels": {
+    "edit": "編輯標籤",
+    "newLabel": "新增標籤",
+    "name": "標籤名稱",
+    "bgColor": "背景色",
+    "borderColor": "框線色"
   }
 }

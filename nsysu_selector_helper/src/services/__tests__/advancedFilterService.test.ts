@@ -653,5 +653,56 @@ describe('AdvancedFilterService', () => {
       expect(result).toHaveLength(3);
       expect(result.map((c) => c.id)).toEqual(['CS101', 'CS102', 'MATH101']);
     });
+
+    it('應該正確篩選標籤', () => {
+      const courseLabelMap = {
+        CS101: ['favorite', 'candidate'],
+        CS102: ['favorite'],
+        MATH101: ['candidate'],
+        ENG101: [],
+        PHYS101: ['archived'],
+      };
+
+      const conditions: FilterCondition[] = [
+        {
+          field: 'labels',
+          type: 'include',
+          value: ['favorite'],
+        },
+      ];
+
+      const result = AdvancedFilterService.filterCourses(
+        mockCourses,
+        conditions,
+        courseLabelMap,
+      );
+      expect(result).toHaveLength(2);
+      expect(result.map((c) => c.id)).toEqual(['CS101', 'CS102']);
+    });
+    it('應該正確排除標籤', () => {
+      const courseLabelMap = {
+        CS101: ['favorite', 'candidate'],
+        CS102: ['favorite'],
+        MATH101: ['candidate'],
+        ENG101: [],
+        // CS201 is not in the map, so it should have no labels
+      };
+
+      const conditions: FilterCondition[] = [
+        {
+          field: 'labels',
+          type: 'exclude',
+          value: ['favorite'],
+        },
+      ];
+
+      const result = AdvancedFilterService.filterCourses(
+        mockCourses,
+        conditions,
+        courseLabelMap,
+      );
+      expect(result).toHaveLength(3);
+      expect(result.map((c) => c.id)).toEqual(['CS201', 'MATH101', 'ENG101']);
+    });
   });
 });
