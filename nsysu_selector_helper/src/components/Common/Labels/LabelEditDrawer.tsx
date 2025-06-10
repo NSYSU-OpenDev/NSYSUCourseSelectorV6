@@ -256,8 +256,8 @@ const LabelEditDrawer: React.FC<LabelEditDrawerProps> = ({
 }) => {
   const dispatch = useAppDispatch();
   const labels = useAppSelector(selectLabels);
-  const currentCourseLabels = useAppSelector(
-    selectCourseLabels(courseId || ''),
+  const currentCourseLabels = useAppSelector((state) =>
+    selectCourseLabels(state, courseId || ''),
   );
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [currentLabel, setCurrentLabel] = useState<CourseLabel | undefined>();

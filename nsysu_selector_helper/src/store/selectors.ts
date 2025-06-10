@@ -1,3 +1,4 @@
+import { createSelector } from '@reduxjs/toolkit';
 import type { RootState } from './store';
 
 // Courses selectors
@@ -55,11 +56,19 @@ export const selectLabels = (state: RootState) => state.courseLabels.labels;
 export const selectCourseLabelMap = (state: RootState) =>
   state.courseLabels.courseLabels;
 
-// 取得特定課程的標籤
-export const selectCourseLabels = (courseId: string) => (state: RootState) => {
-  const labelIds = state.courseLabels.courseLabels[courseId] || [];
-  const allLabels = state.courseLabels.labels;
-  return labelIds
-    .map((id) => allLabels.find((label) => label.id === id))
-    .filter((label): label is NonNullable<typeof label> => label !== undefined);
-};
+// 取得特定課程的標籤 (使用 createSelector 進行記憶化)
+export const selectCourseLabels = createSelector(
+  [
+    (state: RootState) => state.courseLabels.courseLabels,
+    (state: RootState) => state.courseLabels.labels,
+    (_state: RootState, courseId: string) => courseId,
+  ],
+  (courseLabelMap, allLabels, courseId) => {
+    const labelIds = courseLabelMap[courseId] || [];
+    return labelIds
+      .map((id) => allLabels.find((label) => label.id === id))
+      .filter(
+        (label): label is NonNullable<typeof label> => label !== undefined,
+      );
+  },
+);
