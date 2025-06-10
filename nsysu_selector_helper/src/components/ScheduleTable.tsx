@@ -372,7 +372,11 @@ const ScheduleTable: React.FC = () => {
 
   const isMobile = width <= 768;
   // 儲存時間格子的觸控起始資料
-  const timeSlotTouchRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
+  const timeSlotTouchRef = React.useRef<{
+    x: number;
+    y: number;
+    time: number;
+  } | null>(null);
   const [showWeekends, setShowWeekends] = useState(
     localStorage.getItem('NSYSUCourseSelector.showWeekends') === 'true' ||
       false,
