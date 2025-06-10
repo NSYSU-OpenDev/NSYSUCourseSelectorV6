@@ -5,14 +5,7 @@ import {
   Button,
   Typography,
   Tag,
-  Input,
-  ColorPicker,
-  Form,
-  Modal,
-  Row,
-  Col,
   Card,
-  Divider,
   Empty,
   Tooltip,
   Dropdown,
@@ -27,6 +20,7 @@ import {
   InfoCircleOutlined,
   MoreOutlined,
 } from '@ant-design/icons';
+import type { Color } from 'antd/es/color-picker';
 import styled from 'styled-components';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { selectLabels, selectCourseLabels } from '@/store/selectors';
@@ -38,8 +32,8 @@ import {
   removeCourseLabel,
 } from '@/store/slices/courseLabelsSlice';
 import type { CourseLabel } from '@/services/courseLabelService';
-import type { Color } from 'antd/es/color-picker';
 import { DEFAULT_LABELS } from '@/constants';
+import LabelEditModal from '#/Common/Labels/LabelEditModal';
 
 const { Text } = Typography;
 
@@ -58,188 +52,6 @@ const StyledDrawer = styled(Drawer)`
     padding: 12px;
   }
 `;
-
-// 常用顏色組合
-const colorPresets = [
-  {
-    name: '藍色',
-    bgColor: '#f0f5ff',
-    borderColor: '#adc6ff',
-    textColor: '#1890ff',
-  },
-  {
-    name: '綠色',
-    bgColor: '#f6ffed',
-    borderColor: '#b7eb8f',
-    textColor: '#52c41a',
-  },
-  {
-    name: '橙色',
-    bgColor: '#fff7e6',
-    borderColor: '#ffd591',
-    textColor: '#fa8c16',
-  },
-  {
-    name: '紅色',
-    bgColor: '#fff1f0',
-    borderColor: '#ffccc7',
-    textColor: '#f5222d',
-  },
-  {
-    name: '紫色',
-    bgColor: '#f9f0ff',
-    borderColor: '#d3adf7',
-    textColor: '#722ed1',
-  },
-  {
-    name: '青色',
-    bgColor: '#e6fffb',
-    borderColor: '#87e8de',
-    textColor: '#13c2c2',
-  },
-  {
-    name: '黃色',
-    bgColor: '#fffbe6',
-    borderColor: '#ffe58f',
-    textColor: '#d48806',
-  },
-  {
-    name: '粉色',
-    bgColor: '#fff0f6',
-    borderColor: '#ffadd2',
-    textColor: '#eb2f96',
-  },
-];
-
-// 標籤編輯表單 Modal
-const LabelEditModal: React.FC<{
-  open: boolean;
-  label?: CourseLabel;
-  onCancel: () => void;
-  onSubmit: (
-    labelData: Partial<
-      CourseLabel & {
-        bgColor: Color | string;
-        borderColor: Color | string;
-        textColor: Color | string;
-      }
-    >,
-  ) => void;
-  mode: 'create' | 'edit';
-}> = ({ open, label, onCancel, onSubmit, mode }) => {
-  const [form] = Form.useForm();
-
-  const handleSubmit = async () => {
-    try {
-      const values = await form.validateFields();
-      onSubmit(values);
-      form.resetFields();
-    } catch (error) {
-      console.error('表單驗證失敗:', error);
-    }
-  };
-  const handleCancel = () => {
-    form.resetFields();
-    onCancel();
-  };
-
-  // 應用預設顏色組合
-  const applyColorPreset = (preset: (typeof colorPresets)[0]) => {
-    form.setFieldsValue({
-      bgColor: preset.bgColor,
-      borderColor: preset.borderColor,
-      textColor: preset.textColor,
-    });
-  };
-
-  return (
-    <Modal
-      title={mode === 'create' ? '新增標籤' : '編輯標籤'}
-      open={open}
-      onOk={handleSubmit}
-      onCancel={handleCancel}
-      okText={mode === 'create' ? '新增' : '更新'}
-      cancelText='取消'
-      destroyOnHidden
-      width={600}
-    >
-      <Form
-        form={form}
-        layout='vertical'
-        initialValues={
-          label || {
-            bgColor: colorPresets[0].bgColor,
-            borderColor: colorPresets[0].borderColor,
-            textColor: colorPresets[0].textColor,
-          }
-        }
-        preserve={false}
-      >
-        <Form.Item
-          name='name'
-          label='標籤名稱'
-          rules={[{ required: true, message: '請輸入標籤名稱' }]}
-        >
-          <Input placeholder='請輸入標籤名稱' />
-        </Form.Item>
-
-        <Divider orientation='left'>顏色設定</Divider>
-
-        <Form.Item label='常用顏色組合'>
-          <Space size={[4, 4]} wrap>
-            {colorPresets.map((preset) => (
-              <Button
-                key={preset.name}
-                size='small'
-                onClick={() => applyColorPreset(preset)}
-                style={{
-                  backgroundColor: preset.bgColor,
-                  color: preset.textColor,
-                  border: `1px solid ${preset.borderColor}`,
-                  height: 'auto',
-                  padding: '4px 8px',
-                }}
-                title={`應用${preset.name}配色`}
-              >
-                {preset.name}
-              </Button>
-            ))}
-          </Space>
-        </Form.Item>
-
-        <Row gutter={16}>
-          <Col span={8}>
-            <Form.Item
-              name='bgColor'
-              label='背景色'
-              rules={[{ required: true, message: '請選擇背景色' }]}
-            >
-              <ColorPicker showText />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name='borderColor'
-              label='邊框色'
-              rules={[{ required: true, message: '請選擇邊框色' }]}
-            >
-              <ColorPicker showText />
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item
-              name='textColor'
-              label='文字色'
-              rules={[{ required: true, message: '請選擇文字色' }]}
-            >
-              <ColorPicker showText />
-            </Form.Item>
-          </Col>
-        </Row>
-      </Form>
-    </Modal>
-  );
-};
 
 // Helper function to convert Color to hex string
 const getColorString = (color: Color | string): string => {
