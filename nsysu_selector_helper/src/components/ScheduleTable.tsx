@@ -371,6 +371,8 @@ const ScheduleTable: React.FC = () => {
   };
 
   const isMobile = width <= 768;
+  // 儲存時間格子的觸控起始資料
+  const timeSlotTouchRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
   const [showWeekends, setShowWeekends] = useState(
     localStorage.getItem('NSYSUCourseSelector.showWeekends') === 'true' ||
       false,
@@ -629,7 +631,35 @@ const ScheduleTable: React.FC = () => {
           <TimeSlotCell
             $isSelected={isSelected}
             $hasContent={hasContent}
-            onClick={() => handleTimeSlotClick(index, timeSlotKey)}
+            onClick={() => {
+              if (!isMobile) {
+                handleTimeSlotClick(index, timeSlotKey);
+              }
+            }}
+            onTouchStart={(e) => {
+              if (isMobile) {
+                const touch = e.touches[0];
+                timeSlotTouchRef.current = {
+                  x: touch.clientX,
+                  y: touch.clientY,
+                  time: Date.now(),
+                };
+              }
+            }}
+            onTouchEnd={(e) => {
+              if (isMobile && timeSlotTouchRef.current) {
+                const touch = e.changedTouches[0];
+                const dx = Math.abs(touch.clientX - timeSlotTouchRef.current.x);
+                const dy = Math.abs(touch.clientY - timeSlotTouchRef.current.y);
+                const dt = Date.now() - timeSlotTouchRef.current.time;
+                timeSlotTouchRef.current = null;
+                if (dx < 10 && dy < 10 && dt < 300) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleTimeSlotClick(index, timeSlotKey);
+                }
+              }
+            }}
             title={`點擊篩選 ${day} 第${timeSlotKey}節課程`}
           >
             {content}
