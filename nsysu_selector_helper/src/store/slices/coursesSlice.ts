@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { AcademicYear, Course } from '@/types';
+import type { AcademicYear, Course, SelectedCourseConfig } from '@/types';
 import { NSYSUCourseAPI } from '@/api';
 
 // Helper function to load selected courses from localStorage
@@ -42,6 +42,8 @@ export interface CoursesState {
   selectedSemester: string;
   isLoading: boolean;
   error: string | null;
+  // 新增已選課程配置狀態
+  selectedCoursesConfig: Record<string, SelectedCourseConfig>;
 }
 
 // 初始狀態
@@ -55,6 +57,7 @@ const initialState: CoursesState = {
   selectedSemester: '',
   isLoading: false,
   error: null,
+  selectedCoursesConfig: {},
 };
 
 // Slice
@@ -104,6 +107,80 @@ const coursesSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    // 已選課程配置相關 actions
+    setCourseConfig: (
+      state,
+      action: PayloadAction<{
+        courseId: string;
+        points: number;
+        isExported: boolean;
+      }>,
+    ) => {
+      const { courseId, points, isExported } = action.payload;
+      state.selectedCoursesConfig[courseId] = {
+        courseId,
+        points: Math.max(0, Math.min(100, points)), // 確保點數在 0-100 範圍內
+        isExported,
+      };
+      // 儲存到 localStorage
+      localStorage.setItem(
+        'NSYSUCourseSelector.selectedCoursesConfig',
+        JSON.stringify(state.selectedCoursesConfig),
+      );
+    },
+    removeCourseConfig: (state, action: PayloadAction<string>) => {
+      const courseId = action.payload;
+      delete state.selectedCoursesConfig[courseId];
+      // 儲存到 localStorage
+      localStorage.setItem(
+        'NSYSUCourseSelector.selectedCoursesConfig',
+        JSON.stringify(state.selectedCoursesConfig),
+      );
+    },
+    loadSelectedCoursesConfig: (state) => {
+      const savedConfig = localStorage.getItem(
+        'NSYSUCourseSelector.selectedCoursesConfig',
+      );
+      if (savedConfig) {
+        try {
+          state.selectedCoursesConfig = JSON.parse(savedConfig);
+        } catch {
+          state.selectedCoursesConfig = {};
+        }
+      }
+    },
+    importCoursesFromScript: (
+      state,
+      action: PayloadAction<{
+        courseIds: string[];
+        configs: Record<string, SelectedCourseConfig>;
+      }>,
+    ) => {
+      const { courseIds, configs } = action.payload;
+      // 根據導入的課程 ID 添加到已選課程列表
+      const newSelectedCourses = state.courses.filter(
+        (course) =>
+          courseIds.includes(course.id) &&
+          !state.selectedCourses.some((selected) => selected.id === course.id),
+      );
+      state.selectedCourses.push(...newSelectedCourses);
+
+      // 更新配置
+      state.selectedCoursesConfig = {
+        ...state.selectedCoursesConfig,
+        ...configs,
+      };
+
+      // 儲存到 localStorage
+      localStorage.setItem(
+        'NSYSUCourseSelector.selectedCoursesNumbers',
+        JSON.stringify(state.selectedCourses.map((course) => course.id)),
+      );
+      localStorage.setItem(
+        'NSYSUCourseSelector.selectedCoursesConfig',
+        JSON.stringify(state.selectedCoursesConfig),
+      );
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -150,6 +227,10 @@ export const {
   loadSelectedCourses,
   setSelectedSemester,
   clearError,
+  setCourseConfig,
+  removeCourseConfig,
+  loadSelectedCoursesConfig,
+  importCoursesFromScript,
 } = coursesSlice.actions;
 
 export default coursesSlice;

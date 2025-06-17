@@ -4,17 +4,17 @@ import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '@/store/hooks';
 import { selectSelectedTabKey } from '@/store';
 import AllCourses from '#/SelectorPanel/AllCourses';
+import SelectedExport from '#/SelectorPanel/SelectedExport';
 
 const SelectorPanel: React.FC = () => {
   const { t } = useTranslation();
   const selectedTabKey = useAppSelector(selectSelectedTabKey);
-
   const mapTabToComponent = (tabKey: string): JSX.Element => {
     switch (tabKey) {
       case 'allCourses':
         return <AllCourses />;
       case 'selectedExport':
-        return <h1>Selected Export</h1>;
+        return <SelectedExport />;
       case 'announcements':
         return <h1>Announcements</h1>;
       default:

@@ -8,6 +8,10 @@ export {
   loadSelectedCourses,
   setSelectedSemester,
   clearError,
+  setCourseConfig,
+  removeCourseConfig,
+  loadSelectedCoursesConfig,
+  importCoursesFromScript,
   fetchAvailableSemesters,
   fetchCourses,
 } from './slices/coursesSlice';
@@ -68,4 +72,8 @@ export {
   selectSortConfig,
   selectLabels,
   selectCourseLabelMap,
+  // 已選課程配置相關
+  selectSelectedCoursesConfig,
+  selectCourseConfig,
+  selectExportedCoursesConfig,
 } from './selectors';

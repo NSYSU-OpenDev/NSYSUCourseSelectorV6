@@ -113,7 +113,7 @@ const SectionHeader: FC<HeaderProps> = ({
     },
     {
       key: 'selectedExport',
-      label: t('selectedExport'),
+      label: t('selectedExportTab'),
       icon: <FileDoneOutlined />,
     },
     {

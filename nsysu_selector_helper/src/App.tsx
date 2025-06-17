@@ -11,6 +11,7 @@ import {
   setSelectedSemester,
   setSelectedTabKey,
   setActiveCollapseKey,
+  loadSelectedCoursesConfig,
   selectAvailableSemesters,
   selectSelectedSemester,
   selectCoursesLoading,
@@ -86,10 +87,10 @@ const App: React.FC = () => {
       ),
     },
   ];
-
-  // 初始化 - 獲取可用學期
+  // 初始化 - 獲取可用學期和載入已選課程配置
   useEffect(() => {
     dispatch(fetchAvailableSemesters());
+    dispatch(loadSelectedCoursesConfig());
   }, [dispatch]);
 
   // 當選擇的學期改變時，獲取課程

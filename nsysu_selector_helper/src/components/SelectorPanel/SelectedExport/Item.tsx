@@ -3,14 +3,13 @@ import styled from 'styled-components';
 import {
   Button,
   Card,
-  Checkbox,
-  Flex,
+  Switch,
   InputNumber,
+  Flex,
   Modal,
   Popover,
   Progress,
   Space,
-  Switch,
   Tag,
 } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
@@ -19,13 +18,12 @@ import type { Course } from '@/types';
 import type { CourseLabel } from '@/services';
 import { useAppDispatch, useAppSelector } from '@/store/hooks.ts';
 import {
-  selectCourse,
+  setCourseConfig,
   setHoveredCourseId,
   selectLabels,
   selectCourseLabelMap,
-  updateLabel,
   selectSelectedCoursesConfig,
-  setCourseConfig,
+  updateLabel,
 } from '@/store';
 import { LabelEditDrawer } from '#/Common/Labels';
 import LabelEditModal from '#/Common/Labels/LabelEditModal';
@@ -126,10 +124,6 @@ const CourseInfo = styled.div`
   }
 `;
 
-const MediumCourseInfo = styled(CourseInfo)`
-  flex: 0.6;
-`;
-
 const SmallCourseInfo = styled(CourseInfo)`
   flex: 0.4;
 `;
@@ -150,19 +144,10 @@ const StyledLink = styled.a`
 
 type ItemProps = {
   course: Course;
-  isSelected: boolean;
-  isConflict: boolean;
   isHovered: boolean;
-  displayMode?: 'all' | 'selected';
 };
 
-const Item: React.FC<ItemProps> = ({
-  course,
-  isSelected,
-  isConflict,
-  isHovered,
-  displayMode = 'all',
-}) => {
+const Item: React.FC<ItemProps> = ({ course, isHovered }) => {
   const dispatch = useAppDispatch();
   const { width } = useWindowSize();
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -201,10 +186,6 @@ const Item: React.FC<ItemProps> = ({
         isExported: config.isExported,
       }),
     );
-  };
-
-  const handleSelectCourse = (isSelected: boolean) => {
-    dispatch(selectCourse({ course, isSelected }));
   };
 
   const handleHoverCourse = () => {
@@ -268,9 +249,7 @@ const Item: React.FC<ItemProps> = ({
     id,
     name,
     url,
-    classTime,
     department,
-    compulsory,
     credit,
     english,
     class: classCode,
@@ -298,26 +277,36 @@ const Item: React.FC<ItemProps> = ({
         return classCode;
     }
   };
-
-  const displayClassTime = !classTime.every((time) => time === '') ? (
-    classTime.map(
-      (time, index) =>
-        time !== '' && (
-          <StyledTag color={'purple'} key={`${id}-${index}`}>
-            {`${'一二三四五六日'[index]}\n${time}`
-              .split('')
-              .reduce(
-                (acc, curr, i) =>
-                  (i + 1) % 3 === 0 && i !== 2
-                    ? `${acc}\n${curr}`
-                    : `${acc}${curr}`,
-                '',
-              )}
-          </StyledTag>
-        ),
-    )
-  ) : (
-    <StyledTag color={'red'}>未知</StyledTag>
+  const content = (
+    <Space style={{ maxWidth: 300 }} direction={'vertical'}>
+      <Card>{description}</Card>
+      <Card>
+        <Flex justify={'space-between'} gap={5}>
+          <Flex vertical={true} align={'center'}>
+            <span>
+              點選 {select}/{remaining} 剩餘
+            </span>
+            <Progress
+              type='circle'
+              percent={Math.round((select / remaining) * 100)}
+              size='small'
+              status={select >= remaining ? 'exception' : 'normal'}
+            />
+          </Flex>
+          <Flex vertical={true} align={'center'}>
+            <span>
+              選上 {selected}/{restrict} 限制
+            </span>
+            <Progress
+              type='circle'
+              percent={Math.round((selected / restrict) * 100)}
+              size='small'
+              status={selected >= restrict ? 'exception' : 'normal'}
+            />
+          </Flex>
+        </Flex>
+      </Card>
+    </Space>
   );
 
   const displayTeachers = teacher
@@ -359,7 +348,6 @@ const Item: React.FC<ItemProps> = ({
         {label!.name}
       </LabelTag>
     ));
-
   const displayTags = tags
     ? tags
         .filter((tag, i, self) => self.indexOf(tag) === i)
@@ -369,86 +357,30 @@ const Item: React.FC<ItemProps> = ({
           </StyledTag>
         ))
     : '';
-
-  const content = (
-    <Space style={{ maxWidth: 300 }} direction={'vertical'}>
-      <Card size='small'>{description}</Card>
-
-      {displayTags && displayTags.length > 0 && (
-        <Card size='small'>
-          <Space style={{ width: '100%' }} direction='vertical' size={'small'}>
-            <Flex>{displayTags}</Flex>
-          </Space>
-        </Card>
-      )}
-      <Card size='small'>
-        <Flex justify={'space-between'} gap={5}>
-          <Flex vertical={true} align={'center'}>
-            <span>
-              點選 {select}/{remaining} 剩餘
-            </span>
-            <Progress
-              type='circle'
-              percent={Math.round((select / remaining) * 100)}
-              size='small'
-              status={select >= remaining ? 'exception' : 'normal'}
-            />
-          </Flex>
-          <Flex vertical={true} align={'center'}>
-            <span>
-              選上 {selected}/{restrict} 限制
-            </span>
-            <Progress
-              type='circle'
-              percent={Math.round((selected / restrict) * 100)}
-              size='small'
-              status={selected >= restrict ? 'exception' : 'normal'}
-            />
-          </Flex>
-        </Flex>
-      </Card>
-    </Space>
-  );
-
   return (
     <CourseRow
       $isHovered={isHovered}
-      $isConflict={isConflict}
       onMouseEnter={handleHoverCourse}
       onMouseLeave={() => dispatch(setHoveredCourseId(''))}
     >
       <CourseMainRow>
-        {displayMode === 'all' ? (
-          <>
-            <TinyCourseInfo>
-              <Checkbox
-                name={id}
-                checked={isSelected}
-                onChange={(e) => handleSelectCourse(e.target.checked)}
-              />
-            </TinyCourseInfo>
-          </>
-        ) : (
-          <>
-            <SmallCourseInfo>
-              <Switch
-                checked={config.isExported}
-                onChange={handleExportChange}
-                size='small'
-              />
-            </SmallCourseInfo>
-            <SmallCourseInfo>
-              <InputNumber
-                min={0}
-                max={100}
-                value={config.points}
-                onChange={handlePointsChange}
-                size='small'
-                style={{ width: '60px' }}
-              />
-            </SmallCourseInfo>
-          </>
-        )}
+        <TinyCourseInfo>
+          <Switch
+            checked={config.isExported}
+            onChange={handleExportChange}
+            size='small'
+          />
+        </TinyCourseInfo>
+        <TinyCourseInfo>
+          <InputNumber
+            min={0}
+            max={100}
+            value={config.points}
+            onChange={handlePointsChange}
+            size='small'
+            style={{ width: '60px' }}
+          />
+        </TinyCourseInfo>
         <CourseInfo>
           {isMobile ? (
             <>
@@ -475,17 +407,6 @@ const Item: React.FC<ItemProps> = ({
                       {description}
                     </div>
                   </Card>
-                  {displayTags && displayTags.length > 0 && (
-                    <Card size='small'>
-                      <Space
-                        style={{ width: '100%' }}
-                        direction='vertical'
-                        size={'small'}
-                      >
-                        <Flex>{displayTags}</Flex>
-                      </Space>
-                    </Card>
-                  )}
                   <Card size='small'>
                     <Flex justify='space-between' gap={10}>
                       <Flex vertical align='center'>
@@ -539,25 +460,7 @@ const Item: React.FC<ItemProps> = ({
             </Popover>
           )}
         </CourseInfo>
-        {displayMode === 'all' && (
-          <>
-            <MediumCourseInfo>
-              <Space direction={'vertical'}>{displayClassTime}</Space>
-            </MediumCourseInfo>
-          </>
-        )}
         <SmallCourseInfo>{department}</SmallCourseInfo>
-        {displayMode === 'all' && (
-          <>
-            <SmallCourseInfo>
-              {compulsory ? (
-                <StyledTag color={'red'}>必</StyledTag>
-              ) : (
-                <span>選</span>
-              )}
-            </SmallCourseInfo>
-          </>
-        )}
         <SmallCourseInfo>
           <StyledTag
             color={
@@ -571,26 +474,22 @@ const Item: React.FC<ItemProps> = ({
         <SmallCourseInfo>
           {english ? <StyledTag color={'red'}>英</StyledTag> : '中'}
         </SmallCourseInfo>
-        {displayMode === 'all' && (
-          <SmallCourseInfo>
-            <Flex align={'center'} justify={'center'} vertical={true}>
-              {getClassCodeColor(classCode)}
-              <span>{'⓪①②③④'[parseInt(grade)]}</span>
-            </Flex>
-          </SmallCourseInfo>
-        )}
+        <SmallCourseInfo>
+          <Flex align={'center'} justify={'center'} vertical={true}>
+            {getClassCodeColor(classCode)}
+            <span>{'⓪①②③④'[parseInt(grade)]}</span>
+          </Flex>
+        </SmallCourseInfo>
         <SmallCourseInfo>
           <Flex align={'center'} justify={'center'} vertical={true} gap={5}>
             {displayTeachers}
           </Flex>
         </SmallCourseInfo>
-        {displayMode === 'all' && (
-          <CourseInfo>
-            <Flex align={'center'} justify={'center'} vertical={true} gap={5}>
-              {displayTags}
-            </Flex>
-          </CourseInfo>
-        )}
+        <CourseInfo>
+          <Flex align={'center'} justify={'center'} vertical={true} gap={5}>
+            {displayTags}
+          </Flex>
+        </CourseInfo>
       </CourseMainRow>
       {/* 機率條上方區域 - 整合資訊與標籤 */}
       <div

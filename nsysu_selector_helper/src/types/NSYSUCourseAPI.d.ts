@@ -64,3 +64,34 @@ export type Info = {
   page_size: number;
   updated: string;
 };
+
+export type NSYSUAPIResponse = {
+  academic_year: AcademicYear;
+  semester_update: SemesterUpdate;
+  info: Info;
+  data: Course[];
+};
+
+/**
+ * 已選課程匯出數據結構
+ * @property {string} id - 課程代碼
+ * @property {number} value - 點數配置 (0-100)
+ * @property {string} isSel - 是否選擇匯出 ("1" 為匯出, "0" 為不匯出)
+ */
+export type ExportCourseData = {
+  id: string;
+  value: number;
+  isSel: string;
+};
+
+/**
+ * 已選課程配置數據結構 (內部使用)
+ * @property {string} courseId - 課程代碼
+ * @property {number} points - 點數配置 (0-100)
+ * @property {boolean} isExported - 是否選擇匯出
+ */
+export type SelectedCourseConfig = {
+  courseId: string;
+  points: number;
+  isExported: boolean;
+};

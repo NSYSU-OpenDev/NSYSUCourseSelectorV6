@@ -23,16 +23,8 @@ const CourseInfo = styled.div`
   }
 `;
 
-const MediumCourseInfo = styled(CourseInfo)`
-  flex: 0.6;
-`;
-
 const SmallCourseInfo = styled(CourseInfo)`
   flex: 0.4;
-`;
-
-const TinyCourseInfo = styled(CourseInfo)`
-  flex: 0.275;
 `;
 
 const Header: React.FC = () => {
@@ -44,16 +36,13 @@ const Header: React.FC = () => {
 
   return (
     <HeaderRow>
-      <TinyCourseInfo>{courseTranslation.select.name}</TinyCourseInfo>
+      <SmallCourseInfo>{t('selectedExport.column.export')}</SmallCourseInfo>
+      <SmallCourseInfo>{t('selectedExport.column.points')}</SmallCourseInfo>
       <CourseInfo>{courseTranslation.name?.name}</CourseInfo>
-      <MediumCourseInfo>{courseTranslation.classTime?.name}</MediumCourseInfo>
       <SmallCourseInfo>{courseTranslation.department?.name}</SmallCourseInfo>
-      <SmallCourseInfo>{courseTranslation.compulsory?.name}</SmallCourseInfo>
       <SmallCourseInfo>{courseTranslation.credit?.name}</SmallCourseInfo>
       <SmallCourseInfo>{courseTranslation.english?.name}</SmallCourseInfo>
-      <SmallCourseInfo>{courseTranslation.class?.name}</SmallCourseInfo>
       <SmallCourseInfo>{courseTranslation.teacher?.name}</SmallCourseInfo>
-      <CourseInfo>{courseTranslation.tags?.name}</CourseInfo>
     </HeaderRow>
   );
 };

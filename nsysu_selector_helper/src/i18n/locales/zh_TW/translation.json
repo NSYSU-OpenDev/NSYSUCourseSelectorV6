@@ -5,7 +5,7 @@
   "loading": "載入中...",
   "selectorHelper": "中山大學課程選課小幫手",
   "allCourses": "所有課程",
-  "selectedExport": "已選匯出",
+  "selectedExportTab": "已選匯出",
   "announcements": "公告",
   "panelNotFound": "找不到該控制面板",
   "noData": "目前沒有任何資料",
@@ -105,5 +105,33 @@
     "name": "標籤名稱",
     "bgColor": "背景色",
     "borderColor": "框線色"
+  },
+  "selectedExport": {
+    "title": "已選匯出",
+    "noSelectedCourses": "目前沒有已選課程",
+    "exportButton": "生成匯出腳本",
+    "importButton": "匯入腳本",
+    "points": "點數",
+    "export": "匯出",
+    "selectAll": "全選",
+    "selectNone": "全不選",
+    "pointsPlaceholder": "0-100",
+    "importPlaceholder": "請貼上腳本內容...",
+    "importSuccess": "匯入成功！",
+    "importError": "匯入失敗，請檢查腳本格式",
+    "exportScriptGenerated": "匯出腳本已生成",
+    "copyScript": "複製腳本",
+    "copySuccess": "腳本已複製到剪貼簿",
+    "totalExported": "共選擇匯出 {{count}} 門課程",
+    "pointsRange": "點數範圍: 0-100",
+    "exportDescription": "已選課程匯出功能可讓您配置課程重要程度點數，並生成可在選課系統中使用的自動填入腳本。",
+    "column": {
+      "export": "匯出",
+      "points": "點數",
+      "name": "課程名稱",
+      "teacher": "授課教師",
+      "credit": "學分",
+      "time": "時間"
+    }
   }
 }

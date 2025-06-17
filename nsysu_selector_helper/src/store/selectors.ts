@@ -13,6 +13,10 @@ export const selectCoursesLoading = (state: RootState) =>
   state.courses.isLoading;
 export const selectCoursesError = (state: RootState) => state.courses.error;
 
+// Selected courses config selectors
+export const selectSelectedCoursesConfig = (state: RootState) =>
+  state.courses.selectedCoursesConfig;
+
 // UI selectors
 export const selectSelectedTabKey = (state: RootState) =>
   state.ui.selectedTabKey;
@@ -71,4 +75,18 @@ export const selectCourseLabels = createSelector(
         (label): label is NonNullable<typeof label> => label !== undefined,
       );
   },
+);
+
+// 取得特定課程的配置
+export const selectCourseConfig = (courseId: string) =>
+  createSelector(
+    [selectSelectedCoursesConfig],
+    (configs) =>
+      configs[courseId] || { courseId, points: 0, isExported: false },
+  );
+
+// 取得所有已匯出的課程配置
+export const selectExportedCoursesConfig = createSelector(
+  [selectSelectedCoursesConfig],
+  (configs) => Object.values(configs).filter((config) => config.isExported),
 );
