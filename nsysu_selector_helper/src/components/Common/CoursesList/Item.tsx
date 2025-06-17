@@ -14,14 +14,17 @@ import {
 import { EditOutlined } from '@ant-design/icons';
 
 import type { Course } from '@/types';
+import type { CourseLabel } from '@/services';
 import { useAppDispatch, useAppSelector } from '@/store/hooks.ts';
 import {
   selectCourse,
   setHoveredCourseId,
   selectLabels,
   selectCourseLabelMap,
+  updateLabel,
 } from '@/store';
 import { LabelEditDrawer } from '#/Common/Labels';
+import LabelEditModal from '#/Common/Labels/LabelEditModal';
 import { useWindowSize } from '@/hooks';
 import { GetProbability } from '@/utils';
 
@@ -156,6 +159,8 @@ const Item: React.FC<ItemProps> = ({
   const { width } = useWindowSize();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [labelModalOpen, setLabelModalOpen] = useState(false);
+  const [labelEditModalOpen, setLabelEditModalOpen] = useState(false);
+  const [editingLabel, setEditingLabel] = useState<CourseLabel | undefined>();
   const isMobile = width < 768;
 
   const handleSelectCourse = (isSelected: boolean) => {
@@ -176,6 +181,48 @@ const Item: React.FC<ItemProps> = ({
 
   const openLabelModal = () => setLabelModalOpen(true);
   const closeLabelModal = () => setLabelModalOpen(false);
+
+  // 處理標籤點擊 - 打開該標籤的編輯介面
+  const handleLabelClick = (label: CourseLabel) => {
+    setEditingLabel(label);
+    setLabelEditModalOpen(true);
+  };
+
+  // 處理標籤編輯modal關閉
+  const handleLabelEditModalClose = () => {
+    setLabelEditModalOpen(false);
+    setEditingLabel(undefined);
+  };
+
+  // 處理標籤編輯表單提交
+  const handleLabelEditSubmit = (
+    labelData: Partial<
+      CourseLabel & {
+        bgColor: any;
+        borderColor: any;
+        textColor: any;
+      }
+    >,
+  ) => {
+    if (editingLabel) {
+      // 將顏色物件轉換為字串格式
+      const getColorString = (color: any): string => {
+        if (typeof color === 'string') {
+          return color;
+        }
+        return color.toHexString();
+      };
+
+      const updates = {
+        name: labelData.name!,
+        bgColor: getColorString(labelData.bgColor!),
+        borderColor: getColorString(labelData.borderColor!),
+        textColor: getColorString(labelData.textColor!),
+      };
+      dispatch(updateLabel({ id: editingLabel.id, updates }));
+    }
+    handleLabelEditModalClose();
+  };
 
   const {
     id,
@@ -295,7 +342,10 @@ const Item: React.FC<ItemProps> = ({
           background: label!.bgColor,
           borderColor: label!.borderColor,
           color: label!.textColor,
+          cursor: 'pointer',
         }}
+        onClick={() => handleLabelClick(label!)}
+        title={`點擊編輯標籤「${label!.name}」`}
       >
         {label!.name}
       </LabelTag>
@@ -499,6 +549,13 @@ const Item: React.FC<ItemProps> = ({
         courseId={id}
         open={labelModalOpen}
         onClose={closeLabelModal}
+      />
+      <LabelEditModal
+        open={labelEditModalOpen}
+        label={editingLabel}
+        mode='edit'
+        onCancel={handleLabelEditModalClose}
+        onSubmit={handleLabelEditSubmit}
       />
     </CourseRow>
   );
