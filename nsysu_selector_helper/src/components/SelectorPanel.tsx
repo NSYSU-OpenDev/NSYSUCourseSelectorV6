@@ -5,6 +5,7 @@ import { useAppSelector } from '@/store/hooks';
 import { selectSelectedTabKey } from '@/store';
 import AllCourses from '#/SelectorPanel/AllCourses';
 import SelectedExport from '#/SelectorPanel/SelectedExport';
+import AnnouncementPage from '#/SelectorPanel/AnnouncementPage';
 
 const SelectorPanel: React.FC = () => {
   const { t } = useTranslation();
@@ -16,7 +17,7 @@ const SelectorPanel: React.FC = () => {
       case 'selectedExport':
         return <SelectedExport />;
       case 'announcements':
-        return <h1>Announcements</h1>;
+        return <AnnouncementPage />;
       default:
         return <h1>{t('panelNotFound')}</h1>;
     }

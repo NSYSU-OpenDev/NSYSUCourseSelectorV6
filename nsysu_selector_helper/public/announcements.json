@@ -1,0 +1,40 @@
+{
+  "announcements": [
+    {
+      "version": "v6.0.0",
+      "date": "2025-06-18",
+      "title": "NSYSU 課程選擇輔助系統 V6",
+      "feedbackFormUrl": "https://forms.gle/gFBZDgkSbj85zukP6",
+      "dcForumUrl": "https://discord.gg/Md4x9frrHf",
+      "githubUrl": "https://github.com/NSYSU-OpenDev/NSYSUSelectorHelper/",
+      "contactEmail": "yochen0123@gmail.com",
+      "description": "這是輔助大家選課的系統，**僅供參考**。\n\n課程資料每隔 1 小時更新，請 **確保手動刷新網頁以獲取更新後資料**。",
+      "updates": [
+        "全新的 V6 版本上線！",
+        "支援 Markdown 格式的公告系統",
+        "新增了自訂篩選器功能",
+        "新增自訂標籤功能",
+        "新增了自訂排序功能",
+        "新增了課程概率統計功能"
+      ],
+      "features": [
+        "超漂亮UI",
+        "顯示衝堂",
+        "課表動態更新",
+        "學校選課系統自動填寫腳本",
+        "更強大的篩選器以及智慧搜尋",
+        "Local Storage 關閉瀏覽器自動儲存選課資料"
+      ],
+      "knownIssues": [
+        "Safari 瀏覽器有可能會出現渲染問題，有任何選染錯誤請聯絡我，並註記您的瀏覽器版本。(如果願意擔當測試者，請在表單說想當 IOS 前端測試，不勝感激)",
+        "如果有任何使用上卡頓的問題，請幫忙填寫表單反饋，並註記位置。",
+        "課程資料是爬蟲下來的靜態資料，更新會每小時執行一次。有興趣用此API的人可以參考 [中山課程開放API](https://github.com/nsysu-opendev/NSYSUCourseAPI)"
+      ],
+      "termsOfUse": "當您使用本網站時，即表示您同意 [使用條款](https://github.com/NSYSU-OpenDev/NSYSUSelectorHelper/blob/main/term_of_use.md)",
+      "copyright": [
+        "版權所有 © 2025 中山開源社群，保留一切權利。"
+      ]
+    }
+  ],
+  "currentAnnouncementIndex": 0
+}
