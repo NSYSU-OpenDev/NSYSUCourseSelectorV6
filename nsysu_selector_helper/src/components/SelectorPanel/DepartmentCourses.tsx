@@ -145,6 +145,15 @@ const DepartmentCourses: React.FC = () => {
     return DepartmentCourseService.filterCourses(courses, departmentFilters);
   }, [courses, departmentFilters]);
 
+  const isEmptyFilter = useMemo(() => {
+    return (
+      departmentFilters.selectedDepartments.length === 0 &&
+      departmentFilters.selectedGrades.length === 0 &&
+      departmentFilters.selectedClasses.length === 0 &&
+      departmentFilters.selectedCompulsoryTypes.length === 0
+    );
+  }, [departmentFilters]);
+
   // 使用排序 hook
   const { sortedCourses } = useCourseSorting(filteredCourses);
 
@@ -160,6 +169,14 @@ const DepartmentCourses: React.FC = () => {
       return;
     }
 
+    if (unselectedCourses.length > 50) {
+      Modal.error({
+        title: '批量選課限制',
+        content: `為防止載入過多課程造成瀏覽器崩潰，單次選擇課程數量不能超過 50 門。請縮小篩選條件或手動選擇課程。`,
+        okText: '確定',
+      });
+    }
+
     if (unselectedCourses.length > 20) {
       Modal.confirm({
         title: '批量選課確認',
@@ -173,12 +190,13 @@ const DepartmentCourses: React.FC = () => {
         okText: '確定',
         cancelText: '取消',
       });
-    } else {
-      unselectedCourses.forEach((course) => {
-        dispatch(selectCourse({ course, isSelected: true }));
-      });
-      void message.success(`已選擇 ${unselectedCourses.length} 門課程`);
+      return;
     }
+
+    unselectedCourses.forEach((course) => {
+      dispatch(selectCourse({ course, isSelected: true }));
+    });
+    void message.success(`已選擇 ${unselectedCourses.length} 門課程`);
   };
 
   // 處理清空所有已選課程
@@ -207,6 +225,7 @@ const DepartmentCourses: React.FC = () => {
   const handleCloseSortSelector = () => {
     setSortSelectorVisible(false);
   };
+
   const CardTitle = (
     <div>
       <Flex
@@ -226,9 +245,9 @@ const DepartmentCourses: React.FC = () => {
             icon={<CheckOutlined />}
             size='small'
             onClick={handleSelectAll}
-            disabled={sortedCourses.length === 0}
+            disabled={sortedCourses.length === 0 || isEmptyFilter}
           >
-            全選 ({sortedCourses.length})
+            {isEmptyFilter ? '請先篩選條件' : `全選 (${sortedCourses.length})`}
           </Button>
           <Button
             danger
