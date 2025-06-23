@@ -26,6 +26,7 @@ const EntryNotification: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [dontShowAgain, setDontShowAgain] = useState(false);
+
   useEffect(() => {
     const announcementSeen = localStorage.getItem(
       'NSYSUCourseSelector.entryNotificationSeen',
@@ -37,7 +38,8 @@ const EntryNotification: React.FC = () => {
     if (announcementSeen !== 'true' || versionSeen !== t('version')) {
       setIsModalOpen(true);
     }
-  }, [t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const renderList = (items: string[]) => {
     return items.map((item, index) => <li key={index}>{item}</li>);
