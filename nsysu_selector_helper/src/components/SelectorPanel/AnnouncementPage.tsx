@@ -16,6 +16,8 @@ import remarkGfm from 'remark-gfm';
 import { AnnouncementService } from '@/services';
 import type { Announcement } from '@/types';
 import { useWindowSize } from '@/hooks';
+import { useAppSelector } from '@/store/hooks';
+import { selectIsDarkMode } from '@/store';
 
 const { Title, Text } = Typography;
 
@@ -58,12 +60,12 @@ const SectionContainer = styled.div`
   }
 `;
 
-const VersionInfo = styled(Flex)`
+const VersionInfo = styled(Flex)<{ $isDark: boolean }>`
   margin-bottom: 16px;
   padding: 12px;
-  background: #f5f5f5;
+  background: ${(props) => (props.$isDark ? '#262626' : '#f5f5f5')};
   border-radius: 8px;
-  border: 1px solid #e8e8e8;
+  border: 1px solid ${(props) => (props.$isDark ? '#434343' : '#e8e8e8')};
 
   @media screen and (max-width: 768px) {
     margin-bottom: 12px;
@@ -91,7 +93,7 @@ const QuickActionContainer = styled(Space)`
   }
 `;
 
-const MarkdownContent = styled.div`
+const MarkdownContent = styled.div<{ $isDark: boolean }>`
   p {
     margin: 6px 0;
     line-height: 1.6;
@@ -125,12 +127,12 @@ const MarkdownContent = styled.div`
   }
 
   strong {
-    color: #d32f2f;
+    color: ${(props) => (props.$isDark ? '#ff7875' : '#d32f2f')};
     font-weight: 600;
   }
 
   a {
-    color: #1976d2;
+    color: ${(props) => (props.$isDark ? '#69b7ff' : '#1976d2')};
     text-decoration: none;
 
     &:hover {
@@ -141,8 +143,8 @@ const MarkdownContent = styled.div`
   blockquote {
     margin: 8px 0;
     padding: 8px 12px;
-    border-left: 4px solid #1976d2;
-    background: #f8f9fa;
+    border-left: 4px solid ${(props) => (props.$isDark ? '#69b7ff' : '#1976d2')};
+    background: ${(props) => (props.$isDark ? '#262626' : '#f8f9fa')};
 
     @media screen and (max-width: 768px) {
       margin: 6px 0;
@@ -151,12 +153,12 @@ const MarkdownContent = styled.div`
   }
 `;
 
-const SectionTitle = styled(Title)`
+const SectionTitle = styled(Title)<{ $isDark: boolean }>`
   &.ant-typography {
     margin: 0 0 8px 0 !important;
     font-size: 14px !important;
     font-weight: 600 !important;
-    color: #1f1f1f !important;
+    color: ${(props) => (props.$isDark ? '#fff' : '#1f1f1f')} !important;
 
     @media screen and (max-width: 768px) {
       font-size: 13px !important;
@@ -165,11 +167,11 @@ const SectionTitle = styled(Title)`
   }
 `;
 
-const FooterContainer = styled.div`
+const FooterContainer = styled.div<{ $isDark: boolean }>`
   padding-top: 12px;
-  border-top: 1px solid #e8e8e8;
+  border-top: 1px solid ${(props) => (props.$isDark ? '#434343' : '#e8e8e8')};
   font-size: 12px;
-  color: #666;
+  color: ${(props) => (props.$isDark ? '#999' : '#666')};
 
   @media screen and (max-width: 768px) {
     padding-top: 8px;
@@ -193,6 +195,7 @@ const AnnouncementPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const { width } = useWindowSize();
   const isMobile = width <= 768;
+  const isDark = useAppSelector(selectIsDarkMode);
 
   /**
    * 載入公告資料
@@ -247,7 +250,12 @@ const AnnouncementPage: React.FC = () => {
     <StyledCard title={CardTitle}>
       <ContentContainer>
         {/* 版本資訊和快速連結 */}
-        <VersionInfo justify='space-between' align='center' wrap='wrap'>
+        <VersionInfo
+          justify='space-between'
+          align='center'
+          wrap='wrap'
+          $isDark={isDark}
+        >
           <Text strong style={{ fontSize: isMobile ? '14px' : '15px' }}>
             當前版本：{announcement.version}
           </Text>
@@ -302,7 +310,7 @@ const AnnouncementPage: React.FC = () => {
               </Flex>
             }
             description={
-              <MarkdownContent>
+              <MarkdownContent $isDark={isDark}>
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                   {announcement.description}
                 </ReactMarkdown>
@@ -316,7 +324,7 @@ const AnnouncementPage: React.FC = () => {
         {/* 更新內容 */}
         {announcement.updates && announcement.updates.length > 0 && (
           <SectionContainer>
-            <SectionTitle level={5}>
+            <SectionTitle level={5} $isDark={isDark}>
               <InfoCircleOutlined style={{ marginRight: 6 }} />
               最新更新
             </SectionTitle>
@@ -324,7 +332,7 @@ const AnnouncementPage: React.FC = () => {
               type='success'
               showIcon={false}
               description={
-                <MarkdownContent>
+                <MarkdownContent $isDark={isDark}>
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {announcement.updates
                       .map((update) => `- ${update}`)
@@ -339,7 +347,7 @@ const AnnouncementPage: React.FC = () => {
         {/* 功能特色 */}
         {announcement.features && announcement.features.length > 0 && (
           <SectionContainer>
-            <SectionTitle level={5}>
+            <SectionTitle level={5} $isDark={isDark}>
               <InfoCircleOutlined style={{ marginRight: 6 }} />
               功能特色
             </SectionTitle>
@@ -347,7 +355,7 @@ const AnnouncementPage: React.FC = () => {
               type='success'
               showIcon={false}
               description={
-                <MarkdownContent>
+                <MarkdownContent $isDark={isDark}>
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {announcement.features
                       .map((feature) => `- ${feature}`)
@@ -362,7 +370,7 @@ const AnnouncementPage: React.FC = () => {
         {/* 已知問題 */}
         {announcement.knownIssues && announcement.knownIssues.length > 0 && (
           <SectionContainer>
-            <SectionTitle level={5}>
+            <SectionTitle level={5} $isDark={isDark}>
               <BugOutlined style={{ marginRight: 6 }} />
               已知問題
             </SectionTitle>
@@ -370,7 +378,7 @@ const AnnouncementPage: React.FC = () => {
               type='warning'
               showIcon={false}
               description={
-                <MarkdownContent>
+                <MarkdownContent $isDark={isDark}>
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {announcement.knownIssues
                       .map((issue) => `- ${issue}`)
@@ -385,11 +393,11 @@ const AnnouncementPage: React.FC = () => {
         {/* 使用條款 */}
         {announcement.termsOfUse && (
           <SectionContainer>
-            <SectionTitle level={5}>
+            <SectionTitle level={5} $isDark={isDark}>
               <FileTextOutlined style={{ marginRight: 6 }} />
               使用條款
             </SectionTitle>
-            <MarkdownContent>
+            <MarkdownContent $isDark={isDark}>
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {announcement.termsOfUse}
               </ReactMarkdown>
@@ -398,7 +406,7 @@ const AnnouncementPage: React.FC = () => {
         )}
 
         {/* 聯絡資訊和版權 */}
-        <FooterContainer>
+        <FooterContainer $isDark={isDark}>
           <Flex
             className='footer-flex'
             justify='space-between'
@@ -414,7 +422,7 @@ const AnnouncementPage: React.FC = () => {
             </Space>
             <div>
               {announcement.copyright && (
-                <MarkdownContent>
+                <MarkdownContent $isDark={isDark}>
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {Array.isArray(announcement.copyright)
                       ? announcement.copyright.join('\n')

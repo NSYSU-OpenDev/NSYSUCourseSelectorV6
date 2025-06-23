@@ -27,15 +27,20 @@ import {
   selectCourseLabelMap,
   selectSelectedTabKey,
   selectDepartmentCoursesFilters,
+  selectIsDarkMode,
 } from '@/store';
 
-const StatisticsContainer = styled.div`
+const StatisticsContainer = styled.div<{ $isDark: boolean }>`
   padding: 6px 12px;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  background: ${(props) =>
+    props.$isDark
+      ? 'linear-gradient(135deg, #1f1f1f 0%, #2d2d2d 100%)'
+      : 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)'};
   border-radius: 4px;
   margin: 4px 8px;
-  border: 1px solid #e1f5fe;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  border: 1px solid ${(props) => (props.$isDark ? '#434343' : '#e1f5fe')};
+  box-shadow: 0 1px 2px
+    ${(props) => (props.$isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.05)')};
 `;
 
 const StyledStatistic = styled(Statistic)`
@@ -63,6 +68,7 @@ const StyledStatistic = styled(Statistic)`
 
 const CreditsStatistics: React.FC = () => {
   const { t } = useTranslation();
+  const isDarkMode = useAppSelector(selectIsDarkMode);
   const selectedCourses = useAppSelector(selectSelectedCourses);
   const courses = useAppSelector(selectCourses);
   const searchQuery = useAppSelector(selectSearchQuery);
@@ -151,7 +157,7 @@ const CreditsStatistics: React.FC = () => {
     courseLabelMap,
   ]);
   return (
-    <StatisticsContainer>
+    <StatisticsContainer $isDark={isDarkMode}>
       <Row gutter={[4, 0]} align='middle'>
         <Col xs={6} sm={6} md={6}>
           <StyledStatistic
