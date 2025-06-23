@@ -39,7 +39,6 @@ import {
   setDepartmentCoursesSelectedClasses,
   setDepartmentCoursesSelectedCompulsoryTypes,
   selectCourse,
-  clearAllSelectedCourses,
 } from '@/store';
 import CoursesList from '#/Common/CoursesList';
 import CreditsStatistics from '#/Common/CreditsStatistics';
@@ -153,9 +152,15 @@ const DepartmentCourses: React.FC = () => {
       departmentFilters.selectedCompulsoryTypes.length === 0
     );
   }, [departmentFilters]);
-
   // 使用排序 hook
   const { sortedCourses } = useCourseSorting(filteredCourses);
+
+  // 計算當前篩選結果中的已選課程數量
+  const selectedCoursesInFilterCount = useMemo(() => {
+    return sortedCourses.filter((course) =>
+      selectedCourses.some((selected) => selected.id === course.id),
+    ).length;
+  }, [sortedCourses, selectedCourses]);
 
   // 處理全選功能
   const handleSelectAll = () => {
@@ -198,20 +203,28 @@ const DepartmentCourses: React.FC = () => {
     });
     void message.success(`已選擇 ${unselectedCourses.length} 門課程`);
   };
-
-  // 處理清空所有已選課程
+  // 處理清空當前篩選結果中的已選課程
   const handleClearSelectedCourses = () => {
-    if (selectedCourses.length === 0) {
-      void message.info('目前沒有已選課程');
+    // 找出當前篩選結果中的已選課程
+    const selectedCoursesInFilter = sortedCourses.filter((course) =>
+      selectedCourses.some((selected) => selected.id === course.id),
+    );
+
+    if (selectedCoursesInFilter.length === 0) {
+      void message.info('當前篩選結果中沒有已選課程');
       return;
     }
 
     Modal.confirm({
-      title: '清空已選課程',
-      content: `確定要清空所有 ${selectedCourses.length} 門已選課程嗎？`,
+      title: '清除篩選結果中的已選課程',
+      content: `確定要清除當前篩選結果中的 ${selectedCoursesInFilter.length} 門已選課程嗎？`,
       onOk: () => {
-        dispatch(clearAllSelectedCourses());
-        void message.success('已清空所有已選課程');
+        selectedCoursesInFilter.forEach((course) => {
+          dispatch(selectCourse({ course, isSelected: false }));
+        });
+        void message.success(
+          `已清除 ${selectedCoursesInFilter.length} 門已選課程`,
+        );
       },
       okText: '確定',
       cancelText: '取消',
@@ -254,9 +267,9 @@ const DepartmentCourses: React.FC = () => {
             icon={<MinusCircleOutlined />}
             size='small'
             onClick={handleClearSelectedCourses}
-            disabled={selectedCourses.length === 0}
+            disabled={selectedCoursesInFilterCount === 0}
           >
-            清除已選 ({selectedCourses.length})
+            清除已選 ({selectedCoursesInFilterCount})
           </Button>
         </ActionButtonsContainer>
       </Flex>
