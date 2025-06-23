@@ -2,14 +2,14 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
-import translationZH_TW from './locales/zh_TW/translation.json';
+import translationZHTW from '@/i18n/locales/zh-TW/translation.json';
 
 export const resources = {
-  zh_TW: {
-    translation: translationZH_TW,
+  'zh-TW': {
+    translation: translationZHTW,
   },
   zh: {
-    translation: translationZH_TW,
+    translation: translationZHTW,
   },
 };
 
@@ -19,7 +19,7 @@ const initI18n = () => {
     .use(LanguageDetector)
     .init({
       resources,
-      fallbackLng: 'zh_TW',
+      fallbackLng: 'zh-TW',
       debug: false,
       detection: {
         order: ['querystring', 'localStorage', 'htmlTag'],
