@@ -305,7 +305,7 @@ try {
         {/* 課程列表 */}
         <Virtuoso
           ref={virtuosoRef}
-          style={{ height: 'calc(100vh - 280px)' }}
+          style={{ height: 'calc(100vh - 210px)' }}
           data={dataWithHeader}
           itemContent={renderItem}
           topItemCount={1}
