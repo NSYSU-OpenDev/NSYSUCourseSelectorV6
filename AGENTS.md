@@ -65,7 +65,6 @@ Import conventions:
 Each directory should have `index.ts` for unified exports:
 ```typescript
 // hooks/index.ts
-export * from './useThemeConfig';
 export * from './useWindowSize';
 
 // services/index.ts

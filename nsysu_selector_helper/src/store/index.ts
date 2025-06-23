@@ -56,10 +56,8 @@ export {
 } from './slices/courseLabelsSlice';
 
 export {
-  setPrimaryColor,
-  setAlgorithms,
+  setDarkMode,
   setBorderRadius,
-  setFullTheme,
   loadThemeFromStorage,
   resetTheme,
 } from './slices/themeSlice';
@@ -96,11 +94,9 @@ export {
   // 已選課程配置相關
   selectSelectedCoursesConfig,
   selectCourseConfig,
-  selectExportedCoursesConfig,
-  // Theme selectors
+  selectExportedCoursesConfig, // Theme selectors
   selectTheme,
-  selectPrimaryColor,
-  selectAlgorithms,
+  selectIsDarkMode,
   selectBorderRadius,
   selectThemeConfig,
 } from './selectors';

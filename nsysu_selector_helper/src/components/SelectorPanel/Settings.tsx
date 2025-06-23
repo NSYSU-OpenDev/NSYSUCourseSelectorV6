@@ -3,33 +3,25 @@ import {
   Card,
   Space,
   Typography,
-  Select,
-  ColorPicker,
+  Switch,
   Slider,
   Button,
   Modal,
   message,
-  Divider,
   Row,
   Col,
   Flex,
+  Select,
 } from 'antd';
-import {
-  ReloadOutlined,
-  BgColorsOutlined,
-  TranslationOutlined,
-  SettingOutlined,
-} from '@ant-design/icons';
+import { ReloadOutlined, SettingOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
-  selectPrimaryColor,
-  selectAlgorithms,
+  selectIsDarkMode,
   selectBorderRadius,
-  setPrimaryColor,
-  setAlgorithms,
+  setDarkMode,
   setBorderRadius,
   resetTheme,
 } from '@/store';
@@ -88,34 +80,19 @@ const SettingDescription = styled(Text)`
   font-size: 12px;
 `;
 
-type AlgorithmType = 'defaultAlgorithm' | 'darkAlgorithm' | 'compactAlgorithm';
-
 const Settings: FC = () => {
   const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
-  const currentPrimaryColorFromStore = useAppSelector(selectPrimaryColor);
-  const currentAlgorithmsFromStore = useAppSelector(selectAlgorithms);
+  const isDarkModeFromStore = useAppSelector(selectIsDarkMode);
   const currentBorderRadiusFromStore = useAppSelector(selectBorderRadius);
-  const [messageApi, contextHolder] = message.useMessage(); // 從當前主題配置中提取設定值
+  const [messageApi, contextHolder] = message.useMessage();
+
+  // 本地狀態
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
-  const [currentPrimaryColor, setCurrentPrimaryColor] = useState(
-    currentPrimaryColorFromStore,
-  );
+  const [isDarkMode, setIsDarkModeLocal] = useState(isDarkModeFromStore);
   const [currentBorderRadius, setCurrentBorderRadius] = useState(
     currentBorderRadiusFromStore,
-  );
-
-  // 獲取當前選中的算法
-  const getCurrentAlgorithms = (): string[] => {
-    return currentAlgorithmsFromStore.filter(
-      (algo) => algo !== 'defaultAlgorithm',
-    );
-  };
-
-  const [currentAlgorithms, setCurrentAlgorithms] = useState<string[]>(
-    getCurrentAlgorithms(),
-  );
-  // 語言選項
+  ); // 語言選項
   const languageOptions = [
     {
       value: 'zh-TW',
@@ -128,18 +105,6 @@ const Settings: FC = () => {
     // },
   ];
 
-  // 算法選項
-  const algorithmOptions = [
-    {
-      value: 'darkAlgorithm',
-      label: t('settings.theme.mode.options.dark'),
-    },
-    {
-      value: 'compactAlgorithm',
-      label: t('settings.theme.mode.options.compact'),
-    },
-  ];
-
   // 處理語言變更
   const handleLanguageChange = (language: string) => {
     setCurrentLanguage(language);
@@ -147,25 +112,11 @@ const Settings: FC = () => {
     void messageApi.success('語言設定已更新');
   };
 
-  // 處理算法變更
-  const handleAlgorithmChange = (algorithms: string[]) => {
-    setCurrentAlgorithms(algorithms);
-
-    // 轉換為完整的算法陣列
-    const fullAlgorithms: AlgorithmType[] =
-      algorithms.length === 0
-        ? ['defaultAlgorithm']
-        : algorithms.map((algo) => algo as AlgorithmType);
-
-    dispatch(setAlgorithms(fullAlgorithms));
-    void messageApi.success('主題算法已更新');
-  };
-  // 處理主色調變更 - 只更新本地狀態
-  const handlePrimaryColorChange = (
-    value: { toHexString: () => string } | string,
-  ) => {
-    const colorString = typeof value === 'string' ? value : value.toHexString();
-    setCurrentPrimaryColor(colorString);
+  // 處理暗色模式切換
+  const handleDarkModeChange = (checked: boolean) => {
+    setIsDarkModeLocal(checked);
+    dispatch(setDarkMode(checked));
+    void messageApi.success(checked ? '已切換到暗色模式' : '已切換到亮色模式');
   };
 
   // 處理圓角大小變更 - 只更新本地狀態
@@ -178,17 +129,6 @@ const Settings: FC = () => {
     dispatch(setBorderRadius(value));
     void messageApi.success('圓角設定已更新');
   };
-
-  // 處理主色調變更完成 - 更新 Redux 狀態
-  const handlePrimaryColorChangeComplete = (
-    value: { toHexString: () => string } | string,
-  ) => {
-    const colorString = typeof value === 'string' ? value : value.toHexString();
-    setCurrentPrimaryColor(colorString);
-    dispatch(setPrimaryColor(colorString));
-    void messageApi.success('主色調已更新');
-  };
-
   // 重置所有設定
   const handleResetSettings = () => {
     Modal.confirm({
@@ -196,21 +136,16 @@ const Settings: FC = () => {
       onOk: () => {
         // 重置語言
         void i18n.changeLanguage('zh-TW');
-        setCurrentLanguage('zh-TW'); // 重置主題設定
-        const defaultPrimaryColor = 'rgb(0, 158, 150)';
-        const defaultBorderRadius = 4;
+        setCurrentLanguage('zh-TW');
 
-        setCurrentAlgorithms([]);
-        setCurrentPrimaryColor(defaultPrimaryColor);
+        // 重置主題設定
+        const defaultBorderRadius = 4;
+        setIsDarkModeLocal(false);
         setCurrentBorderRadius(defaultBorderRadius);
 
         dispatch(resetTheme());
 
         // 清除相關的 localStorage
-        localStorage.removeItem('NSYSUCourseSelector.algorithms');
-        localStorage.removeItem('NSYSUCourseSelector.algorithm');
-        localStorage.removeItem('NSYSUCourseSelector.primaryColor');
-        localStorage.removeItem('NSYSUCourseSelector.borderRadius');
         localStorage.removeItem('i18nextLng');
 
         void messageApi.success(t('settings.reset.success'));
@@ -227,94 +162,48 @@ const Settings: FC = () => {
     <StyledCard title={CardTitle}>
       <SettingsContainer>
         {contextHolder}
-        {/* 語言設定 */}
+        {/* 設定 */}
         <SettingCard
           title={
             <Space>
-              <TranslationOutlined />
-              {t('settings.language.title')}
+              <SettingOutlined />
+              {t('settings.general.title')}
             </Space>
           }
         >
           <SettingItem>
-            <SettingLabel>
-              <Text strong>{t('settings.language.title')}</Text>
-            </SettingLabel>
-            <SettingDescription>
-              {t('settings.language.description')}
-            </SettingDescription>
-            <Select
-              value={currentLanguage}
-              onChange={handleLanguageChange}
-              options={languageOptions}
-              style={{ width: 150 }}
-              size='small'
-            />
-          </SettingItem>
-        </SettingCard>
-        {/* 主題設定 */}
-        <SettingCard
-          title={
-            <Space>
-              <BgColorsOutlined />
-              {t('settings.theme.title')}
-            </Space>
-          }
-        >
-          <Row gutter={16}>
-            <Col span={12}>
-              <SettingItem>
+            <Row gutter={24}>
+              <Col span={12}>
+                <SettingLabel>
+                  <Text strong>{t('settings.language.title')}</Text>
+                </SettingLabel>
+                <SettingDescription>
+                  {t('settings.language.description')}
+                </SettingDescription>
+                <Select
+                  value={currentLanguage}
+                  onChange={handleLanguageChange}
+                  options={languageOptions}
+                  style={{ width: '100%' }}
+                  size='small'
+                />
+              </Col>
+              <Col span={12}>
                 <SettingLabel>
                   <Text strong>{t('settings.theme.mode.title')}</Text>
                 </SettingLabel>
                 <SettingDescription>
                   {t('settings.theme.description')}
                 </SettingDescription>
-                <Select
-                  mode='multiple'
-                  value={currentAlgorithms}
-                  onChange={handleAlgorithmChange}
-                  options={algorithmOptions}
-                  style={{ width: '100%' }}
-                  size='small'
-                  placeholder='選擇主題算法'
+                <Switch
+                  checked={isDarkMode}
+                  onChange={handleDarkModeChange}
+                  checkedChildren='暗色'
+                  unCheckedChildren='亮色'
                 />
-              </SettingItem>
-            </Col>
-            <Col span={12}>
-              <SettingItem>
-                <SettingLabel>
-                  <Text strong>{t('settings.theme.primaryColor.title')}</Text>
-                </SettingLabel>
-                <SettingDescription>
-                  {t('settings.theme.primaryColor.description')}
-                </SettingDescription>
-                <ColorPicker
-                  value={currentPrimaryColor}
-                  onChange={handlePrimaryColorChange}
-                  onChangeComplete={handlePrimaryColorChangeComplete}
-                  showText
-                  format='hex'
-                  size='small'
-                  presets={[
-                    {
-                      label: '預設色彩',
-                      colors: [
-                        'rgb(0, 158, 150)',
-                        '#1890ff',
-                        '#722ed1',
-                        '#13c2c2',
-                        '#52c41a',
-                        '#faad14',
-                        '#f5222d',
-                      ],
-                    },
-                  ]}
-                />
-              </SettingItem>
-            </Col>
-          </Row>
-          <Divider size={'small'} />
+              </Col>
+            </Row>
+          </SettingItem>
           <SettingItem>
             <SettingLabel>
               <Text strong>{t('settings.theme.borderRadius.title')}</Text>

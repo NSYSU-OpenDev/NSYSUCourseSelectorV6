@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { theme } from 'antd';
 import type { RootState } from './store';
+import { ANTD_THEME_TOKENS } from '@/constants/themeTokens';
 
 // Courses selectors
 export const selectCourses = (state: RootState) => state.courses.courses;
@@ -107,37 +108,22 @@ export const selectExportedCoursesConfig = createSelector(
 
 // Theme selectors
 export const selectTheme = (state: RootState) => state.theme;
-export const selectPrimaryColor = (state: RootState) =>
-  state.theme.primaryColor;
-export const selectAlgorithms = (state: RootState) => state.theme.algorithms;
+export const selectIsDarkMode = (state: RootState) => state.theme.isDarkMode;
 export const selectBorderRadius = (state: RootState) =>
   state.theme.borderRadius;
 
 // Theme config selector (computed)
 export const selectThemeConfig = createSelector([selectTheme], (themeState) => {
-  const { primaryColor, algorithms, borderRadius } = themeState;
+  const { isDarkMode, borderRadius } = themeState;
 
-  if (algorithms.length === 1 && algorithms[0] === 'defaultAlgorithm') {
-    return {
-      algorithm: theme.defaultAlgorithm,
-      token: {
-        colorPrimary: primaryColor,
-        borderRadius: borderRadius,
-      },
-    };
-  }
-
-  const algorithmFunctions = algorithms
-    .filter((algo) => algo !== 'defaultAlgorithm')
-    .map((algo) => theme[algo]);
+  // 直接使用預定義的主題 token 常數
+  const baseTokens = ANTD_THEME_TOKENS[isDarkMode ? 'dark' : 'light'];
 
   return {
-    algorithm:
-      algorithmFunctions.length > 0
-        ? algorithmFunctions
-        : theme.defaultAlgorithm,
+    algorithm: isDarkMode ? theme.darkAlgorithm : theme.defaultAlgorithm,
     token: {
-      colorPrimary: primaryColor,
+      ...baseTokens,
+      // 使用 Redux 狀態中的圓角設定
       borderRadius: borderRadius,
     },
   };

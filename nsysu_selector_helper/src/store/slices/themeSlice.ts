@@ -1,19 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export type AlgorithmType =
-  | 'defaultAlgorithm'
-  | 'darkAlgorithm'
-  | 'compactAlgorithm';
-
 export interface ThemeState {
-  primaryColor: string;
-  algorithms: AlgorithmType[];
+  isDarkMode: boolean;
   borderRadius: number;
 }
 
 const initialState: ThemeState = {
-  primaryColor: 'rgb(0, 158, 150)',
-  algorithms: ['defaultAlgorithm'],
+  isDarkMode: false,
   borderRadius: 4,
 };
 
@@ -21,15 +14,11 @@ export const themeSlice = createSlice({
   name: 'theme',
   initialState,
   reducers: {
-    setPrimaryColor: (state, action: PayloadAction<string>) => {
-      state.primaryColor = action.payload;
-      localStorage.setItem('NSYSUCourseSelector.primaryColor', action.payload);
-    },
-    setAlgorithms: (state, action: PayloadAction<AlgorithmType[]>) => {
-      state.algorithms = action.payload;
+    setDarkMode: (state, action: PayloadAction<boolean>) => {
+      state.isDarkMode = action.payload;
       localStorage.setItem(
-        'NSYSUCourseSelector.algorithms',
-        JSON.stringify(action.payload),
+        'NSYSUCourseSelector.isDarkMode',
+        action.payload.toString(),
       );
     },
     setBorderRadius: (state, action: PayloadAction<number>) => {
@@ -39,56 +28,13 @@ export const themeSlice = createSlice({
         action.payload.toString(),
       );
     },
-    setFullTheme: (state, action: PayloadAction<Partial<ThemeState>>) => {
-      if (action.payload.primaryColor !== undefined) {
-        state.primaryColor = action.payload.primaryColor;
-        localStorage.setItem(
-          'NSYSUCourseSelector.primaryColor',
-          action.payload.primaryColor,
-        );
-      }
-      if (action.payload.algorithms !== undefined) {
-        state.algorithms = action.payload.algorithms;
-        localStorage.setItem(
-          'NSYSUCourseSelector.algorithms',
-          JSON.stringify(action.payload.algorithms),
-        );
-      }
-      if (action.payload.borderRadius !== undefined) {
-        state.borderRadius = action.payload.borderRadius;
-        localStorage.setItem(
-          'NSYSUCourseSelector.borderRadius',
-          action.payload.borderRadius.toString(),
-        );
-      }
-    },
     loadThemeFromStorage: (state) => {
       try {
-        const storedPrimaryColor = localStorage.getItem(
-          'NSYSUCourseSelector.primaryColor',
+        const storedDarkMode = localStorage.getItem(
+          'NSYSUCourseSelector.isDarkMode',
         );
-        if (storedPrimaryColor) {
-          state.primaryColor = storedPrimaryColor;
-        }
-
-        const storedAlgorithms = localStorage.getItem(
-          'NSYSUCourseSelector.algorithms',
-        );
-        if (storedAlgorithms) {
-          try {
-            const parsedAlgorithms = JSON.parse(
-              storedAlgorithms,
-            ) as AlgorithmType[];
-            state.algorithms = parsedAlgorithms;
-          } catch {
-            // 兼容舊的單一算法格式
-            const storedAlgorithm = localStorage.getItem(
-              'NSYSUCourseSelector.algorithm',
-            );
-            if (storedAlgorithm) {
-              state.algorithms = [storedAlgorithm as AlgorithmType];
-            }
-          }
+        if (storedDarkMode) {
+          state.isDarkMode = storedDarkMode === 'true';
         }
 
         const storedBorderRadius = localStorage.getItem(
@@ -97,37 +43,50 @@ export const themeSlice = createSlice({
         if (storedBorderRadius) {
           state.borderRadius = parseInt(storedBorderRadius, 10);
         }
+
+        // 向後兼容：從舊的 algorithms 設定中載入暗色模式
+        const storedAlgorithms = localStorage.getItem(
+          'NSYSUCourseSelector.algorithms',
+        );
+        if (storedAlgorithms && !storedDarkMode) {
+          try {
+            const parsedAlgorithms = JSON.parse(storedAlgorithms);
+            if (Array.isArray(parsedAlgorithms)) {
+              state.isDarkMode = parsedAlgorithms.includes('darkAlgorithm');
+            }
+          } catch {
+            // 忽略解析錯誤
+          }
+        }
       } catch (error) {
         console.error('Failed to load theme from storage:', error);
       }
     },
     resetTheme: (state) => {
-      state.primaryColor = initialState.primaryColor;
-      state.algorithms = initialState.algorithms;
+      state.isDarkMode = initialState.isDarkMode;
       state.borderRadius = initialState.borderRadius;
 
       // 清除 localStorage
       localStorage.setItem(
-        'NSYSUCourseSelector.primaryColor',
-        initialState.primaryColor,
-      );
-      localStorage.setItem(
-        'NSYSUCourseSelector.algorithms',
-        JSON.stringify(initialState.algorithms),
+        'NSYSUCourseSelector.isDarkMode',
+        initialState.isDarkMode.toString(),
       );
       localStorage.setItem(
         'NSYSUCourseSelector.borderRadius',
         initialState.borderRadius.toString(),
       );
+
+      // 清除舊的設定
+      localStorage.removeItem('NSYSUCourseSelector.primaryColor');
+      localStorage.removeItem('NSYSUCourseSelector.algorithms');
+      localStorage.removeItem('NSYSUCourseSelector.algorithm');
     },
   },
 });
 
 export const {
-  setPrimaryColor,
-  setAlgorithms,
+  setDarkMode,
   setBorderRadius,
-  setFullTheme,
   loadThemeFromStorage,
   resetTheme,
 } = themeSlice.actions;

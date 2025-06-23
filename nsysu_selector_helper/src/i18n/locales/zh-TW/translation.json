@@ -136,6 +136,9 @@
   },
   "settings": {
     "title": "設定",
+    "general": {
+      "title": "一般設定"
+    },
     "language": {
       "title": "語言設定",
       "description": "選擇您偏好的語言",
@@ -148,16 +151,7 @@
       "title": "主題設定",
       "description": "自訂應用程式的外觀",
       "mode": {
-        "title": "主題模式",
-        "options": {
-          "light": "淺色主題",
-          "dark": "深色主題",
-          "compact": "緊湊主題"
-        }
-      },
-      "primaryColor": {
-        "title": "主色調",
-        "description": "選擇主要顏色"
+        "title": "主題模式"
       },
       "borderRadius": {
         "title": "圓角大小",
