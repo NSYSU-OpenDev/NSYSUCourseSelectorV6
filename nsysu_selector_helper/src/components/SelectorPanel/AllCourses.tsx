@@ -35,7 +35,7 @@ import {
 } from '@/store';
 import CoursesList from '#/Common/CoursesList';
 import AdvancedFilterDrawer from '#/SelectorPanel/AllCourses/AdvancedFilterDrawer';
-import CreditsStatistics from '#/SelectorPanel/AllCourses/CreditsStatistics';
+import CreditsStatistics from '#/Common/CreditsStatistics';
 import CompactSortButton from '#/SelectorPanel/AllCourses/CompactSortButton';
 import CourseSortSelector from '#/SelectorPanel/AllCourses/CourseSortSelector';
 

@@ -6,6 +6,7 @@ import { selectSelectedTabKey } from '@/store';
 import AllCourses from '#/SelectorPanel/AllCourses';
 import SelectedExport from '#/SelectorPanel/SelectedExport';
 import AnnouncementPage from '#/SelectorPanel/AnnouncementPage';
+import DepartmentCourses from '#/SelectorPanel/DepartmentCourses';
 
 const SelectorPanel: React.FC = () => {
   const { t } = useTranslation();
@@ -14,6 +15,8 @@ const SelectorPanel: React.FC = () => {
     switch (tabKey) {
       case 'allCourses':
         return <AllCourses />;
+      case 'departmentCourses':
+        return <DepartmentCourses />;
       case 'selectedExport':
         return <SelectedExport />;
       case 'announcements':

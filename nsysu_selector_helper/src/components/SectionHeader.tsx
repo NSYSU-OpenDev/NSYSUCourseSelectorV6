@@ -15,6 +15,7 @@ import {
   FileDoneOutlined,
   NotificationOutlined,
   MenuOutlined,
+  ApartmentOutlined,
 } from '@ant-design/icons';
 import styled from 'styled-components';
 
@@ -104,12 +105,16 @@ const SectionHeader: FC<HeaderProps> = ({
   const textColor = '#ffffff';
 
   const [drawerOpen, setDrawerOpen] = useState(false);
-
   const navTabs: MenuProps['items'] = [
     {
       key: 'allCourses',
       label: t('allCourses'),
       icon: <BookOutlined />,
+    },
+    {
+      key: 'departmentCourses',
+      label: '系所課程',
+      icon: <ApartmentOutlined />,
     },
     {
       key: 'selectedExport',

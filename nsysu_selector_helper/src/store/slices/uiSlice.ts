@@ -39,6 +39,13 @@ export interface UIState {
   editingCustomFilter: CustomQuickFilter | null;
   // 課程排序相關
   sortConfig: SortConfig;
+  // 系所課程面板篩選相關
+  departmentCourses: {
+    selectedDepartments: string[];
+    selectedGrades: string[];
+    selectedClasses: string[];
+    selectedCompulsoryTypes: string[]; // 'compulsory', 'elective', 'multipleCompulsory'
+  };
 }
 
 // 初始狀態
@@ -62,6 +69,13 @@ const initialState: UIState = {
   editingCustomFilter: null,
   // 課程排序相關
   sortConfig: CourseSortingService.loadSortConfig(),
+  // 系所課程面板篩選相關
+  departmentCourses: {
+    selectedDepartments: [],
+    selectedGrades: [],
+    selectedClasses: [],
+    selectedCompulsoryTypes: [],
+  },
 };
 
 // Slice
@@ -211,6 +225,43 @@ const uiSlice = createSlice({
     // 課程排序相關
     setSortConfig: (state, action: PayloadAction<SortConfig>) => {
       state.sortConfig = action.payload;
+      CourseSortingService.saveSortConfig(action.payload);
+    },
+    // 系所課程面板篩選相關 reducers
+    setDepartmentCoursesSelectedDepartments: (
+      state,
+      action: PayloadAction<string[]>,
+    ) => {
+      state.departmentCourses.selectedDepartments = action.payload;
+    },
+    setDepartmentCoursesSelectedGrades: (
+      state,
+      action: PayloadAction<string[]>,
+    ) => {
+      state.departmentCourses.selectedGrades = action.payload;
+    },
+    setDepartmentCoursesSelectedClasses: (
+      state,
+      action: PayloadAction<string[]>,
+    ) => {
+      state.departmentCourses.selectedClasses = action.payload;
+    },
+    setDepartmentCoursesSelectedCompulsoryTypes: (
+      state,
+      action: PayloadAction<string[]>,
+    ) => {
+      state.departmentCourses.selectedCompulsoryTypes = action.payload;
+    },
+    resetDepartmentCoursesFilters: (state) => {
+      state.departmentCourses = {
+        selectedDepartments: [],
+        selectedGrades: [],
+        selectedClasses: [],
+        selectedCompulsoryTypes: [],
+      };
+    },
+    setDepartmentCourses: (state, action: PayloadAction<any>) => {
+      state.departmentCourses = action.payload;
     },
   },
 });
@@ -246,6 +297,13 @@ export const {
   setEditingCustomFilter,
   // 課程排序相關
   setSortConfig,
+  // 系所課程面板篩選相關
+  setDepartmentCoursesSelectedDepartments,
+  setDepartmentCoursesSelectedGrades,
+  setDepartmentCoursesSelectedClasses,
+  setDepartmentCoursesSelectedCompulsoryTypes,
+  resetDepartmentCoursesFilters,
+  setDepartmentCourses,
 } = uiSlice.actions;
 
 export default uiSlice;

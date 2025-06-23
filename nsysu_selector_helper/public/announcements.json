@@ -31,9 +31,7 @@
         "課程資料是爬蟲下來的靜態資料，更新會每小時執行一次。有興趣用此API的人可以參考 [中山課程開放API](https://github.com/nsysu-opendev/NSYSUCourseAPI)"
       ],
       "termsOfUse": "當您使用本網站時，即表示您同意 [使用條款](https://github.com/NSYSU-OpenDev/NSYSUSelectorHelper/blob/main/term_of_use.md)",
-      "copyright": [
-        "版權所有 © 2025 中山開源社群，保留一切權利。"
-      ]
+      "copyright": ["版權所有 © 2025 中山開源社群，保留一切權利。"]
     }
   ],
   "currentAnnouncementIndex": 0

@@ -9,8 +9,12 @@ import {
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 
-import { CourseService } from '@/services/courseService';
-import { AdvancedFilterService } from '@/services/advancedFilterService';
+import { type Course } from '@/types';
+import {
+  AdvancedFilterService,
+  CourseService,
+  DepartmentCourseService,
+} from '@/services';
 import { useAppSelector } from '@/store/hooks';
 import {
   selectSelectedCourses,
@@ -21,6 +25,8 @@ import {
   selectFilterConditions,
   selectSelectedTimeSlots,
   selectCourseLabelMap,
+  selectSelectedTabKey,
+  selectDepartmentCoursesFilters,
 } from '@/store';
 
 const StatisticsContainer = styled.div`
@@ -65,6 +71,8 @@ const CreditsStatistics: React.FC = () => {
   const filterConditions = useAppSelector(selectFilterConditions);
   const selectedTimeSlots = useAppSelector(selectSelectedTimeSlots);
   const courseLabelMap = useAppSelector(selectCourseLabelMap);
+  const selectedTabKey = useAppSelector(selectSelectedTabKey);
+  const departmentFilters = useAppSelector(selectDepartmentCoursesFilters);
 
   // Calculate total credits and hours using the existing service
   const { totalCredits, totalHours } = useMemo(() => {
@@ -74,22 +82,36 @@ const CreditsStatistics: React.FC = () => {
 
   // 計算實際顯示的課程數量
   const displayedCoursesCount = useMemo(() => {
-    // 先進行基本搜尋
-    let filteredCourses = CourseService.searchCourses(courses, searchQuery); // 再進行精確篩選
-    if (filterConditions.length > 0) {
-      filteredCourses = AdvancedFilterService.filterCourses(
-        filteredCourses,
-        filterConditions,
-        courseLabelMap,
-      );
-    }
+    let filteredCourses: Course[];
 
-    // 最後進行時間段篩選
-    if (selectedTimeSlots.length > 0) {
-      filteredCourses = CourseService.filterCoursesByTimeSlots(
-        filteredCourses,
-        selectedTimeSlots,
+    // 根據當前標籤頁使用不同的篩選邏輯
+    if (selectedTabKey === 'departmentCourses') {
+      // 系所課程面板：使用 DepartmentCourseService 篩選
+      filteredCourses = DepartmentCourseService.filterCourses(
+        courses,
+        departmentFilters,
       );
+    } else {
+      // 全部課程面板：使用原有的篩選邏輯
+      // 先進行基本搜尋
+      filteredCourses = CourseService.searchCourses(courses, searchQuery);
+
+      // 再進行精確篩選
+      if (filterConditions.length > 0) {
+        filteredCourses = AdvancedFilterService.filterCourses(
+          filteredCourses,
+          filterConditions,
+          courseLabelMap,
+        );
+      }
+
+      // 最後進行時間段篩選
+      if (selectedTimeSlots.length > 0) {
+        filteredCourses = CourseService.filterCoursesByTimeSlots(
+          filteredCourses,
+          selectedTimeSlots,
+        );
+      }
     }
 
     return filteredCourses.filter((course) => {
@@ -118,6 +140,8 @@ const CreditsStatistics: React.FC = () => {
     }).length;
   }, [
     courses,
+    selectedTabKey,
+    departmentFilters,
     searchQuery,
     filterConditions,
     selectedTimeSlots,

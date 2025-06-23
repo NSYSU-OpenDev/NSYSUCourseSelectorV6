@@ -38,6 +38,13 @@ export {
   setSelectedTimeSlots,
   // 課程排序相關
   setSortConfig,
+  // 系所課程面板篩選相關
+  setDepartmentCoursesSelectedDepartments,
+  setDepartmentCoursesSelectedGrades,
+  setDepartmentCoursesSelectedClasses,
+  setDepartmentCoursesSelectedCompulsoryTypes,
+  resetDepartmentCoursesFilters,
+  setDepartmentCourses,
 } from './slices/uiSlice';
 
 export {
@@ -65,11 +72,16 @@ export {
   selectScrollToCourseId,
   selectSearchQuery,
   selectAdvancedFilterDrawerOpen,
-  selectFilterConditions,
-  // 時間段篩選相關
+  selectFilterConditions, // 時間段篩選相關
   selectSelectedTimeSlots,
   // 課程排序相關
   selectSortConfig,
+  // 系所課程面板篩選相關
+  selectDepartmentCoursesSelectedDepartments,
+  selectDepartmentCoursesSelectedGrades,
+  selectDepartmentCoursesSelectedClasses,
+  selectDepartmentCoursesSelectedCompulsoryTypes,
+  selectDepartmentCoursesFilters,
   selectLabels,
   selectCourseLabelMap,
   // 已選課程配置相關

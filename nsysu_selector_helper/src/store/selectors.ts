@@ -55,6 +55,19 @@ export const selectEditingCustomFilter = (state: RootState) =>
 // Course sorting selectors
 export const selectSortConfig = (state: RootState) => state.ui.sortConfig;
 
+// Department courses panel selectors
+export const selectDepartmentCoursesSelectedDepartments = (state: RootState) =>
+  state.ui.departmentCourses.selectedDepartments;
+export const selectDepartmentCoursesSelectedGrades = (state: RootState) =>
+  state.ui.departmentCourses.selectedGrades;
+export const selectDepartmentCoursesSelectedClasses = (state: RootState) =>
+  state.ui.departmentCourses.selectedClasses;
+export const selectDepartmentCoursesSelectedCompulsoryTypes = (
+  state: RootState,
+) => state.ui.departmentCourses.selectedCompulsoryTypes;
+export const selectDepartmentCoursesFilters = (state: RootState) =>
+  state.ui.departmentCourses;
+
 // Course labels selectors
 export const selectLabels = (state: RootState) => state.courseLabels.labels;
 export const selectCourseLabelMap = (state: RootState) =>

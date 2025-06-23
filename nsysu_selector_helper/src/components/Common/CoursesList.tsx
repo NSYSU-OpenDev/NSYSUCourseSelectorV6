@@ -19,12 +19,14 @@ interface CoursesListProps {
   filteredCourses: Course[];
   displaySelectedOnly: boolean;
   displayConflictCourses: boolean;
+  height?: string;
 }
 
 const CoursesList: React.FC<CoursesListProps> = ({
   filteredCourses,
   displaySelectedOnly,
   displayConflictCourses,
+  height = 'calc(100vh - 190px)',
 }) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -120,7 +122,7 @@ const CoursesList: React.FC<CoursesListProps> = ({
   return (
     <Virtuoso
       ref={virtuosoRef}
-      style={{ height: 'calc(100vh - 205px)' }}
+      style={{ height }}
       data={dataWithHeader}
       itemContent={renderItem}
       topItemCount={1}

@@ -5,3 +5,4 @@ export * from './courseSortingService';
 export * from './filterPersistenceService';
 export * from './courseLabelService';
 export * from './announcementService';
+export * from './departmentCourseService';
