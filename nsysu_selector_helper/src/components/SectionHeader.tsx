@@ -21,6 +21,8 @@ import styled from 'styled-components';
 
 import { type AcademicYear } from '@/types';
 import { useTranslation } from '@/hooks';
+import { useAppSelector } from '@/store/hooks';
+import { selectIsDarkMode } from '@/store';
 import banner from '@/assets/banner.svg';
 
 const HeaderContainer = styled(Flex)<{
@@ -100,10 +102,10 @@ const SectionHeader: FC<HeaderProps> = ({
   setSelectedSemester,
 }) => {
   const { t } = useTranslation();
-
+  const isDarkMode = useAppSelector(selectIsDarkMode);
   const { token } = theme.useToken();
-  const primaryColor = token.colorPrimary;
-  const textColor = '#ffffff';
+  const primaryColor = isDarkMode ? token.colorBgContainer : token.colorPrimary;
+  const textColor = isDarkMode ? token.colorText : '#ffffff';
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const navTabs: MenuProps['items'] = [
@@ -183,7 +185,9 @@ const SectionHeader: FC<HeaderProps> = ({
         />
         <MobileMenu align={'center'} justify={'center'}>
           <Button
-            type='primary'
+            ghost={true}
+            variant={'text'}
+            color={isDarkMode ? 'default' : undefined}
             icon={<MenuOutlined />}
             onClick={() => setDrawerOpen(true)}
           />
