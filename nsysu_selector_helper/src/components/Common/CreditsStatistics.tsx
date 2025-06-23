@@ -7,7 +7,6 @@ import {
   CheckCircleOutlined,
 } from '@ant-design/icons';
 import styled from 'styled-components';
-import { useTranslation } from 'react-i18next';
 
 import { type Course } from '@/types';
 import {
@@ -15,6 +14,7 @@ import {
   CourseService,
   DepartmentCourseService,
 } from '@/services';
+import { useTranslation } from '@/hooks';
 import { useAppSelector } from '@/store/hooks';
 import {
   selectSelectedCourses,

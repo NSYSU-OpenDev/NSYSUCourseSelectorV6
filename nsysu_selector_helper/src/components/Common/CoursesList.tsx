@@ -1,17 +1,17 @@
 import React, { useRef, useEffect, useMemo } from 'react';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import { Empty } from 'antd';
-import { useTranslation } from 'react-i18next';
 
-import { CourseService } from '@/services/courseService.ts';
-import { useAppSelector, useAppDispatch } from '@/store/hooks.ts';
+import { type Course } from '@/types';
+import { CourseService } from '@/services';
 import {
   selectSelectedCourses,
   selectHoveredCourseId,
   selectScrollToCourseId,
   setScrollToCourseId,
 } from '@/store';
-import { Course } from '@/types';
+import { useTranslation } from '@/hooks';
+import { useAppSelector, useAppDispatch } from '@/store/hooks.ts';
 import Header from '#/Common/CoursesList/Header';
 import Item from '#/Common/CoursesList/Item';
 

@@ -1,6 +1,6 @@
 import React, { JSX } from 'react';
-import { useTranslation } from 'react-i18next';
 
+import { useTranslation } from '@/hooks';
 import { useAppSelector } from '@/store/hooks';
 import { selectSelectedTabKey } from '@/store';
 import AllCourses from '#/SelectorPanel/AllCourses';

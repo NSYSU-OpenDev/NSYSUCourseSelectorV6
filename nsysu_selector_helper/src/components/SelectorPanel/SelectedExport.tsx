@@ -16,10 +16,10 @@ import {
   ImportOutlined,
   CopyOutlined,
 } from '@ant-design/icons';
-import { useTranslation } from 'react-i18next';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import styled from 'styled-components';
 
+import { useTranslation } from '@/hooks';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import {
   selectSelectedCourses,

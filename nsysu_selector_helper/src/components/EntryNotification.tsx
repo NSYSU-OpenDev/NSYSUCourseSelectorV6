@@ -6,8 +6,9 @@ import {
   ArrowUpOutlined,
 } from '@ant-design/icons';
 import styled from 'styled-components';
-import { useTranslation } from 'react-i18next';
 import type { CheckboxChangeEvent } from 'antd/es/checkbox';
+
+import { useTranslation } from '@/hooks';
 
 const TextWithIcon = styled.h3`
   display: flex;

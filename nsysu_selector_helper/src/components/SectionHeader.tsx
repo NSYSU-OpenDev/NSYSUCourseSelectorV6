@@ -9,7 +9,6 @@ import {
   Select,
   SelectProps,
 } from 'antd';
-import { useTranslation } from 'react-i18next';
 import {
   BookOutlined,
   FileDoneOutlined,
@@ -19,7 +18,8 @@ import {
 } from '@ant-design/icons';
 import styled from 'styled-components';
 
-import type { AcademicYear } from '@/types';
+import { type AcademicYear } from '@/types';
+import { useTranslation } from '@/hooks';
 import banner from '@/assets/banner.svg';
 
 const HeaderContainer = styled(Flex)<{
