@@ -26,7 +26,6 @@ const EntryNotification: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [dontShowAgain, setDontShowAgain] = useState(false);
-
   useEffect(() => {
     const announcementSeen = localStorage.getItem(
       'NSYSUCourseSelector.entryNotificationSeen',
