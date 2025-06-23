@@ -22,7 +22,7 @@ import {
 import styled from 'styled-components';
 
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { selectSortConfig, setSortConfig } from '@/store';
+import { selectSortConfig, setSortConfig, selectIsDarkMode } from '@/store';
 import { CourseSortingService, SortConfig, SortRule } from '@/services';
 import { DEFAULT_SORT_OPTIONS } from '@/constants';
 import SortRuleItem from './SortRuleItem';
@@ -51,6 +51,7 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
 }) => {
   const dispatch = useAppDispatch();
   const currentSortConfig = useAppSelector(selectSortConfig);
+  const isDarkMode = useAppSelector(selectIsDarkMode);
   const [tempConfig, setTempConfig] = useState<SortConfig>(currentSortConfig);
 
   // 更新本地配置當外部配置變化時（僅在 Drawer 打開時同步）
@@ -219,13 +220,17 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
     >
       <Space direction='vertical' style={{ width: '100%' }} size='small'>
         {/* 說明文字 */}
-        <Card size='small' style={{ background: '#f0f8ff' }}>
+        <Card
+          size='small'
+          style={{
+            background: isDarkMode ? '#1a2332' : '#f0f8ff',
+          }}
+        >
           <Text type='secondary' style={{ fontSize: '12px' }}>
             <BulbOutlined style={{ marginRight: '4px' }} />
             可設定多層排序條件，排序將依照優先級依次執行。變更會即時套用到課程列表中。
           </Text>
         </Card>
-
         {/* 快速排序預設 */}
         <Card
           size='small'
@@ -274,7 +279,6 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
             </Button>
           </Space>
         </Card>
-
         {/* 新增排序規則按鈕 */}
         <Button
           type='dashed'
@@ -287,9 +291,7 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
           {availableOptions.length > 0 &&
             `(還可新增 ${availableOptions.length} 個)`}
         </Button>
-
         <Divider style={{ margin: '12px 0' }} />
-
         {/* 排序規則列表 */}
         {tempConfig.rules.length > 0 &&
         tempConfig.rules[0].option !== 'default' ? (
@@ -319,14 +321,15 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
             />
           </Card>
         )}
-
         {/* 排序預覽 */}
         {tempConfig.rules.length > 0 &&
           tempConfig.rules[0].option !== 'default' && (
             <Card
               size='small'
               title='排序預覽'
-              style={{ background: '#f9f9f9' }}
+              style={{
+                background: isDarkMode ? '#1a1a1a' : '#f9f9f9',
+              }}
             >
               <Space
                 direction='vertical'

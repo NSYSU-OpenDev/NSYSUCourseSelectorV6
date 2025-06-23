@@ -19,6 +19,7 @@ import {
   TagOutlined,
   InfoCircleOutlined,
   MoreOutlined,
+  CloseOutlined,
 } from '@ant-design/icons';
 import type { Color } from 'antd/es/color-picker';
 import styled from 'styled-components';
@@ -318,6 +319,9 @@ const LabelEditDrawer: React.FC<LabelEditDrawerProps> = ({
                         border: `1px solid ${label.borderColor}`,
                         margin: 0,
                       }}
+                      closeIcon={
+                        <CloseOutlined style={{ color: label.textColor }} />
+                      }
                     >
                       {label.name}
                     </Tag>
