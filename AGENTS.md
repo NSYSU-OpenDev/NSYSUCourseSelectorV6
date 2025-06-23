@@ -73,6 +73,30 @@ export * from './courseService';
 export * from './filterService';
 ```
 
+### LocalStorage Naming Convention
+All localStorage keys must use the `NSYSUCourseSelector.` prefix to avoid conflicts on GitHub Pages:
+
+```typescript
+// Correct naming convention
+const STORAGE_KEY = 'NSYSUCourseSelector.customQuickFilters';
+localStorage.setItem('NSYSUCourseSelector.selectedCourses', JSON.stringify(courses));
+```
+
+### Internationalization (i18n)
+Uses type-safe translation system with Traditional Chinese (zh-TW) as default verification language.
+
+```typescript
+// Usage in components
+import { useTranslation } from '@/hooks';
+
+const MyComponent = () => {
+  const { t } = useTranslation();
+  return <h1>{t('common.title')}</h1>;
+};
+```
+
+**Important**: Always add new translation keys to `zh-TW.json` first for type safety.
+
 ### Code Comments
 - **All code comments must be in Traditional Chinese (繁體中文)**
 - Function documentation, inline comments, and TODO comments should use Traditional Chinese
@@ -130,6 +154,15 @@ ls package.json
 
 # Check yarn version
 yarn --version
+```
+
+**PowerShell Note**: When running multiple commands, use `;` instead of `&&`:
+```powershell
+# Correct for PowerShell
+cd NSYSUCourseSelectorV6/nsysu_selector_helper; yarn; yarn dev
+
+# Incorrect (bash syntax)
+cd NSYSUCourseSelectorV6/nsysu_selector_helper && yarn && yarn dev
 ```
 
 ## Testing Guide

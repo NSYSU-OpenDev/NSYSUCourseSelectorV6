@@ -16,7 +16,7 @@ import { EditOutlined } from '@ant-design/icons';
 
 import type { Course } from '@/types';
 import type { CourseLabel } from '@/services';
-import { useAppDispatch, useAppSelector } from '@/store/hooks.ts';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   setCourseConfig,
   setHoveredCourseId,
@@ -30,7 +30,7 @@ import LabelEditModal from '#/Common/Labels/LabelEditModal';
 import { useWindowSize } from '@/hooks';
 import { GetProbability } from '@/utils';
 import { Color } from 'antd/es/color-picker';
-import { CoursesState } from '@/store/slices/coursesSlice.ts';
+import { CoursesState } from '@/store/slices/coursesSlice';
 
 const StyledTag = styled(Tag)`
   font-size: 10px;
