@@ -180,6 +180,7 @@ const DepartmentCourses: React.FC = () => {
         content: `為防止載入過多課程造成瀏覽器崩潰，單次選擇課程數量不能超過 50 門。請縮小篩選條件或手動選擇課程。`,
         okText: '確定',
       });
+      return;
     }
 
     if (unselectedCourses.length > 20) {
