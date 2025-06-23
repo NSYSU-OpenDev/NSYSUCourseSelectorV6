@@ -185,9 +185,7 @@ const SectionHeader: FC<HeaderProps> = ({
         />
         <MobileMenu align={'center'} justify={'center'}>
           <Button
-            ghost={true}
-            variant={'text'}
-            color={isDarkMode ? 'default' : undefined}
+            ghost={!isDarkMode}
             icon={<MenuOutlined />}
             onClick={() => setDrawerOpen(true)}
           />

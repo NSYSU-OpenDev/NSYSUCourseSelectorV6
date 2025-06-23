@@ -24,6 +24,7 @@ import {
   selectCourseLabelMap,
   selectSelectedCoursesConfig,
   updateLabel,
+  selectIsDarkMode,
 } from '@/store';
 import { LabelEditDrawer } from '#/Common/Labels';
 import LabelEditModal from '#/Common/Labels/LabelEditModal';
@@ -48,21 +49,30 @@ const LabelTag = styled(Tag)`
   line-height: 1.2;
 `;
 
-const CourseRow = styled.div<{ $isHovered?: boolean; $isConflict?: boolean }>`
+const CourseRow = styled.div<{
+  $isHovered?: boolean;
+  $isConflict?: boolean;
+  $isDark: boolean;
+}>`
   font-size: 0.8rem;
   display: flex;
   flex-direction: column;
   padding: 5px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid ${(props) => (props.$isDark ? '#434343' : '#eee')};
   background-color: ${(props) => {
-    if (props.$isConflict) return '#fff2f0';
-    return props.$isHovered ? '#f0f0f0' : '#fafafa';
+    if (props.$isConflict) return props.$isDark ? '#2a1f1f' : '#fff2f0';
+    if (props.$isHovered) return props.$isDark ? '#2a2a2a' : '#f0f0f0';
+    return props.$isDark ? '#1f1f1f' : '#fafafa';
   }};
   border-left: ${(props) => (props.$isConflict ? '4px solid #ff4d4f' : 'none')};
   transition: background-color 0.2s ease;
+  color: ${(props) => (props.$isDark ? '#fff' : 'inherit')};
 
   &:hover {
-    background-color: ${(props) => (props.$isConflict ? '#ffebe8' : '#f0f0f0')};
+    background-color: ${(props) => {
+      if (props.$isConflict) return props.$isDark ? '#3a2525' : '#ffebe8';
+      return props.$isDark ? '#2a2a2a' : '#f0f0f0';
+    }};
   }
 `;
 
@@ -72,10 +82,10 @@ const CourseMainRow = styled.div`
   gap: 5px;
 `;
 
-const ProbabilityBar = styled.div`
+const ProbabilityBar = styled.div<{ $isDark: boolean }>`
   width: 100%;
   height: 3px;
-  background-color: #f0f0f0;
+  background-color: ${(props) => (props.$isDark ? '#434343' : '#f0f0f0')};
   border-radius: 2px;
   overflow: hidden;
 `;
@@ -99,13 +109,14 @@ const ProbabilityFill = styled.div<{
 
 const ProbabilityText = styled.span<{
   $status: 'full' | 'overbooked' | 'normal';
+  $isDark: boolean;
 }>`
   font-size: 9px;
   font-weight: bold;
   color: ${(props) => {
     if (props.$status === 'full') return '#ff4d4f';
     if (props.$status === 'overbooked') return '#722ed1';
-    return '#666';
+    return props.$isDark ? '#999' : '#666';
   }};
   margin-left: 5px;
 `;
@@ -132,10 +143,10 @@ const TinyCourseInfo = styled(CourseInfo)`
   flex: 0.275;
 `;
 
-const StyledLink = styled.a`
+const StyledLink = styled.a<{ $isDark?: boolean }>`
   display: inline-block;
   text-decoration: none;
-  color: black;
+  color: ${(props) => (props.$isDark ? '#fff' : 'black')};
 
   &:hover {
     text-decoration: underline;
@@ -150,6 +161,7 @@ type ItemProps = {
 const Item: React.FC<ItemProps> = ({ course, isHovered }) => {
   const dispatch = useAppDispatch();
   const { width } = useWindowSize();
+  const isDarkMode = useAppSelector(selectIsDarkMode);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [labelModalOpen, setLabelModalOpen] = useState(false);
   const [labelEditModalOpen, setLabelEditModalOpen] = useState(false);
@@ -319,7 +331,12 @@ const Item: React.FC<ItemProps> = ({ course, isHovered }) => {
 
           return (
             <StyledTag color={'purple'} key={t}>
-              <StyledLink href={searchUrl} target={'_blank'} rel='noreferrer'>
+              <StyledLink
+                href={searchUrl}
+                target={'_blank'}
+                rel='noreferrer'
+                $isDark={isDarkMode}
+              >
                 {teacherName}
               </StyledLink>
             </StyledTag>
@@ -360,6 +377,7 @@ const Item: React.FC<ItemProps> = ({ course, isHovered }) => {
   return (
     <CourseRow
       $isHovered={isHovered}
+      $isDark={isDarkMode}
       onMouseEnter={handleHoverCourse}
       onMouseLeave={() => dispatch(setHoveredCourseId(''))}
     >
@@ -390,6 +408,7 @@ const Item: React.FC<ItemProps> = ({ course, isHovered }) => {
                   e.preventDefault();
                   showModal();
                 }}
+                $isDark={isDarkMode}
               >
                 {name.split('\n')[0]}
               </StyledLink>
@@ -435,7 +454,12 @@ const Item: React.FC<ItemProps> = ({ course, isHovered }) => {
                   </Card>
                   <Card size='small'>
                     <div style={{ textAlign: 'center', marginTop: 10 }}>
-                      <StyledLink href={url} target='_blank' rel='noreferrer'>
+                      <StyledLink
+                        href={url}
+                        target='_blank'
+                        rel='noreferrer'
+                        $isDark={isDarkMode}
+                      >
                         查看課程詳細資訊
                       </StyledLink>
                     </div>
@@ -454,7 +478,12 @@ const Item: React.FC<ItemProps> = ({ course, isHovered }) => {
               trigger={['hover', 'focus']}
               placement={'right'}
             >
-              <StyledLink href={url} target={'_blank'} rel='noreferrer'>
+              <StyledLink
+                href={url}
+                target={'_blank'}
+                rel='noreferrer'
+                $isDark={isDarkMode}
+              >
                 {name.split('\n')[0]}
               </StyledLink>
             </Popover>
@@ -504,10 +533,17 @@ const Item: React.FC<ItemProps> = ({ course, isHovered }) => {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <ProbabilityText
             $status={GetProbability.getProbabilityStatus(remaining)}
+            $isDark={isDarkMode}
           >
             選上機率: {GetProbability.getProbabilityText(select, remaining)}
           </ProbabilityText>
-          <span style={{ fontSize: '9px', color: '#666', fontWeight: '500' }}>
+          <span
+            style={{
+              fontSize: '9px',
+              color: isDarkMode ? '#999' : '#666',
+              fontWeight: '500',
+            }}
+          >
             點選: {select} | 剩餘: {remaining}
           </span>
         </div>
@@ -529,13 +565,13 @@ const Item: React.FC<ItemProps> = ({ course, isHovered }) => {
               height: 'auto',
               minWidth: 'auto',
               opacity: 0.6,
-              color: '#666',
+              color: isDarkMode ? '#999' : '#666',
             }}
             title='編輯標籤'
           />
         </div>
       </div>
-      <ProbabilityBar>
+      <ProbabilityBar $isDark={isDarkMode}>
         <ProbabilityFill
           $probability={GetProbability.getSuccessProbability(select, remaining)}
           $status={GetProbability.getProbabilityStatus(remaining)}
