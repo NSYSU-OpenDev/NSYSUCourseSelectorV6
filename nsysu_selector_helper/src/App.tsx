@@ -43,16 +43,11 @@ const MobileLayout = styled(Layout)`
 
 // 自定義 Collapse 樣式
 const StyledCollapse = styled(Collapse)`
-  .ant-collapse-item {
-    border-bottom: 1px solid #f0f0f0;
-  }
-
   .ant-collapse-content-box {
     padding: 8px !important;
   }
 
   .ant-collapse-header {
-    background: #fafafa;
     padding: 12px 16px !important;
   }
 `;

@@ -14,6 +14,7 @@ import {
   selectLabels,
   selectCourseLabelMap,
   selectSelectedTimeSlots,
+  selectIsDarkMode,
   setHoveredCourseId,
   setScrollToCourseId,
   setSelectedTabKey,
@@ -54,11 +55,12 @@ const getDepartmentColor = (department: string): string => {
 
 const { Text } = Typography;
 
-const StyledCard = styled(Card)`
+const StyledCard = styled(Card)<{ $isDark: boolean }>`
   height: 100%;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e8e8e8;
+  box-shadow: 0 2px 8px
+    ${(props) => (props.$isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.06)')};
+  border: 1px solid ${(props) => (props.$isDark ? '#434343' : '#e8e8e8')};
 
   .ant-card-head {
     padding: 0;
@@ -72,19 +74,22 @@ const StyledCard = styled(Card)`
   }
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px
+      ${(props) =>
+        props.$isDark ? 'rgba(0, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.1)'};
     transition: box-shadow 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
   }
 `;
 
 // Fix StyledTable to preserve generic type parameter
-const StyledTable = styled(Table<ScheduleTableRow>)`
+const StyledTable = styled(Table<ScheduleTableRow>)<{ $isDark: boolean }>`
   .ant-table-thead > tr > th {
     text-align: center;
-    background: #f8f9fa;
-    border-bottom: 2px solid #e8e8e8;
+    background: ${(props) => (props.$isDark ? '#1f1f1f' : '#f8f9fa')};
+    border-bottom: 2px solid
+      ${(props) => (props.$isDark ? '#434343' : '#e8e8e8')};
     font-weight: 600;
-    color: #333;
+    color: ${(props) => (props.$isDark ? '#fff' : '#333')};
     padding: 8px 4px;
   }
 
@@ -92,15 +97,12 @@ const StyledTable = styled(Table<ScheduleTableRow>)`
     padding: 2px;
     text-align: center;
     vertical-align: middle;
-    border-right: 1px solid #f0f0f0;
+    border-right: 1px solid
+      ${(props) => (props.$isDark ? '#434343' : '#f0f0f0')};
   }
 
   .ant-table-tbody > tr:nth-child(even) {
-    background: #fafafa;
-  }
-
-  .ant-table-tbody > tr:hover {
-    background: #f0f7ff !important;
+    background: ${(props) => (props.$isDark ? '#262626' : '#fafafa')};
   }
 
   .ant-table {
@@ -110,9 +112,11 @@ const StyledTable = styled(Table<ScheduleTableRow>)`
   }
 
   .ant-table-container {
-    border-left: 1px solid #f0f0f0;
-    border-right: 1px solid #f0f0f0;
-    border-bottom: 1px solid #f0f0f0;
+    border-left: 1px solid ${(props) => (props.$isDark ? '#434343' : '#f0f0f0')};
+    border-right: 1px solid
+      ${(props) => (props.$isDark ? '#434343' : '#f0f0f0')};
+    border-bottom: 1px solid
+      ${(props) => (props.$isDark ? '#434343' : '#f0f0f0')};
   }
 
   // 手機版樣式調整
@@ -140,7 +144,11 @@ const TableWrapper = styled.div`
   -webkit-overflow-scrolling: touch; /* 為iOS添加慣性滾動 */
 `;
 
-const CourseTag = styled(Tag)<{ $isHovered?: boolean; $isActive?: boolean }>`
+const CourseTag = styled(Tag)<{
+  $isHovered?: boolean;
+  $isActive?: boolean;
+  $isDark: boolean;
+}>`
   width: 100%;
   margin: 1px 0;
   padding: 4px 6px;
@@ -155,8 +163,12 @@ const CourseTag = styled(Tag)<{ $isHovered?: boolean; $isActive?: boolean }>`
     props.$isHovered || props.$isActive ? 'scale(1.02)' : 'none'};
   box-shadow: ${(props) =>
     props.$isHovered || props.$isActive
-      ? '0 2px 8px rgba(24, 144, 255, 0.3)'
-      : '0 1px 2px rgba(0, 0, 0, 0.1)'};
+      ? props.$isDark
+        ? '0 2px 8px rgba(24, 144, 255, 0.5)'
+        : '0 2px 8px rgba(24, 144, 255, 0.3)'
+      : props.$isDark
+        ? '0 1px 2px rgba(0, 0, 0, 0.3)'
+        : '0 1px 2px rgba(0, 0, 0, 0.1)'};
   transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
   position: relative;
   overflow: hidden;
@@ -165,7 +177,10 @@ const CourseTag = styled(Tag)<{ $isHovered?: boolean; $isActive?: boolean }>`
   @media (hover: hover) {
     &:hover {
       transform: scale(1.02);
-      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.3);
+      box-shadow: ${(props) =>
+        props.$isDark
+          ? '0 2px 8px rgba(24, 144, 255, 0.5)'
+          : '0 2px 8px rgba(24, 144, 255, 0.3)'};
       z-index: 10;
     }
   }
@@ -204,13 +219,14 @@ const CourseTagContent = styled.div`
 
 const ProbabilityText = styled.div<{
   $status: 'full' | 'overbooked' | 'normal';
+  $isDark: boolean;
 }>`
   font-size: 8px;
   font-weight: bold;
   color: ${(props) => {
     if (props.$status === 'full') return '#ff4d4f';
     if (props.$status === 'overbooked') return '#722ed1';
-    return '#666';
+    return props.$isDark ? '#999' : '#666';
   }};
   line-height: 1;
   margin-top: 1px;
@@ -220,10 +236,10 @@ const ProbabilityText = styled.div<{
   }
 `;
 
-const CardHeader = styled.div`
+const CardHeader = styled.div<{ $isDark: boolean }>`
   padding: 12px 16px;
-  border-bottom: 1px solid #f0f0f0;
-  background: #fafafa;
+  border-bottom: 1px solid ${(props) => (props.$isDark ? '#434343' : '#f0f0f0')};
+  background: ${(props) => (props.$isDark ? '#1f1f1f' : '#fafafa')};
   border-radius: 6px 6px 0 0;
 
   @media screen and (max-width: 768px) {
@@ -235,6 +251,7 @@ const CardHeader = styled.div`
 const TimeSlotCell = styled.div<{
   $isSelected?: boolean;
   $hasContent?: boolean;
+  $isDark: boolean;
 }>`
   cursor: pointer;
   padding: 6px;
@@ -245,7 +262,10 @@ const TimeSlotCell = styled.div<{
   justify-content: center;
   position: relative;
   background-color: ${(props) => {
-    if (props.$isSelected) return 'rgba(24, 144, 255, 0.12)';
+    if (props.$isSelected)
+      return props.$isDark
+        ? 'rgba(24, 144, 255, 0.25)'
+        : 'rgba(24, 144, 255, 0.12)';
     return 'transparent';
   }};
   border: ${(props) => {
@@ -259,8 +279,13 @@ const TimeSlotCell = styled.div<{
   @media (hover: hover) {
     &:hover {
       background-color: ${(props) => {
-        if (props.$isSelected) return 'rgba(24, 144, 255, 0.18)';
-        return 'rgba(24, 144, 255, 0.06)';
+        if (props.$isSelected)
+          return props.$isDark
+            ? 'rgba(24, 144, 255, 0.35)'
+            : 'rgba(24, 144, 255, 0.18)';
+        return props.$isDark
+          ? 'rgba(24, 144, 255, 0.15)'
+          : 'rgba(24, 144, 255, 0.06)';
       }};
       border-color: ${(props) =>
         props.$isSelected ? '#1890ff' : 'rgba(24, 144, 255, 0.4)'};
@@ -290,7 +315,7 @@ const TimeSlotCell = styled.div<{
   `}
 `;
 
-// Define proper interface for schedule table row data
+// Define the proper interface for schedule table row data
 interface ScheduleTableRow {
   key: string;
   time: string;
@@ -302,6 +327,8 @@ const ScheduleTable: React.FC = () => {
   const { t } = useTranslation();
   const { width } = useWindowSize();
   const dispatch = useAppDispatch();
+  const isDark = useAppSelector(selectIsDarkMode);
+
   // Redux state
   const selectedCourses = useAppSelector(selectSelectedCourses);
   const hoveredCourseId = useAppSelector(selectHoveredCourseId);
@@ -513,6 +540,7 @@ const ScheduleTable: React.FC = () => {
                       : undefined
                   }
                   $isHovered={isHovered}
+                  $isDark={isDark}
                   onClick={(e) => {
                     if (isMobile) {
                       // 手機版：阻止事件冒泡，但不執行課程點擊
@@ -585,6 +613,7 @@ const ScheduleTable: React.FC = () => {
                       $status={GetProbability.getProbabilityStatus(
                         course.remaining,
                       )}
+                      $isDark={isDark}
                     >
                       {GetProbability.getProbabilityText(
                         course.select,
@@ -665,6 +694,7 @@ const ScheduleTable: React.FC = () => {
               }
             }}
             title={`點擊篩選 ${day} 第${timeSlotKey}節課程`}
+            $isDark={isDark}
           >
             {content}
           </TimeSlotCell>
@@ -677,7 +707,7 @@ const ScheduleTable: React.FC = () => {
   const tableWidth = timeColumnWidth + visibleDays.length * dayColumnWidth;
   // Custom title component with weekend toggle
   const TitleComponent = () => (
-    <CardHeader>
+    <CardHeader $isDark={isDark}>
       <Flex justify='space-between' align='center' wrap='wrap' gap={8}>
         {/* 左側 - 標題和時間段統計 */}
         <Flex align='center' gap={12}>
@@ -724,7 +754,7 @@ const ScheduleTable: React.FC = () => {
 
   return (
     <>
-      <StyledCard title={<TitleComponent />}>
+      <StyledCard title={<TitleComponent />} $isDark={isDark}>
         <TableWrapper>
           <StyledTable
             dataSource={dataSource}
@@ -733,6 +763,7 @@ const ScheduleTable: React.FC = () => {
             size={isMobile ? 'small' : 'middle'}
             scroll={{ x: tableWidth }}
             style={{ width: '100%' }}
+            $isDark={isDark}
           />
         </TableWrapper>
       </StyledCard>
