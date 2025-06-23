@@ -3,7 +3,6 @@ import { ConfigProvider, Spin, Splitter, Layout, Collapse } from 'antd';
 import type { CollapseProps } from 'antd';
 import styled from 'styled-components';
 
-import { useThemeConfig } from '@/hooks';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   fetchAvailableSemesters,
@@ -12,11 +11,13 @@ import {
   setSelectedTabKey,
   setActiveCollapseKey,
   loadSelectedCoursesConfig,
+  loadThemeFromStorage,
   selectAvailableSemesters,
   selectSelectedSemester,
   selectCoursesLoading,
   selectSelectedTabKey,
   selectActiveCollapseKey,
+  selectThemeConfig,
 } from '@/store';
 import SectionHeader from '#/SectionHeader.tsx';
 import EntryNotification from '#/EntryNotification.tsx';
@@ -62,7 +63,7 @@ const ContentWrapper = styled.div`
 `;
 
 const App: React.FC = () => {
-  const [themeConfig] = useThemeConfig();
+  const themeConfig = useAppSelector(selectThemeConfig);
   const dispatch = useAppDispatch();
   // Redux selectors
   const availableSemesters = useAppSelector(selectAvailableSemesters);
@@ -70,6 +71,7 @@ const App: React.FC = () => {
   const isLoading = useAppSelector(selectCoursesLoading);
   const selectedTabKey = useAppSelector(selectSelectedTabKey);
   const activeKey = useAppSelector(selectActiveCollapseKey);
+
   // 處理手機版 Collapse 切換
   const handleCollapseChange = (key: string | string[]) => {
     dispatch(setActiveCollapseKey(key));
@@ -86,11 +88,11 @@ const App: React.FC = () => {
         </ContentWrapper>
       ),
     },
-  ];
-  // 初始化 - 獲取可用學期和載入已選課程配置
+  ]; // 初始化 - 獲取可用學期和載入已選課程配置
   useEffect(() => {
     dispatch(fetchAvailableSemesters());
     dispatch(loadSelectedCoursesConfig());
+    dispatch(loadThemeFromStorage());
   }, [dispatch]);
 
   // 當選擇的學期改變時，獲取課程

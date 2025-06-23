@@ -1,4 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit';
+import { theme } from 'antd';
 import type { RootState } from './store';
 
 // Courses selectors
@@ -103,3 +104,41 @@ export const selectExportedCoursesConfig = createSelector(
   [selectSelectedCoursesConfig],
   (configs) => Object.values(configs).filter((config) => config.isExported),
 );
+
+// Theme selectors
+export const selectTheme = (state: RootState) => state.theme;
+export const selectPrimaryColor = (state: RootState) =>
+  state.theme.primaryColor;
+export const selectAlgorithms = (state: RootState) => state.theme.algorithms;
+export const selectBorderRadius = (state: RootState) =>
+  state.theme.borderRadius;
+
+// Theme config selector (computed)
+export const selectThemeConfig = createSelector([selectTheme], (themeState) => {
+  const { primaryColor, algorithms, borderRadius } = themeState;
+
+  if (algorithms.length === 1 && algorithms[0] === 'defaultAlgorithm') {
+    return {
+      algorithm: theme.defaultAlgorithm,
+      token: {
+        colorPrimary: primaryColor,
+        borderRadius: borderRadius,
+      },
+    };
+  }
+
+  const algorithmFunctions = algorithms
+    .filter((algo) => algo !== 'defaultAlgorithm')
+    .map((algo) => theme[algo]);
+
+  return {
+    algorithm:
+      algorithmFunctions.length > 0
+        ? algorithmFunctions
+        : theme.defaultAlgorithm,
+    token: {
+      colorPrimary: primaryColor,
+      borderRadius: borderRadius,
+    },
+  };
+});

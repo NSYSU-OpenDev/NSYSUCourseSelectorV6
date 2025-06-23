@@ -7,6 +7,7 @@ import AllCourses from '#/SelectorPanel/AllCourses';
 import SelectedExport from '#/SelectorPanel/SelectedExport';
 import AnnouncementPage from '#/SelectorPanel/AnnouncementPage';
 import DepartmentCourses from '#/SelectorPanel/DepartmentCourses';
+import Settings from '#/SelectorPanel/Settings';
 
 const SelectorPanel: React.FC = () => {
   const { t } = useTranslation();
@@ -21,6 +22,8 @@ const SelectorPanel: React.FC = () => {
         return <SelectedExport />;
       case 'announcements':
         return <AnnouncementPage />;
+      case 'settings':
+        return <Settings />;
       default:
         return <h1>{t('panelNotFound')}</h1>;
     }

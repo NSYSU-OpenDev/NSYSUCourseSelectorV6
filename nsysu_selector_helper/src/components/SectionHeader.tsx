@@ -15,6 +15,7 @@ import {
   NotificationOutlined,
   MenuOutlined,
   ApartmentOutlined,
+  SettingOutlined,
 } from '@ant-design/icons';
 import styled from 'styled-components';
 
@@ -125,6 +126,11 @@ const SectionHeader: FC<HeaderProps> = ({
       key: 'announcements',
       label: t('announcements'),
       icon: <NotificationOutlined />,
+    },
+    {
+      key: 'settings',
+      label: t('settings.title'),
+      icon: <SettingOutlined />,
     },
   ];
 

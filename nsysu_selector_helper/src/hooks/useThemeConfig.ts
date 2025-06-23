@@ -1,65 +1,72 @@
-import { useEffect, useState } from 'react';
-import { theme, ThemeConfig } from 'antd';
+import { useMemo } from 'react';
+import type { ThemeConfig } from 'antd';
+import { theme } from 'antd';
 
-type AlgorithmType = 'defaultAlgorithm' | 'darkAlgorithm' | 'compactAlgorithm';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { selectTheme } from '@/store/selectors';
+import {
+  setPrimaryColor,
+  setAlgorithms,
+  setBorderRadius,
+  type AlgorithmType,
+} from '@/store/slices/themeSlice';
+
+type FrontendTheme = {
+  primaryColor?: string;
+  algorithm?: AlgorithmType | AlgorithmType[];
+  borderRadius?: number;
+};
 
 export const useThemeConfig = (): [
   ThemeConfig,
-  (config: Partial<ThemeConfig & { algorithm: AlgorithmType }>) => void,
+  (newTheme: FrontendTheme) => void,
 ] => {
-  const [primaryColor, setPrimaryColor] = useState('rgb(0, 158, 150)');
-  const [algorithm, setAlgorithm] = useState<AlgorithmType>('defaultAlgorithm');
-  const [borderRadius, setBorderRadius] = useState(4);
+  const dispatch = useAppDispatch();
+  const themeState = useAppSelector(selectTheme);
 
-  useEffect(() => {
-    const fetchSettings = () => {
-      const storedPrimaryColor = localStorage.getItem(
-        'NSYSUCourseSelector.primaryColor',
-      );
-      const storedAlgorithm = localStorage.getItem(
-        'NSYSUCourseSelector.algorithm',
-      );
-      const storedBorderRadius = localStorage.getItem(
-        'NSYSUCourseSelector.borderRadius',
-      );
+  const setTheme = (newTheme: FrontendTheme) => {
+    if (newTheme.primaryColor) {
+      dispatch(setPrimaryColor(newTheme.primaryColor));
+    }
+    if (newTheme.algorithm !== undefined) {
+      const algorithmArray = Array.isArray(newTheme.algorithm)
+        ? newTheme.algorithm
+        : [newTheme.algorithm];
+      dispatch(setAlgorithms(algorithmArray));
+    }
+    if (newTheme.borderRadius !== undefined) {
+      dispatch(setBorderRadius(newTheme.borderRadius));
+    }
+  };
 
-      if (storedPrimaryColor) setPrimaryColor(storedPrimaryColor);
-      if (storedAlgorithm) setAlgorithm(storedAlgorithm as AlgorithmType);
-      if (storedBorderRadius) setBorderRadius(parseInt(storedBorderRadius, 10));
+  const themeConfig: ThemeConfig = useMemo(() => {
+    const { primaryColor, algorithms, borderRadius } = themeState;
+
+    if (algorithms.length === 1 && algorithms[0] === 'defaultAlgorithm') {
+      return {
+        algorithm: theme.defaultAlgorithm,
+        token: {
+          colorPrimary: primaryColor,
+          borderRadius: borderRadius,
+        },
+      };
+    }
+
+    const algorithmFunctions = algorithms
+      .filter((algo) => algo !== 'defaultAlgorithm')
+      .map((algo) => theme[algo]);
+
+    return {
+      algorithm:
+        algorithmFunctions.length > 0
+          ? algorithmFunctions
+          : theme.defaultAlgorithm,
+      token: {
+        colorPrimary: primaryColor,
+        borderRadius: borderRadius,
+      },
     };
-    fetchSettings();
-  }, []);
+  }, [themeState]);
 
-  const saveSettings = (
-    config: Partial<ThemeConfig & { algorithm: AlgorithmType }>,
-  ) => {
-    if (config.token?.colorPrimary) {
-      localStorage.setItem(
-        'NSYSUCourseSelector.primaryColor',
-        config.token.colorPrimary,
-      );
-      setPrimaryColor(config.token.colorPrimary);
-    }
-    if (config.algorithm) {
-      localStorage.setItem('NSYSUCourseSelector.algorithm', config.algorithm);
-      setAlgorithm(config.algorithm);
-    }
-    if (config.token?.borderRadius) {
-      localStorage.setItem(
-        'NSYSUCourseSelector.borderRadius',
-        config.token.borderRadius.toString(),
-      );
-      setBorderRadius(config.token.borderRadius);
-    }
-  };
-
-  const themeConfig: ThemeConfig = {
-    algorithm: theme[algorithm],
-    token: {
-      colorPrimary: primaryColor,
-      borderRadius: borderRadius,
-    },
-  };
-
-  return [themeConfig, saveSettings];
+  return [themeConfig, setTheme];
 };

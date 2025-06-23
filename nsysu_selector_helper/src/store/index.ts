@@ -55,6 +55,15 @@ export {
   removeCourseLabel,
 } from './slices/courseLabelsSlice';
 
+export {
+  setPrimaryColor,
+  setAlgorithms,
+  setBorderRadius,
+  setFullTheme,
+  loadThemeFromStorage,
+  resetTheme,
+} from './slices/themeSlice';
+
 // Export selectors
 export {
   selectCourses,
@@ -88,4 +97,10 @@ export {
   selectSelectedCoursesConfig,
   selectCourseConfig,
   selectExportedCoursesConfig,
+  // Theme selectors
+  selectTheme,
+  selectPrimaryColor,
+  selectAlgorithms,
+  selectBorderRadius,
+  selectThemeConfig,
 } from './selectors';
