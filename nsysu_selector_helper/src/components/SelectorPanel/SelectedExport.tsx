@@ -22,6 +22,7 @@ import {
   ImportOutlined,
   CopyOutlined,
   CopyFilled,
+  QuestionCircleOutlined,
 } from '@ant-design/icons';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import styled from 'styled-components';
@@ -42,6 +43,7 @@ import {
 import type { Course, ExportCourseData, SelectedCourseConfig } from '@/types';
 import SelectedExportHeader from '#/SelectorPanel/SelectedExport/Header';
 import SelectedExportItem from '#/Common/CoursesList/Item';
+import HelpModal from '#/SelectorPanel/SelectedExport/HelpModal';
 
 const { TextArea } = Input;
 const { Text, Title } = Typography;
@@ -114,6 +116,7 @@ const SelectedExport: React.FC = () => {
   const isDark = useAppSelector(selectIsDarkMode);
   const [importModalVisible, setImportModalVisible] = useState(false);
   const [scriptModalVisible, setScriptModalVisible] = useState(false);
+  const [helpModalVisible, setHelpModalVisible] = useState(false);
   const [importScript, setImportScript] = useState('');
   const [generatedScript, setGeneratedScript] = useState('');
   const [isCopied, setIsCopied] = useState(false);
@@ -274,12 +277,21 @@ try {
       />
     );
   };
-
   const CardTitle = (
-    <Flex justify='space-between' align='center'>
-      <Title level={5} style={{ margin: 0 }}>
-        {t('selectedExport.title')}
-      </Title>
+    <Flex justify='space-between' align='center' wrap={true} gap={'10px'}>
+      <Space>
+        <Title level={5} style={{ margin: 0 }}>
+          {t('selectedExport.title')}
+        </Title>
+        <Button
+          icon={<QuestionCircleOutlined />}
+          onClick={() => setHelpModalVisible(true)}
+          size='small'
+          type='text'
+        >
+          {t('selectedExport.helpButton')}
+        </Button>
+      </Space>
       <Space>
         <Button
           icon={<ImportOutlined />}
@@ -311,6 +323,12 @@ try {
             />
           </div>
         </StyledCard>
+
+        {/* 使用說明對話框 */}
+        <HelpModal
+          open={helpModalVisible}
+          onClose={() => setHelpModalVisible(false)}
+        />
 
         {/* 匯入腳本對話框 */}
         <Modal
@@ -363,7 +381,6 @@ try {
             </Flex>
           </Space>
         </div>
-
         {/* 課程列表 */}
         <Virtuoso
           ref={virtuosoRef}
@@ -373,6 +390,12 @@ try {
           topItemCount={1}
         />
       </StyledCard>
+
+      {/* 使用說明對話框 */}
+      <HelpModal
+        open={helpModalVisible}
+        onClose={() => setHelpModalVisible(false)}
+      />
 
       {/* 匯入腳本對話框 */}
       <Modal

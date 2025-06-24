@@ -111,6 +111,7 @@
     "noSelectedCourses": "目前沒有已選課程",
     "exportButton": "生成匯出腳本",
     "importButton": "匯入腳本",
+    "helpButton": "使用說明",
     "points": "點數",
     "export": "匯出",
     "selectAll": "全選",
@@ -125,6 +126,52 @@
     "totalExported": "共選擇匯出 {{count}} 門課程",
     "pointsRange": "點數範圍: 0-100",
     "exportDescription": "已選課程匯出功能可讓您配置課程重要程度點數，並生成可在選課系統中使用的自動填入腳本。",
+    "helpModal": {
+      "title": "腳本使用教學",
+      "close": "關閉",
+      "prevStep": "上一步",
+      "nextStep": "下一步",
+      "complete": "完成",
+      "stepTitle": "步驟",
+      "imagePreview": "點擊放大查看",
+      "warningTitle": "⚠️ 注意事項：",
+      "tutorialSteps": {
+        "step1": {
+          "title": "選擇要匯出的課程",
+          "description": "在已選課程列表中，勾選您想要匯出的課程，並設定對應的選課點數。"
+        },
+        "step2": {
+          "title": "生成匯出腳本",
+          "description": "點擊「生成匯出腳本」按鈕，系統會自動產生 JavaScript 腳本。"
+        },
+        "step3": {
+          "title": "複製腳本內容",
+          "description": "在腳本對話框中點擊「複製腳本」按鈕，將腳本複製到剪貼簿。"
+        },
+        "step4": {
+          "title": "登入選課系統",
+          "description": "開啟中山大學選課系統並登入您的帳號。"
+        },
+        "step5": {
+          "title": "進入選課頁面",
+          "description": "在選課系統中找到並進入選課登記頁面。"
+        },
+        "step6": {
+          "title": "開啟開發者工具",
+          "description": "按下 F12 或右鍵選擇「檢查」來開啟瀏覽器開發者工具。"
+        },
+        "step7": {
+          "title": "執行腳本",
+          "description": "在 Console 頁籤中貼上腳本並按 Enter 執行，系統會自動填入課程資料。"
+        }
+      },
+      "warnings": [
+        "請確保在正確的選課頁面執行腳本",
+        "執行前請檢查課程資訊是否正確",
+        "建議在非正式選課時間先行測試",
+        "腳本執行後請檢查填入結果"
+      ]
+    },
     "column": {
       "export": "匯出",
       "points": "點數",
