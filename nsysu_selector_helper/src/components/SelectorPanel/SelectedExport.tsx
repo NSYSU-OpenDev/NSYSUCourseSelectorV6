@@ -18,6 +18,9 @@ import {
 } from '@ant-design/icons';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import styled from 'styled-components';
+import SyntaxHighlighter from 'react-syntax-highlighter';
+import { atomOneLight } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import { atomOneDark } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
 import { useTranslation } from '@/hooks';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
@@ -27,6 +30,7 @@ import {
   selectHoveredCourseId,
   setCourseConfig,
   importCoursesFromScript,
+  selectIsDarkMode,
 } from '@/store';
 import type { Course, ExportCourseData, SelectedCourseConfig } from '@/types';
 import SelectedExportHeader from '#/SelectorPanel/SelectedExport/Header';
@@ -62,6 +66,7 @@ const SelectedExport: React.FC = () => {
   const coursesConfig = useAppSelector(selectSelectedCoursesConfig);
   const hoveredCourseId = useAppSelector(selectHoveredCourseId);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
+  const isDark = useAppSelector(selectIsDarkMode);
 
   const [importModalVisible, setImportModalVisible] = useState(false);
   const [scriptModalVisible, setScriptModalVisible] = useState(false);
@@ -352,16 +357,12 @@ try {
           </Button>,
         ]}
       >
-        <TextArea
-          value={generatedScript}
-          rows={15}
-          style={{
-            fontFamily: 'monospace',
-            fontSize: '12px',
-            backgroundColor: '#f5f5f5',
-          }}
-          readOnly
-        />
+        <SyntaxHighlighter
+          language='javascript'
+          style={isDark ? atomOneDark : atomOneLight}
+        >
+          {generatedScript}
+        </SyntaxHighlighter>
       </Modal>
     </>
   );
