@@ -1,4 +1,10 @@
-import React, { useState, useMemo, useCallback, useRef } from 'react';
+import React, {
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+  useEffect,
+} from 'react';
 import {
   Card,
   Button,
@@ -15,6 +21,7 @@ import {
   ExportOutlined,
   ImportOutlined,
   CopyOutlined,
+  CopyFilled,
 } from '@ant-design/icons';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import styled from 'styled-components';
@@ -53,6 +60,44 @@ const StyledCard = styled(Card)`
   }
 `;
 
+const CodeBlockContainer = styled.div`
+  position: relative;
+
+  .copy-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 1);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .anticon {
+      margin-right: 4px;
+      transition: all 0.2s ease;
+    }
+  }
+
+  .copy-button.dark-mode {
+    background: rgba(40, 44, 52, 0.9);
+    border-color: #434343;
+    color: #abb2bf;
+
+    &:hover {
+      background: rgba(40, 44, 52, 1);
+    }
+  }
+`;
+
 interface CourseDataWithConfig {
   course: Course;
   points: number;
@@ -67,11 +112,18 @@ const SelectedExport: React.FC = () => {
   const hoveredCourseId = useAppSelector(selectHoveredCourseId);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const isDark = useAppSelector(selectIsDarkMode);
-
   const [importModalVisible, setImportModalVisible] = useState(false);
   const [scriptModalVisible, setScriptModalVisible] = useState(false);
   const [importScript, setImportScript] = useState('');
   const [generatedScript, setGeneratedScript] = useState('');
+  const [isCopied, setIsCopied] = useState(false);
+
+  // 當模態框關閉時重置複製狀態
+  useEffect(() => {
+    if (!scriptModalVisible) {
+      setIsCopied(false);
+    }
+  }, [scriptModalVisible]);
 
   // 準備課程數據，包含配置信息
   const courseData = useMemo((): CourseDataWithConfig[] => {
@@ -131,7 +183,7 @@ const SelectedExport: React.FC = () => {
 
 const frame = document.getElementById('main');
 const doc = frame.contentDocument || frame.contentWindow.document;
-const exportClass = ${JSON.stringify(exportData, null, 2)};
+const exportClass = ${JSON.stringify(exportData, null)};
 
 try {
     exportClass.forEach((ec, i) => {
@@ -147,14 +199,19 @@ try {
 
     setGeneratedScript(script);
     setScriptModalVisible(true);
-    void message.success(t('selectedExport.exportScriptGenerated'));
   }, [courseData, t]);
 
   // 複製腳本到剪貼簿
   const copyScriptToClipboard = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(generatedScript);
+      setIsCopied(true);
       message.success(t('selectedExport.copySuccess'));
+
+      // 2秒後回復到原始圖示
+      setTimeout(() => {
+        setIsCopied(false);
+      }, 2000);
     } catch {
       message.error('複製失敗，請手動複製');
     }
@@ -357,12 +414,25 @@ try {
           </Button>,
         ]}
       >
-        <SyntaxHighlighter
-          language='javascript'
-          style={isDark ? atomOneDark : atomOneLight}
-        >
-          {generatedScript}
-        </SyntaxHighlighter>
+        <CodeBlockContainer>
+          <div
+            className={`copy-button ${isDark ? 'dark-mode' : ''}`}
+            onClick={copyScriptToClipboard}
+          >
+            {isCopied ? <CopyFilled /> : <CopyOutlined />}
+            {t('selectedExport.copyScript')}
+          </div>
+          <SyntaxHighlighter
+            language='javascript'
+            style={isDark ? atomOneDark : atomOneLight}
+            customStyle={{
+              borderRadius: '4px',
+              paddingTop: '40px', // Make room for the copy button
+            }}
+          >
+            {generatedScript}
+          </SyntaxHighlighter>
+        </CodeBlockContainer>
       </Modal>
     </>
   );
