@@ -88,6 +88,15 @@
     "fillFeedbackForm": "填寫回饋表單",
     "feedbackForm": "回饋表單"
   },
+  "entryNotification": {
+    "systemAnnouncement": "系統公告",
+    "currentVersion": "當前版本",
+    "latestUpdates": "最新更新",
+    "dontShowVersionAgain": "不再顯示此版本通知",
+    "close": "關閉",
+    "feedback": "意見回饋",
+    "loadAnnouncementFailed": "載入公告失敗"
+  },
   "allCourse": {
     "totalSelectedCourses": "共篩選 {totalCourses} 門課程，已選 {totalSelectedCourses} 門課程"
   },
