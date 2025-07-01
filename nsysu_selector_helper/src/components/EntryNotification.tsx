@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Checkbox, Alert, Tag, Flex } from 'antd';
+import { Modal, Button, Checkbox, Alert, Tag, Flex, Space } from 'antd';
 import { NotificationOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 import type { CheckboxChangeEvent } from 'antd/es/checkbox';
@@ -188,20 +188,21 @@ const EntryNotification: React.FC = () => {
       onCancel={handleCancel}
       centered={true}
       width={600}
-      footer={[
-        <Checkbox
-          name={'dontShowAgain'}
-          key='dontShowAgain'
-          checked={dontShowAgain}
-          onChange={handleDontShowAgain}
-        >
-          {t('entryNotification.dontShowVersionAgain')}
-        </Checkbox>,
-        <Button key='cancel' onClick={handleCancel}>
-          {t('entryNotification.close')}
-        </Button>,
-        ...(announcement.feedbackFormUrl
-          ? [
+      footer={
+        <Flex wrap={true} justify={'flex-end'} align={'center'} gap={8}>
+          <Checkbox
+            name={'dontShowAgain'}
+            key='dontShowAgain'
+            checked={dontShowAgain}
+            onChange={handleDontShowAgain}
+          >
+            {t('entryNotification.dontShowVersionAgain')}
+          </Checkbox>
+          <Space>
+            <Button key='cancel' onClick={handleCancel}>
+              {t('entryNotification.close')}
+            </Button>
+            {announcement.feedbackFormUrl && (
               <Button key='feedback' type='primary'>
                 <a
                   href={announcement.feedbackFormUrl}
@@ -210,10 +211,11 @@ const EntryNotification: React.FC = () => {
                 >
                   {t('entryNotification.feedback')}
                 </a>
-              </Button>,
-            ]
-          : []),
-      ]}
+              </Button>
+            )}
+          </Space>
+        </Flex>
+      }
     >
       {/* 版本資訊 */}
       <VersionInfo justify='center' align='center' $isDark={isDark}>
