@@ -23,6 +23,10 @@ const TextWithIcon = styled.h3`
   }
 `;
 
+const VersionTag = styled(Tag)`
+  margin: 18px 0 0 0 !important;
+`;
+
 const VersionInfo = styled(Flex)<{ $isDark: boolean }>`
   margin-bottom: 16px;
   padding: 12px;
@@ -176,7 +180,7 @@ const EntryNotification: React.FC = () => {
       <TextWithIcon>
         <NotificationOutlined /> {t('entryNotification.systemAnnouncement')}
       </TextWithIcon>
-      <Tag color='blue'>{announcement.version}</Tag>
+      <VersionTag color='blue'>{announcement.version}</VersionTag>
     </Flex>
   );
 
