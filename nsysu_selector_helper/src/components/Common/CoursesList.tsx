@@ -50,7 +50,8 @@ const CoursesList: React.FC<CoursesListProps> = ({
 
       if (!isSelected && !displayConflictCourses) {
         // 檢查課程是否有標籤，有標籤的課程不會被衝突篩選掉
-        const hasLabels = courseLabelMap[course.id] && courseLabelMap[course.id].length > 0;
+        const hasLabels =
+          courseLabelMap[course.id] && courseLabelMap[course.id].length > 0;
         if (hasLabels) {
           return true; // 有標籤的課程總是顯示，不受時間衝突影響
         }

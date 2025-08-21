@@ -12,8 +12,9 @@ import {
   Space,
   Switch,
   Tag,
+  message,
 } from 'antd';
-import { EditOutlined } from '@ant-design/icons';
+import { EditOutlined, CopyOutlined } from '@ant-design/icons';
 
 import type { Course } from '@/types';
 import type { CourseLabel } from '@/services';
@@ -159,6 +160,38 @@ const StyledLink = styled.a<{ $isDark?: boolean }>`
   }
 `;
 
+const CourseCodeContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  margin-top: 2px;
+`;
+
+const CourseCodeText = styled.span<{ $isDark?: boolean }>`
+  font-size: 9px;
+  color: ${(props) => (props.$isDark ? '#999' : '#666')};
+  cursor: pointer;
+  padding: 1px 3px;
+  border-radius: 2px;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: ${(props) => (props.$isDark ? '#333' : '#f0f0f0')};
+  }
+`;
+
+const CopyIcon = styled(CopyOutlined)<{ $isDark?: boolean }>`
+  font-size: 8px;
+  color: ${(props) => (props.$isDark ? '#999' : '#666')};
+  cursor: pointer;
+  padding: 1px;
+
+  &:hover {
+    color: ${(props) => (props.$isDark ? '#1890ff' : '#1890ff')};
+  }
+`;
+
 type ItemProps = {
   course: Course;
   isSelected: boolean;
@@ -221,6 +254,25 @@ const Item: React.FC<ItemProps> = ({
 
   const handleHoverCourse = () => {
     dispatch(setHoveredCourseId(course.id));
+  };
+
+  // 複製課程代碼到剪貼簿
+  const handleCopyCourseId = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    try {
+      await navigator.clipboard.writeText(course.id);
+      message.success(`已複製課程代碼: ${course.id}`);
+    } catch (err) {
+      // 備用方案，用於不支援clipboard API的環境
+      const textArea = document.createElement('textarea');
+      textArea.value = course.id;
+      document.body.appendChild(textArea);
+      textArea.select();
+      void document.execCommand('copy');
+      document.body.removeChild(textArea);
+      message.success(`已複製課程代碼: ${course.id}`);
+    }
   };
 
   const showModal = () => {
@@ -470,16 +522,32 @@ const Item: React.FC<ItemProps> = ({
         <CourseInfo>
           {isMobile ? (
             <>
-              <StyledLink
-                href='#'
-                onClick={(e) => {
-                  e.preventDefault();
-                  showModal();
-                }}
-                $isDark={isDarkMode}
-              >
-                {name.split('\n')[0]}
-              </StyledLink>
+              <div style={{ textAlign: 'center' }}>
+                <StyledLink
+                  href='#'
+                  onClick={(e) => {
+                    e.preventDefault();
+                    showModal();
+                  }}
+                  $isDark={isDarkMode}
+                >
+                  {name.split('\n')[0]}
+                </StyledLink>
+                <CourseCodeContainer>
+                  <CourseCodeText
+                    $isDark={isDarkMode}
+                    onClick={handleCopyCourseId}
+                    title='點擊複製課程代碼'
+                  >
+                    {id}
+                  </CourseCodeText>
+                  <CopyIcon
+                    $isDark={isDarkMode}
+                    onClick={handleCopyCourseId}
+                    title='複製課程代碼'
+                  />
+                </CourseCodeContainer>
+              </div>
               <Modal
                 title={`${name.split('\n')[0]} (${id})`}
                 open={isModalVisible}
@@ -547,25 +615,41 @@ const Item: React.FC<ItemProps> = ({
               </Modal>
             </>
           ) : (
-            <Popover
-              content={content}
-              title={
-                <>
-                  {name.split('\n')[0]} ({id})
-                </>
-              }
-              trigger={['hover', 'focus']}
-              placement={'right'}
-            >
-              <StyledLink
-                href={url}
-                target={'_blank'}
-                rel='noreferrer'
-                $isDark={isDarkMode}
+            <div style={{ textAlign: 'center' }}>
+              <Popover
+                content={content}
+                title={
+                  <>
+                    {name.split('\n')[0]} ({id})
+                  </>
+                }
+                trigger={['hover', 'focus']}
+                placement={'right'}
               >
-                {name.split('\n')[0]}
-              </StyledLink>
-            </Popover>
+                <StyledLink
+                  href={url}
+                  target={'_blank'}
+                  rel='noreferrer'
+                  $isDark={isDarkMode}
+                >
+                  {name.split('\n')[0]}
+                </StyledLink>
+              </Popover>
+              <CourseCodeContainer>
+                <CourseCodeText
+                  $isDark={isDarkMode}
+                  onClick={handleCopyCourseId}
+                  title='點擊複製課程代碼'
+                >
+                  {id}
+                </CourseCodeText>
+                <CopyIcon
+                  $isDark={isDarkMode}
+                  onClick={handleCopyCourseId}
+                  title='複製課程代碼'
+                />
+              </CourseCodeContainer>
+            </div>
           )}
         </CourseInfo>
         {displayMode === 'all' && (
