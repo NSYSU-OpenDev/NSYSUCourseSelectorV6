@@ -8,6 +8,7 @@ import {
   selectSelectedCourses,
   selectHoveredCourseId,
   selectScrollToCourseId,
+  selectCourseLabelMap,
   setScrollToCourseId,
 } from '@/store';
 import { useTranslation } from '@/hooks';
@@ -35,6 +36,7 @@ const CoursesList: React.FC<CoursesListProps> = ({
   const selectedCourses = useAppSelector(selectSelectedCourses);
   const hoveredCourseId = useAppSelector(selectHoveredCourseId);
   const scrollToCourseId = useAppSelector(selectScrollToCourseId);
+  const courseLabelMap = useAppSelector(selectCourseLabelMap);
 
   // 根據顯示設定過濾課程，避免在虛擬列表渲染階段返回 null
   const displayCourses = useMemo(() => {
@@ -47,6 +49,11 @@ const CoursesList: React.FC<CoursesListProps> = ({
       }
 
       if (!isSelected && !displayConflictCourses) {
+        // 檢查課程是否有標籤，有標籤的課程不會被衝突篩選掉
+        const hasLabels = courseLabelMap[course.id] && courseLabelMap[course.id].length > 0;
+        if (hasLabels) {
+          return true; // 有標籤的課程總是顯示，不受時間衝突影響
+        }
         return !CourseService.detectTimeConflict(course, selectedCoursesSet);
       }
 
@@ -57,6 +64,7 @@ const CoursesList: React.FC<CoursesListProps> = ({
     selectedCourses,
     displaySelectedOnly,
     displayConflictCourses,
+    courseLabelMap,
   ]);
 
   // 處理滾動到特定課程
