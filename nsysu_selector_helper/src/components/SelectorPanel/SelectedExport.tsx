@@ -107,6 +107,7 @@ interface CourseDataWithConfig {
 }
 
 const SelectedExport: React.FC = () => {
+  const [messageApi, contextHolder] = message.useMessage();
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const selectedCourses = useAppSelector(selectSelectedCourses);
@@ -176,7 +177,7 @@ const SelectedExport: React.FC = () => {
       }));
 
     if (exportData.length === 0) {
-      void message.warning('請至少選擇一門課程進行匯出');
+      void messageApi.warning('請至少選擇一門課程進行匯出');
       return;
     }
 
@@ -209,14 +210,14 @@ try {
     try {
       await navigator.clipboard.writeText(generatedScript);
       setIsCopied(true);
-      message.success(t('selectedExport.copySuccess'));
+      messageApi.success(t('selectedExport.copySuccess'));
 
       // 2秒後回復到原始圖示
       setTimeout(() => {
         setIsCopied(false);
       }, 2000);
     } catch {
-      message.error('複製失敗，請手動複製');
+      messageApi.error('複製失敗，請手動複製');
     }
   }, [generatedScript, t]);
 
@@ -226,7 +227,7 @@ try {
       // 嘗試從腳本中提取 exportClass 數據
       const match = importScript.match(/const exportClass = (\[[\s\S]*?]);/);
       if (!match) {
-        void message.error(t('selectedExport.importError'));
+        void messageApi.error(t('selectedExport.importError'));
         return;
       }
 
@@ -243,11 +244,11 @@ try {
       });
 
       dispatch(importCoursesFromScript({ courseIds, configs }));
-      void message.success(t('selectedExport.importSuccess'));
+      void messageApi.success(t('selectedExport.importSuccess'));
       setImportModalVisible(false);
       setImportScript('');
     } catch {
-      void message.error(t('selectedExport.importError'));
+      void messageApi.error(t('selectedExport.importError'));
     }
   }, [importScript, dispatch, t]);
 
@@ -357,6 +358,7 @@ try {
 
   return (
     <>
+      {contextHolder}
       <StyledCard title={CardTitle}>
         {/* 操作區域 */}
         <div style={{ padding: '12px', borderBottom: '1px solid #f0f0f0' }}>
