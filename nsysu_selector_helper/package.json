@@ -1,7 +1,7 @@
 {
   "name": "nsysu_selector_helper",
   "private": true,
-  "version": "6.1.3-beta",
+  "version": "6.1.4-beta",
   "type": "module",
   "scripts": {
     "dev": "vite",
