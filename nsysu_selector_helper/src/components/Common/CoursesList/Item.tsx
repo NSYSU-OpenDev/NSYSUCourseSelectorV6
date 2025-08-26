@@ -6,19 +6,19 @@ import {
   Checkbox,
   Flex,
   InputNumber,
+  message,
   Modal,
   Popover,
   Progress,
   Space,
   Switch,
   Tag,
-  message,
 } from 'antd';
 import { EditOutlined, CopyOutlined } from '@ant-design/icons';
 
 import type { Course } from '@/types';
 import type { CourseLabel } from '@/services';
-import { useAppDispatch, useAppSelector } from '@/store/hooks.ts';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   selectCourse,
   setHoveredCourseId,
@@ -34,7 +34,7 @@ import LabelEditModal from '#/Common/Labels/LabelEditModal';
 import { useWindowSize } from '@/hooks';
 import { GetProbability } from '@/utils';
 import { Color } from 'antd/es/color-picker';
-import { CoursesState } from '@/store/slices/coursesSlice.ts';
+import { CoursesState } from '@/store/slices/coursesSlice';
 
 const StyledTag = styled(Tag)`
   font-size: 10px;
@@ -207,6 +207,7 @@ const Item: React.FC<ItemProps> = ({
   isHovered,
   displayMode = 'all',
 }) => {
+  const [messageApi, contextHolder] = message.useMessage();
   const dispatch = useAppDispatch();
   const { width } = useWindowSize();
   const isDarkMode = useAppSelector(selectIsDarkMode);
@@ -262,7 +263,7 @@ const Item: React.FC<ItemProps> = ({
     e.preventDefault();
     try {
       await navigator.clipboard.writeText(course.id);
-      message.success(`已複製課程代碼: ${course.id}`);
+      messageApi.success(`已複製課程代碼: ${course.id}`);
     } catch (err) {
       // 備用方案，用於不支援clipboard API的環境
       const textArea = document.createElement('textarea');
@@ -271,7 +272,7 @@ const Item: React.FC<ItemProps> = ({
       textArea.select();
       void document.execCommand('copy');
       document.body.removeChild(textArea);
-      message.success(`已複製課程代碼: ${course.id}`);
+      messageApi.success(`已複製課程代碼: ${course.id}`);
     }
   };
 
@@ -487,6 +488,7 @@ const Item: React.FC<ItemProps> = ({
       onMouseEnter={handleHoverCourse}
       onMouseLeave={() => dispatch(setHoveredCourseId(''))}
     >
+      {contextHolder}
       <CourseMainRow>
         {displayMode === 'all' ? (
           <>
