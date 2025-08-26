@@ -46,6 +46,18 @@ export const selectFilterConditions = (state: RootState) =>
 export const selectSelectedTimeSlots = (state: RootState) =>
   state.ui.selectedTimeSlots;
 
+// 檢查某一天的所有時間段是否都被選中
+export const selectIsDayFullySelected = (
+  state: RootState,
+  day: number,
+  timeSlots: string[],
+) =>
+  timeSlots.every((timeSlot) =>
+    state.ui.selectedTimeSlots.some(
+      (slot) => slot.day === day && slot.timeSlot === timeSlot,
+    ),
+  );
+
 // Custom quick filters selectors
 export const selectCustomQuickFilters = (state: RootState) =>
   state.ui.customQuickFilters;

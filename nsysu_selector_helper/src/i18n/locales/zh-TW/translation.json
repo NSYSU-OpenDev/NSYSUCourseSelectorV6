@@ -12,6 +12,15 @@
   "unknown": "未知",
   "顯示週末": "顯示週末",
   "課程時間表": "課程時間表",
+  "scheduleTable": {
+    "selectAll": "全選",
+    "cancel": "取消",
+    "selectAllDay": "選擇星期{{day}}全天",
+    "cancelSelectAllDay": "取消選擇星期{{day}}全天",
+    "clickToFilter": "點擊篩選星期{{day}} 第{{timeSlot}}節課程",
+    "filtering": "篩選中",
+    "filteringCount": "篩選中 ({{count}})"
+  },
   "course": {
     "select": {
       "name": "選"

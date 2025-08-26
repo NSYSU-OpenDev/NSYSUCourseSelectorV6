@@ -30,12 +30,13 @@ export {
   removeFilterCondition,
   updateFilterCondition,
   setFilterConditions,
-  clearAllFilterConditions, // 時間段篩選相關
+  // 時間段篩選相關
   addTimeSlotFilter,
   removeTimeSlotFilter,
   toggleTimeSlotFilter,
   clearAllTimeSlotFilters,
   setSelectedTimeSlots,
+  toggleDayTimeSlots,
   // 課程排序相關
   setSortConfig,
   // 系所課程面板篩選相關
@@ -81,6 +82,7 @@ export {
   selectAdvancedFilterDrawerOpen,
   selectFilterConditions, // 時間段篩選相關
   selectSelectedTimeSlots,
+  selectIsDayFullySelected,
   // 課程排序相關
   selectSortConfig,
   // 系所課程面板篩選相關

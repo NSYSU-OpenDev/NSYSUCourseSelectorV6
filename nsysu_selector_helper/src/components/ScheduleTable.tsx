@@ -1,8 +1,9 @@
 import React, { ReactNode, useEffect, useState } from 'react';
-import { Card, Table, Typography, Tag, Switch, Flex } from 'antd';
+import { Card, Table, Typography, Tag, Switch, Flex, Button } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
+import { CheckOutlined, PlusOutlined } from '@ant-design/icons';
 
 import type { Course } from '@/types';
 import { timeSlot } from '@/constants';
@@ -20,6 +21,7 @@ import {
   setSelectedTabKey,
   setActiveCollapseKey,
   toggleTimeSlotFilter,
+  toggleDayTimeSlots,
   clearAllTimeSlotFilters,
 } from '@/store';
 import { GetProbability } from '@/utils';
@@ -237,7 +239,7 @@ const ProbabilityText = styled.div<{
 `;
 
 const CardHeader = styled.div<{ $isDark: boolean }>`
-  padding: 12px 16px;
+  padding: 12px 16px 0;
   border-bottom: 1px solid ${(props) => (props.$isDark ? '#434343' : '#f0f0f0')};
   background: ${(props) => (props.$isDark ? '#1f1f1f' : '#fafafa')};
   border-radius: 6px 6px 0 0;
@@ -315,6 +317,50 @@ const TimeSlotCell = styled.div<{
   `}
 `;
 
+// 星期選擇按鈕樣式
+const DayToggleButton = styled(Button)<{
+  $isDark: boolean;
+  $isSelected: boolean;
+}>`
+  padding: 2px 4px;
+  height: 20px;
+  font-size: 10px;
+  border-radius: 3px;
+  border: 1px solid
+    ${(props) =>
+      props.$isSelected ? '#1890ff' : props.$isDark ? '#434343' : '#d9d9d9'};
+  background: ${(props) =>
+    props.$isSelected ? '#1890ff' : props.$isDark ? '#262626' : '#fff'};
+  color: ${(props) =>
+    props.$isSelected ? '#fff' : props.$isDark ? '#fff' : '#333'};
+
+  &:hover {
+    border-color: #1890ff;
+    background: ${(props) =>
+      props.$isSelected
+        ? '#40a9ff'
+        : props.$isDark
+          ? 'rgba(24, 144, 255, 0.1)'
+          : 'rgba(24, 144, 255, 0.05)'};
+    color: ${(props) => (props.$isSelected ? '#fff' : '#1890ff')};
+  }
+
+  .anticon {
+    font-size: 8px;
+  }
+
+  @media screen and (max-width: 768px) {
+    padding: 1px 2px;
+    height: 16px;
+    font-size: 8px;
+    margin-bottom: 5px;
+
+    .anticon {
+      font-size: 6px;
+    }
+  }
+`;
+
 // Define the proper interface for schedule table row data
 interface ScheduleTableRow {
   key: string;
@@ -352,6 +398,22 @@ const ScheduleTable: React.FC = () => {
   // 處理時間段點擊
   const handleTimeSlotClick = (day: number, timeSlot: string) => {
     dispatch(toggleTimeSlotFilter({ day, timeSlot }));
+  };
+
+  // 處理整個星期的選擇/取消選擇
+  const handleDayToggle = (day: number) => {
+    const allTimeSlots = timeSlot.map((slot) => slot.key);
+    dispatch(toggleDayTimeSlots({ day, timeSlots: allTimeSlots }));
+  };
+
+  // 檢查某一天是否全部被選中
+  const isDayFullySelected = (day: number): boolean => {
+    const allTimeSlots = timeSlot.map((slot) => slot.key);
+    return allTimeSlots.every((timeSlotKey) =>
+      selectedTimeSlots.some(
+        (slot) => slot.day === day && slot.timeSlot === timeSlotKey,
+      ),
+    );
   };
 
   // 清除所有時間段篩選
@@ -651,7 +713,36 @@ const ScheduleTable: React.FC = () => {
       ),
     },
     ...visibleDays.map((day, index) => ({
-      title: day,
+      title: (
+        <Flex vertical align='center' gap={2}>
+          <Text
+            style={{ fontSize: isMobile ? '12px' : '14px', fontWeight: 'bold' }}
+          >
+            {day}
+          </Text>
+          <DayToggleButton
+            $isDark={isDark}
+            $isSelected={isDayFullySelected(index)}
+            size='small'
+            icon={
+              isDayFullySelected(index) ? <CheckOutlined /> : <PlusOutlined />
+            }
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDayToggle(index);
+            }}
+            title={
+              isDayFullySelected(index)
+                ? t('scheduleTable.cancelSelectAllDay', { day })
+                : t('scheduleTable.selectAllDay', { day })
+            }
+          >
+            {isDayFullySelected(index)
+              ? t('scheduleTable.cancel')
+              : t('scheduleTable.selectAll')}
+          </DayToggleButton>
+        </Flex>
+      ),
       dataIndex: `day${index}` as keyof ScheduleTableRow,
       key: `day${index}`,
       width: dayColumnWidth,
@@ -693,7 +784,10 @@ const ScheduleTable: React.FC = () => {
                 }
               }
             }}
-            title={`點擊篩選 ${day} 第${timeSlotKey}節課程`}
+            title={t('scheduleTable.clickToFilter', {
+              day,
+              timeSlot: timeSlotKey,
+            })}
             $isDark={isDark}
           >
             {content}
@@ -724,7 +818,9 @@ const ScheduleTable: React.FC = () => {
               closable={true}
               onClose={handleClearTimeSlotFilters}
             >
-              篩選中 ({selectedTimeSlots.length})
+              {t('scheduleTable.filteringCount', {
+                count: selectedTimeSlots.length,
+              })}
             </Tag>
           )}
         </Flex>

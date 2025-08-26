@@ -177,6 +177,36 @@ const uiSlice = createSlice({
     setSelectedTimeSlots: (state, action: PayloadAction<TimeSlotFilter[]>) => {
       state.selectedTimeSlots = action.payload;
     },
+    toggleDayTimeSlots: (
+      state,
+      action: PayloadAction<{ day: number; timeSlots: string[] }>,
+    ) => {
+      const { day, timeSlots } = action.payload;
+
+      // 檢查這一天的所有時間段是否都已被選中
+      const allSelected = timeSlots.every((timeSlot) =>
+        state.selectedTimeSlots.some(
+          (slot) => slot.day === day && slot.timeSlot === timeSlot,
+        ),
+      );
+
+      if (allSelected) {
+        // 如果全部選中，則取消選擇這一天的所有時間段
+        state.selectedTimeSlots = state.selectedTimeSlots.filter(
+          (slot) => !(slot.day === day && timeSlots.includes(slot.timeSlot)),
+        );
+      } else {
+        // 如果沒有全部選中，則選中這一天的所有時間段
+        // 先移除這一天已存在的時間段
+        state.selectedTimeSlots = state.selectedTimeSlots.filter(
+          (slot) => !(slot.day === day && timeSlots.includes(slot.timeSlot)),
+        );
+        // 然後添加這一天的所有時間段
+        timeSlots.forEach((timeSlot) => {
+          state.selectedTimeSlots.push({ day, timeSlot });
+        });
+      }
+    },
     // 自定義快速篩選器相關
     setCustomQuickFilters: (
       state,
@@ -287,6 +317,7 @@ export const {
   toggleTimeSlotFilter,
   clearAllTimeSlotFilters,
   setSelectedTimeSlots,
+  toggleDayTimeSlots,
   // 自定義快速篩選器相關
   setCustomQuickFilters,
   addCustomQuickFilter,
