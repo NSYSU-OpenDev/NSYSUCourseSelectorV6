@@ -37,9 +37,11 @@ const CustomQuickFilters: React.FC<CustomQuickFiltersProps> = ({
   const customFilters = useAppSelector(selectCustomQuickFilters);
   const currentFilterConditions = useAppSelector(selectFilterConditions);
 
+  const [messageApi, contextHolder] = message.useMessage();
+
   const handleApplyFilter = (filter: CustomQuickFilter) => {
     dispatch(addFilterCondition(filter.condition));
-    void message.success(`已套用篩選器：${filter.label}`);
+    void messageApi.success(`已套用篩選器：${filter.label}`);
   };
 
   const handleEditFilter = (filter: CustomQuickFilter) => {
@@ -50,7 +52,7 @@ const CustomQuickFilters: React.FC<CustomQuickFiltersProps> = ({
   const handleDeleteFilter = (filter: CustomQuickFilter) => {
     CustomQuickFiltersService.removeCustomFilter(filter.id);
     dispatch(removeCustomQuickFilter(filter.id));
-    void message.success('篩選器已刪除');
+    void messageApi.success('篩選器已刪除');
   };
 
   const handleAddNew = () => {
@@ -170,6 +172,7 @@ const CustomQuickFilters: React.FC<CustomQuickFiltersProps> = ({
         </Space>
       }
     >
+      {contextHolder}
       <Space direction='vertical' style={{ width: '100%' }} size='small'>
         <Space size={[8, 8]} wrap style={{ width: '100%' }}>
           {customFilters.map((filter) => (

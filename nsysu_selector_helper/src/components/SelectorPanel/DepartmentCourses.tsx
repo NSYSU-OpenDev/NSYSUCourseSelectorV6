@@ -115,6 +115,9 @@ const DepartmentCourses: React.FC = () => {
   // 排序相關狀態
   const [sortSelectorVisible, setSortSelectorVisible] = useState(false);
 
+  const [messageApi, contextHolder] = message.useMessage();
+  const [modalApi, modalContextHolder] = Modal.useModal();
+
   // 從課程數據中提取選項
   const departmentOptions = useMemo(() => {
     return DepartmentCourseService.extractDepartments(courses).map((dept) => ({
@@ -170,12 +173,12 @@ const DepartmentCourses: React.FC = () => {
     );
 
     if (unselectedCourses.length === 0) {
-      void message.info('當前篩選結果中的課程都已被選擇');
+      void messageApi.info('當前篩選結果中的課程都已被選擇');
       return;
     }
 
     if (unselectedCourses.length > 50) {
-      Modal.error({
+      modalApi.error({
         title: '批量選課限制',
         content: `為防止載入過多課程造成瀏覽器崩潰，單次選擇課程數量不能超過 50 門。請縮小篩選條件或手動選擇課程。`,
         okText: '確定',
@@ -184,14 +187,14 @@ const DepartmentCourses: React.FC = () => {
     }
 
     if (unselectedCourses.length > 20) {
-      Modal.confirm({
+      modalApi.confirm({
         title: '批量選課確認',
         content: `您即將選擇 ${unselectedCourses.length} 門課程，這可能會造成大量時間衝突。確定要繼續嗎？`,
         onOk: () => {
           unselectedCourses.forEach((course) => {
             dispatch(selectCourse({ course, isSelected: true }));
           });
-          void message.success(`已選擇 ${unselectedCourses.length} 門課程`);
+          void messageApi.success(`已選擇 ${unselectedCourses.length} 門課程`);
         },
         okText: '確定',
         cancelText: '取消',
@@ -202,7 +205,7 @@ const DepartmentCourses: React.FC = () => {
     unselectedCourses.forEach((course) => {
       dispatch(selectCourse({ course, isSelected: true }));
     });
-    void message.success(`已選擇 ${unselectedCourses.length} 門課程`);
+    void messageApi.success(`已選擇 ${unselectedCourses.length} 門課程`);
   };
   // 處理清空當前篩選結果中的已選課程
   const handleClearSelectedCourses = () => {
@@ -212,18 +215,18 @@ const DepartmentCourses: React.FC = () => {
     );
 
     if (selectedCoursesInFilter.length === 0) {
-      void message.info('當前篩選結果中沒有已選課程');
+      void messageApi.info('當前篩選結果中沒有已選課程');
       return;
     }
 
-    Modal.confirm({
+    modalApi.confirm({
       title: '清除篩選結果中的已選課程',
       content: `確定要清除當前篩選結果中的 ${selectedCoursesInFilter.length} 門已選課程嗎？`,
       onOk: () => {
         selectedCoursesInFilter.forEach((course) => {
           dispatch(selectCourse({ course, isSelected: false }));
         });
-        void message.success(
+        void messageApi.success(
           `已清除 ${selectedCoursesInFilter.length} 門已選課程`,
         );
       },
@@ -391,6 +394,8 @@ const DepartmentCourses: React.FC = () => {
 
   return (
     <>
+      {contextHolder}
+      {modalContextHolder}
       <StyledCard title={CardTitle}>
         <CreditsStatistics />
         <CoursesList

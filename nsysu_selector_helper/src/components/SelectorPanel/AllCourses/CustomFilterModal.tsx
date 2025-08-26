@@ -44,6 +44,7 @@ const CustomFilterModal: React.FC<CustomFilterModalProps> = ({
 
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
 
   // 初始化表單
   useEffect(() => {
@@ -107,11 +108,11 @@ const CustomFilterModal: React.FC<CustomFilterModalProps> = ({
             updates: { label: values.label.trim(), condition },
           }),
         );
-        message.success('快速篩選器更新成功！');
+        messageApi.success('快速篩選器更新成功！');
       } else {
         // 檢查是否已存在相同條件
         if (CustomQuickFiltersService.isFilterExists(condition)) {
-          message.warning('相同的篩選條件已存在！');
+          messageApi.warning('相同的篩選條件已存在！');
           return;
         }
 
@@ -121,13 +122,13 @@ const CustomFilterModal: React.FC<CustomFilterModalProps> = ({
           condition,
         );
         dispatch(addCustomQuickFilter(newFilter));
-        message.success('快速篩選器保存成功！');
+        messageApi.success('快速篩選器保存成功！');
       }
 
       handleCancel();
     } catch (error) {
       console.error('Save custom filter error:', error);
-      message.error('保存失敗，請重試');
+      messageApi.error('保存失敗，請重試');
     } finally {
       setLoading(false);
     }
@@ -156,6 +157,7 @@ const CustomFilterModal: React.FC<CustomFilterModalProps> = ({
       ]}
       destroyOnHidden
     >
+      {contextHolder}
       <Form
         form={form}
         layout='vertical'
