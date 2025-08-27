@@ -173,7 +173,7 @@ const SelectedExport: React.FC = () => {
       .map((item) => ({
         id: item.course.id,
         value: item.points,
-        isSel: '1', // 1 表示選擇匯出
+        isSel: '+', // '+' 表示加選, '-' 表示退選
       }));
 
     if (exportData.length === 0) {
@@ -190,11 +190,17 @@ const doc = frame.contentDocument || frame.contentWindow.document;
 const exportClass = ${JSON.stringify(exportData, null)};
 
 try {
+    // 逐列填入資料以避免欄位錯位
+    const rows = Array.from(doc.querySelectorAll('tr')).filter(tr => tr.querySelectorAll('input').length >= 2);
     exportClass.forEach((ec, i) => {
-        const inputs = doc.querySelectorAll('input');
-        inputs[2*i].value = ec['id'];
-        inputs[2*i+1].value = ec['value'];
-        doc.querySelectorAll('select')[i].value = ec['isSel'];
+        const row = rows[i];
+        if (!row) return;
+        const sel = row.querySelector('select');
+        const idBox = row.querySelectorAll('input')[0];
+        const valBox = row.querySelectorAll('input')[1];
+        if (sel) sel.value = ec['isSel'];
+        if (idBox) idBox.value = ec['id'];
+        if (valBox) valBox.value = ec['value'];
     });
     console.log('自動填寫: 完成');
 } catch (e) {
@@ -239,7 +245,7 @@ try {
         configs[item.id] = {
           courseId: item.id,
           points: item.value,
-          isExported: item.isSel === '1',
+          isExported: item.isSel === '+',
         };
       });
 

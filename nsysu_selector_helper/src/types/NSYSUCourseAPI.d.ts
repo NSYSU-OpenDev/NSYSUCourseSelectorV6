@@ -76,12 +76,12 @@ export type NSYSUAPIResponse = {
  * 已選課程匯出數據結構
  * @property {string} id - 課程代碼
  * @property {number} value - 點數配置 (0-100)
- * @property {string} isSel - 是否選擇匯出 ("1" 為匯出, "0" 為不匯出)
+ * @property {string} isSel - 加退選狀態 ("+" 為加選, "-" 為退選)
  */
 export type ExportCourseData = {
   id: string;
   value: number;
-  isSel: string;
+  isSel: '+' | '-';
 };
 
 /**
