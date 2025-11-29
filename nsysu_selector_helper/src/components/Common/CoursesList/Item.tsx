@@ -13,8 +13,9 @@ import {
   Space,
   Switch,
   Tag,
+  Tooltip,
 } from 'antd';
-import { EditOutlined, CopyOutlined } from '@ant-design/icons';
+import { CopyOutlined, TagsOutlined } from '@ant-design/icons';
 
 import type { Course } from '@/types';
 import type { CourseLabel } from '@/services';
@@ -264,7 +265,7 @@ const Item: React.FC<ItemProps> = ({
     try {
       await navigator.clipboard.writeText(course.id);
       messageApi.success(`已複製課程代碼: ${course.id}`);
-    } catch (err) {
+    } catch {
       // 備用方案，用於不支援clipboard API的環境
       const textArea = document.createElement('textarea');
       textArea.value = course.id;
@@ -743,7 +744,11 @@ const Item: React.FC<ItemProps> = ({
             </div>
           )}
           <Button
-            icon={<EditOutlined />}
+            icon={
+              <Tooltip title={'編輯標籤'} placement={'left'}>
+                <TagsOutlined />
+              </Tooltip>
+            }
             type='text'
             size='small'
             onClick={openLabelModal}
