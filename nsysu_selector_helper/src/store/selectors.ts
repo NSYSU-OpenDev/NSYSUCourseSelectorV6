@@ -138,5 +138,14 @@ export const selectThemeConfig = createSelector([selectTheme], (themeState) => {
       // 使用 Redux 狀態中的圓角設定
       borderRadius: borderRadius,
     },
+    // 元件層級的 token 設定
+    components: {
+      // 修正 Tooltip 在亮色模式下文字顏色問題
+      Tooltip: isDarkMode
+        ? {}
+        : {
+            colorTextLightSolid: 'rgba(0, 0, 0, 0.88)', // 亮色模式下使用深色文字
+          },
+    },
   };
 });
