@@ -745,7 +745,13 @@ const Item: React.FC<ItemProps> = ({
           )}
           <Button
             icon={
-              <Tooltip title={'編輯標籤'} placement={'left'}>
+              <Tooltip
+                title={'編輯標籤'}
+                placement={'left'}
+                styles={{
+                  body: { color: isDarkMode ? '#fff' : '#000' },
+                }}
+              >
                 <TagsOutlined />
               </Tooltip>
             }
