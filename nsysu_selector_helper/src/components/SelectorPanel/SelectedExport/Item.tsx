@@ -326,7 +326,7 @@ const Item: React.FC<ItemProps> = ({ course, isHovered }) => {
         .split(',')
         .filter((t, i, self) => self.indexOf(t) === i)
         .map((t) => {
-          const teacherName = t.trim().replace("'", '');
+          const teacherName = t.trim().replace(/'/g, '');
           const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(`中山大學 ${teacherName} DCard | PTT`)}`;
 
           return (
