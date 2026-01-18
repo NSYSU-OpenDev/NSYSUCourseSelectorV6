@@ -166,11 +166,11 @@ const CreditsStatistics: React.FC = () => {
                 <UnorderedListOutlined
                   style={{ marginRight: 2, fontSize: '10px' }}
                 />
-                篩選課程
+                {t('creditsOverlay.filteredCourses')}
               </span>
             }
             value={displayedCoursesCount}
-            suffix='門'
+            suffix={t('creditsOverlay.courseUnit')}
             valueStyle={{ color: '#fa8c16' }}
           />
         </Col>
@@ -181,11 +181,11 @@ const CreditsStatistics: React.FC = () => {
                 <CheckCircleOutlined
                   style={{ marginRight: 2, fontSize: '10px' }}
                 />
-                已選課程
+                {t('creditsOverlay.selectedCourses')}
               </span>
             }
             value={selectedCourses.length}
-            suffix='門'
+            suffix={t('creditsOverlay.courseUnit')}
             valueStyle={{ color: '#722ed1' }}
           />
         </Col>

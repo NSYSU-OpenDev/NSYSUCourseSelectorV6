@@ -35,6 +35,15 @@
     "exportFailed": "Export failed",
     "noCoursesToExport": "No courses to export"
   },
+  "selectedExportMessages": {
+    "selectAtLeastOne": "Please select at least one course to export",
+    "copyFailed": "Copy failed, please copy manually",
+    "copySuccess": "Script copied to clipboard",
+    "courseIdCopied": "Course ID copied: {{id}}"
+  },
+  "common": {
+    "close": "Close"
+  },
   "course": {
     "select": {
       "name": "Select"
@@ -65,6 +74,25 @@
     },
     "tags": {
       "name": "Program"
+    },
+    "item": {
+      "selectRemaining": "Selected {{select}}/{{remaining}} Remaining",
+      "selectedRestrict": "Enrolled {{selected}}/{{restrict}} Limit",
+      "unknown": "Unknown",
+      "noClass": "(Empty)",
+      "englishClass": "English",
+      "classA": "Class A",
+      "classB": "Class B",
+      "copyCourseId": "Copy Course ID",
+      "clickToCopyCourseId": "Click to copy Course ID",
+      "viewDetails": "View Course Details",
+      "probability": "Probability:",
+      "required": "Req",
+      "elective": "Ele",
+      "english": "En",
+      "chinese": "Ch",
+      "editLabels": "Edit Labels",
+      "selectStats": "Selected: {{select}} | Remaining: {{remaining}}"
     }
   },
   "announcementContent": {
@@ -143,7 +171,10 @@
     "credits": "Credits",
     "hours": "Hours",
     "courses": "Courses",
-    "coursesSelected": "courses selected"
+    "coursesSelected": "courses selected",
+    "filteredCourses": "Filtered",
+    "selectedCourses": "Selected",
+    "courseUnit": "courses"
   },
   "labels": {
     "edit": "Edit Labels",

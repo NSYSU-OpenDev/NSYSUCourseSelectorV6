@@ -5,7 +5,7 @@ import { useTranslation } from '@/hooks';
 import { useAppSelector } from '@/store/hooks';
 import { selectIsDarkMode } from '@/store';
 
-const HeaderRow = styled.div<{ $isDark: boolean }>`
+const HeaderRow = styled.div<{ $isDark: boolean; $isEnglish: boolean }>`
   display: flex;
   gap: 5px;
   align-items: center;
@@ -13,7 +13,12 @@ const HeaderRow = styled.div<{ $isDark: boolean }>`
   border-bottom: 2px solid ${(props) => (props.$isDark ? '#434343' : '#ddd')};
   background-color: ${(props) => (props.$isDark ? '#1f1f1f' : '#f5f5f5')};
   font-weight: bold;
+  font-size: ${(props) => (props.$isEnglish ? '0.8rem' : 'inherit')};
   color: ${(props) => (props.$isDark ? '#fff' : 'inherit')};
+
+  @media (max-width: 768px) {
+    font-size: ${(props) => (props.$isEnglish ? '0.5rem' : 'inherit')};
+  }
 `;
 
 const CourseInfo = styled.div`
@@ -40,14 +45,17 @@ const TinyCourseInfo = styled(CourseInfo)`
 `;
 
 const Header: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isDarkMode = useAppSelector(selectIsDarkMode);
+  
+  const isEnglish = i18n.language.startsWith('en');
+
   // Use type assertion without strict structure check to resolve the type error
   const courseTranslation = t('course', { returnObjects: true }) as {
     [key: string]: { name: string };
   };
   return (
-    <HeaderRow $isDark={isDarkMode}>
+    <HeaderRow $isDark={isDarkMode} $isEnglish={isEnglish}>
       <TinyCourseInfo>{courseTranslation.select.name}</TinyCourseInfo>
       <CourseInfo>{courseTranslation.name?.name}</CourseInfo>
       <MediumCourseInfo>{courseTranslation.classTime?.name}</MediumCourseInfo>

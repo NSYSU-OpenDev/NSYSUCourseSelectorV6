@@ -32,7 +32,7 @@ import {
 } from '@/store';
 import { LabelEditDrawer } from '#/Common/Labels';
 import LabelEditModal from '#/Common/Labels/LabelEditModal';
-import { useWindowSize } from '@/hooks';
+import { useTranslation, useWindowSize } from '@/hooks';
 import { GetProbability } from '@/utils';
 import { Color } from 'antd/es/color-picker';
 import { CoursesState } from '@/store/slices/coursesSlice';
@@ -208,6 +208,7 @@ const Item: React.FC<ItemProps> = ({
   isHovered,
   displayMode = 'all',
 }) => {
+  const { t } = useTranslation();
   const [messageApi, contextHolder] = message.useMessage();
   const dispatch = useAppDispatch();
   const { width } = useWindowSize();
@@ -264,7 +265,9 @@ const Item: React.FC<ItemProps> = ({
     e.preventDefault();
     try {
       await navigator.clipboard.writeText(course.id);
-      messageApi.success(`已複製課程代碼: ${course.id}`);
+      messageApi.success(
+        t('selectedExportMessages.courseIdCopied', { id: course.id }),
+      );
     } catch {
       // 備用方案，用於不支援clipboard API的環境
       const textArea = document.createElement('textarea');
@@ -273,7 +276,9 @@ const Item: React.FC<ItemProps> = ({
       textArea.select();
       void document.execCommand('copy');
       document.body.removeChild(textArea);
-      messageApi.success(`已複製課程代碼: ${course.id}`);
+      messageApi.success(
+        t('selectedExportMessages.courseIdCopied', { id: course.id }),
+      );
     }
   };
 
@@ -353,13 +358,17 @@ const Item: React.FC<ItemProps> = ({
   const getClassCodeColor = (classCode: string | undefined) => {
     switch (classCode) {
       case '不分班':
-        return '不分班';
+        return t('course.item.noClass');
       case '全英班':
-        return <StyledTag color={'red'}>全英</StyledTag>;
+        return (
+          <StyledTag color={'red'}>{t('course.item.englishClass')}</StyledTag>
+        );
       case '甲班':
-        return <StyledTag color={'blue'}>甲班</StyledTag>;
+        return <StyledTag color={'blue'}>{t('course.item.classA')}</StyledTag>;
       case '乙班':
-        return <StyledTag color={'yellow'}>乙班</StyledTag>;
+        return (
+          <StyledTag color={'yellow'}>{t('course.item.classB')}</StyledTag>
+        );
       default:
         return classCode;
     }
@@ -383,7 +392,7 @@ const Item: React.FC<ItemProps> = ({
         ),
     )
   ) : (
-    <StyledTag color={'red'}>未知</StyledTag>
+    <StyledTag color={'red'}>{t('course.item.unknown')}</StyledTag>
   );
 
   const displayTeachers = teacher
@@ -456,7 +465,7 @@ const Item: React.FC<ItemProps> = ({
         <Flex justify={'space-between'} gap={5}>
           <Flex vertical={true} align={'center'}>
             <span>
-              點選 {select}/{remaining} 剩餘
+              {t('course.item.selectRemaining', { select, remaining })}
             </span>
             <Progress
               type='circle'
@@ -467,7 +476,7 @@ const Item: React.FC<ItemProps> = ({
           </Flex>
           <Flex vertical={true} align={'center'}>
             <span>
-              選上 {selected}/{restrict} 限制
+              {t('course.item.selectedRestrict', { selected, restrict })}
             </span>
             <Progress
               type='circle'
@@ -540,14 +549,14 @@ const Item: React.FC<ItemProps> = ({
                   <CourseCodeText
                     $isDark={isDarkMode}
                     onClick={handleCopyCourseId}
-                    title='點擊複製課程代碼'
+                    title={t('course.item.clickToCopyCourseId')}
                   >
                     {id}
                   </CourseCodeText>
                   <CopyIcon
                     $isDark={isDarkMode}
                     onClick={handleCopyCourseId}
-                    title='複製課程代碼'
+                    title={t('course.item.copyCourseId')}
                   />
                 </CourseCodeContainer>
               </div>
@@ -580,7 +589,10 @@ const Item: React.FC<ItemProps> = ({
                     <Flex justify='space-between' gap={10}>
                       <Flex vertical align='center'>
                         <span style={{ fontSize: '12px', marginBottom: 8 }}>
-                          點選 {select}/{remaining} 剩餘
+                          {t('course.item.selectRemaining', {
+                            select,
+                            remaining,
+                          })}
                         </span>
                         <Progress
                           type='circle'
@@ -591,7 +603,10 @@ const Item: React.FC<ItemProps> = ({
                       </Flex>
                       <Flex vertical align='center'>
                         <span style={{ fontSize: '12px', marginBottom: 8 }}>
-                          選上 {selected}/{restrict} 限制
+                          {t('course.item.selectedRestrict', {
+                            selected,
+                            restrict,
+                          })}
                         </span>
                         <Progress
                           type='circle'
@@ -610,7 +625,7 @@ const Item: React.FC<ItemProps> = ({
                         rel='noreferrer'
                         $isDark={isDarkMode}
                       >
-                        查看課程詳細資訊
+                        {t('course.item.viewDetails')}
                       </StyledLink>
                     </div>
                   </Card>
@@ -642,14 +657,14 @@ const Item: React.FC<ItemProps> = ({
                 <CourseCodeText
                   $isDark={isDarkMode}
                   onClick={handleCopyCourseId}
-                  title='點擊複製課程代碼'
+                  title={t('course.item.clickToCopyCourseId')}
                 >
                   {id}
                 </CourseCodeText>
                 <CopyIcon
                   $isDark={isDarkMode}
                   onClick={handleCopyCourseId}
-                  title='複製課程代碼'
+                  title={t('course.item.copyCourseId')}
                 />
               </CourseCodeContainer>
             </div>
@@ -667,9 +682,9 @@ const Item: React.FC<ItemProps> = ({
           <>
             <SmallCourseInfo>
               {compulsory ? (
-                <StyledTag color={'red'}>必</StyledTag>
+                <StyledTag color={'red'}>{t('course.item.required')}</StyledTag>
               ) : (
-                <span>選</span>
+                <span>{t('course.item.elective')}</span>
               )}
             </SmallCourseInfo>
           </>
@@ -685,7 +700,11 @@ const Item: React.FC<ItemProps> = ({
           </StyledTag>
         </SmallCourseInfo>
         <SmallCourseInfo>
-          {english ? <StyledTag color={'red'}>英</StyledTag> : '中'}
+          {english ? (
+            <StyledTag color={'red'}>{t('course.item.english')}</StyledTag>
+          ) : (
+            t('course.item.chinese')
+          )}
         </SmallCourseInfo>
         {displayMode === 'all' && (
           <SmallCourseInfo>
@@ -723,7 +742,8 @@ const Item: React.FC<ItemProps> = ({
             $status={GetProbability.getProbabilityStatus(remaining)}
             $isDark={isDarkMode}
           >
-            選上機率: {GetProbability.getProbabilityText(select, remaining)}
+            {t('course.item.probability')}{' '}
+            {GetProbability.getProbabilityText(select, remaining)}
           </ProbabilityText>
           <span
             style={{
@@ -732,7 +752,7 @@ const Item: React.FC<ItemProps> = ({
               fontWeight: '500',
             }}
           >
-            點選: {select} | 剩餘: {remaining}
+            {t('course.item.selectStats', { select, remaining })}
           </span>
         </div>
 
@@ -745,7 +765,7 @@ const Item: React.FC<ItemProps> = ({
           )}
           <Button
             icon={
-              <Tooltip title={'編輯標籤'} placement={'left'}>
+              <Tooltip title={t('course.item.editLabels')} placement={'left'}>
                 <TagsOutlined />
               </Tooltip>
             }
@@ -759,7 +779,7 @@ const Item: React.FC<ItemProps> = ({
               opacity: 0.6,
               color: isDarkMode ? '#999' : '#666',
             }}
-            title='編輯標籤'
+            title={t('course.item.editLabels')}
           />
         </div>
       </div>
