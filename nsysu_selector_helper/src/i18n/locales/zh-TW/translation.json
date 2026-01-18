@@ -7,9 +7,15 @@
   "allCourses": "所有課程",
   "selectedExportTab": "已選匯出",
   "announcements": "公告",
+  "departmentCourses": "系所課程",
   "panelNotFound": "找不到該控制面板",
   "noData": "目前沒有任何資料",
   "unknown": "未知",
+  "semester": {
+    "fall": "上",
+    "spring": "下",
+    "summer": "暑"
+  },
   "顯示週末": "顯示週末",
   "課程時間表": "課程時間表",
   "scheduleTable": {
@@ -104,6 +110,20 @@
     "close": "關閉",
     "fillFeedbackForm": "填寫回饋表單",
     "feedbackForm": "回饋表單"
+  },
+  "announcementPage": {
+    "title": "系統公告",
+    "loadFailed": "載入失敗",
+    "loadFailedDescription": "無法載入公告資料",
+    "currentVersion": "當前版本",
+    "feedback": "意見回饋",
+    "feedbackShort": "回饋",
+    "importantNotes": "重要說明",
+    "latestUpdates": "最新更新",
+    "features": "功能特色",
+    "knownIssues": "已知問題",
+    "termsOfUse": "使用條款",
+    "contactUs": "聯絡我們"
   },
   "entryNotification": {
     "systemAnnouncement": "系統公告",
@@ -217,14 +237,18 @@
       "description": "選擇您偏好的語言",
       "options": {
         "zh-TW": "繁體中文",
-        "en": "English"
+        "en": "English (Beta)"
       }
     },
     "theme": {
       "title": "主題設定",
       "description": "自訂應用程式的外觀",
       "mode": {
-        "title": "主題模式"
+        "title": "主題模式",
+        "options": {
+          "dark": "暗色",
+          "light": "亮色"
+        }
       },
       "borderRadius": {
         "title": "圓角大小",
@@ -239,6 +263,12 @@
       "success": "設定已重置"
     },
     "save": "儲存",
-    "cancel": "取消"
+    "cancel": "取消",
+    "messages": {
+      "languageUpdated": "語言設定已更新",
+      "darkModeOn": "已切換到暗色模式",
+      "darkModeOff": "已切換到亮色模式",
+      "borderRadiusUpdated": "圓角設定已更新"
+    }
   }
 }

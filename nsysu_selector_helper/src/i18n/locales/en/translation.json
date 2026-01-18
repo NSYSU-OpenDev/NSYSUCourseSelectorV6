@@ -1,0 +1,274 @@
+{
+  "version": "v6.1.3 beta",
+  "feedbackFormUrl": "https://forms.gle/gFBZDgkSbj85zukP6",
+  "githubUrl": "https://github.com/CelleryLin/selector_helper_react",
+  "loading": "Loading...",
+  "selectorHelper": "NSYSU Course Selector Helper",
+  "allCourses": "All Courses",
+  "selectedExportTab": "Selected Export",
+  "announcements": "Announcements",
+  "departmentCourses": "Department",
+  "panelNotFound": "Panel not found",
+  "noData": "No data available",
+  "unknown": "Unknown",
+  "semester": {
+    "fall": "Fall",
+    "spring": "Spring",
+    "summer": "Summer"
+  },
+  "顯示週末": "Show Weekend",
+  "課程時間表": "Course Schedule",
+  "scheduleTable": {
+    "selectAll": "Select All",
+    "cancel": "Cancel",
+    "selectAllDay": "Select all classes on {{day}}",
+    "cancelSelectAllDay": "Cancel selection for {{day}}",
+    "clickToFilter": "Click to filter {{day}} period {{timeSlot}}",
+    "filtering": "Filtering",
+    "filteringCount": "Filtering ({{count}})"
+  },
+  "scheduleExport": {
+    "export": "Export",
+    "exportAsImage": "Export as Image",
+    "exporting": "Exporting...",
+    "exportSuccess": "Image saved!",
+    "exportFailed": "Export failed",
+    "noCoursesToExport": "No courses to export"
+  },
+  "course": {
+    "select": {
+      "name": "Select"
+    },
+    "name": {
+      "name": "Name"
+    },
+    "classTime": {
+      "name": "Time"
+    },
+    "department": {
+      "name": "Department"
+    },
+    "compulsory": {
+      "name": "Required"
+    },
+    "credit": {
+      "name": "Credits"
+    },
+    "english": {
+      "name": "English"
+    },
+    "class": {
+      "name": "Class"
+    },
+    "teacher": {
+      "name": "Teacher"
+    },
+    "tags": {
+      "name": "Program"
+    }
+  },
+  "announcementContent": {
+    "description": "Welcome to the third semester of NSYSU Course Selector Helper! Thank you for using this system. Your valuable feedback has been received and improvements will be made. Thank you for your support!",
+    "notes": [
+      "This website is designed for desktop experience. **Desktop browsing is recommended**. Mobile improvements are in progress, feel free to provide feedback.",
+      "This is an auxiliary system for course selection, **for reference only**.",
+      "Course data is crawled static data. If there are **changes** from the school, please **contact us** if not updated. Thank you."
+    ],
+    "updates": "Updates",
+    "updatesDetails": [
+      "Auto-select renamed to Course Detective with sorted list",
+      "New frontend completed! Mobile version available!",
+      "Added Course Detective time-click filter feature",
+      "One-click registration merged with selected courses",
+      "Automatic course data update every hour",
+      "Added Course Detective sorting feature",
+      "Added import and export functionality",
+      "Optimized dynamic course rendering",
+      "Schedule can now be collapsed"
+    ],
+    "features": [
+      "Dynamic schedule updates",
+      "One-click add required courses",
+      "More powerful filters and smart search",
+      "Semester program search",
+      "Show conflicts",
+      "Auto-fill is now in testing!",
+      "One-click course registration (not actually one-click)",
+      "Local Storage auto-saves selection data when browser closes",
+      "Automatic course data update every hour"
+    ],
+    "knownIssues": [
+      "Safari browser may have rendering issues. Please contact us if you encounter any rendering errors and note your browser version. (If you're willing to be a tester, please mention you want to be an iOS frontend tester in the form, much appreciated)",
+      "Bundle initialization loading is slow. Currently considering refactoring with Vite. If you experience any lag, please fill out the feedback form and note the location."
+    ],
+    "contactEmail": "yochen0123@gmail.com",
+    "copyright": [
+      "By NSYSU Open Development Community. MEME113 ",
+      "Copyright © 2025 NSYSU Open Development Community. All rights reserved."
+    ],
+    "dontShowAgain": "Don't show again",
+    "close": "Close",
+    "fillFeedbackForm": "Fill Feedback Form",
+    "feedbackForm": "Feedback Form"
+  },
+  "announcementPage": {
+    "title": "System Announcement",
+    "loadFailed": "Load Failed",
+    "loadFailedDescription": "Unable to load announcement data",
+    "currentVersion": "Current Version",
+    "feedback": "Feedback",
+    "feedbackShort": "Feedback",
+    "importantNotes": "Important Notes",
+    "latestUpdates": "Latest Updates",
+    "features": "Features",
+    "knownIssues": "Known Issues",
+    "termsOfUse": "Terms of Use",
+    "contactUs": "Contact Us"
+  },
+  "entryNotification": {
+    "systemAnnouncement": "System Announcement",
+    "currentVersion": "Current Version",
+    "latestUpdates": "Latest Updates",
+    "dontShowVersionAgain": "Don't show this version notification again",
+    "close": "Close",
+    "feedback": "Feedback",
+    "loadAnnouncementFailed": "Failed to load announcements"
+  },
+  "allCourse": {
+    "totalSelectedCourses": "Filtered {totalCourses} courses, selected {totalSelectedCourses} courses"
+  },
+  "creditsOverlay": {
+    "totalCredits": "Total Credits",
+    "totalHours": "Total Hours",
+    "credits": "Credits",
+    "hours": "Hours",
+    "courses": "Courses",
+    "coursesSelected": "courses selected"
+  },
+  "labels": {
+    "edit": "Edit Labels",
+    "newLabel": "New Label",
+    "name": "Label Name",
+    "bgColor": "Background Color",
+    "borderColor": "Border Color"
+  },
+  "selectedExport": {
+    "title": "Selected Export",
+    "noSelectedCourses": "No selected courses",
+    "exportButton": "Generate Export Script",
+    "importButton": "Import Script",
+    "helpButton": "Instructions",
+    "points": "Points",
+    "export": "Export",
+    "selectAll": "Select All",
+    "selectNone": "Deselect All",
+    "pointsPlaceholder": "0-100",
+    "importPlaceholder": "Paste script content here...",
+    "importSuccess": "Import successful!",
+    "importError": "Import failed, please check script format",
+    "exportScriptGenerated": "Export script generated",
+    "copyScript": "Copy Script",
+    "copySuccess": "Script copied to clipboard",
+    "totalExported": "Selected {{count}} courses for export",
+    "pointsRange": "Points range: 0-100",
+    "exportDescription": "The selected course export feature allows you to configure course priority points and generate auto-fill scripts for use in the course selection system.",
+    "helpModal": {
+      "title": "Script Usage Tutorial",
+      "close": "Close",
+      "prevStep": "Previous",
+      "nextStep": "Next",
+      "complete": "Complete",
+      "stepTitle": "Step",
+      "imagePreview": "Click to enlarge",
+      "warningTitle": "⚠️ Notes:",
+      "tutorialSteps": {
+        "step1": {
+          "title": "Select courses to export",
+          "description": "In the selected course list, check the courses you want to export and set the corresponding selection points."
+        },
+        "step2": {
+          "title": "Generate export script",
+          "description": "Click the \"Generate Export Script\" button, and the system will automatically generate a JavaScript script."
+        },
+        "step3": {
+          "title": "Copy script content",
+          "description": "Click the \"Copy Script\" button in the script dialog to copy the script to clipboard."
+        },
+        "step4": {
+          "title": "Log in to course selection system",
+          "description": "Open NSYSU course selection system and log in to your account."
+        },
+        "step5": {
+          "title": "Go to course selection page",
+          "description": "Find and enter the course registration page in the selection system."
+        },
+        "step6": {
+          "title": "Open developer tools",
+          "description": "Press F12 or right-click and select \"Inspect\" to open browser developer tools."
+        },
+        "step7": {
+          "title": "Execute script",
+          "description": "Paste the script in the Console tab and press Enter to execute. The system will automatically fill in course data."
+        }
+      },
+      "warnings": [
+        "Make sure to execute the script on the correct course selection page",
+        "Check course information before executing",
+        "It is recommended to test during non-official selection periods",
+        "Check the fill-in results after script execution"
+      ]
+    },
+    "column": {
+      "export": "Export",
+      "points": "Points",
+      "name": "Course Name",
+      "teacher": "Instructor",
+      "credit": "Credits",
+      "time": "Time"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "general": {
+      "title": "General Settings"
+    },
+    "language": {
+      "title": "Language",
+      "description": "Select your preferred language",
+      "options": {
+        "zh-TW": "繁體中文",
+        "en": "English (Beta)"
+      }
+    },
+    "theme": {
+      "title": "Theme Settings",
+      "description": "Customize application appearance",
+      "mode": {
+        "title": "Theme Mode",
+        "options": {
+          "dark": "Dark",
+          "light": "Light"
+        }
+      },
+      "borderRadius": {
+        "title": "Border Radius",
+        "description": "Adjust component border radius"
+      }
+    },
+    "reset": {
+      "title": "Reset Settings",
+      "description": "Restore all settings to default values",
+      "button": "Reset All Settings",
+      "confirm": "Are you sure you want to reset all settings? This action cannot be undone.",
+      "success": "Settings have been reset"
+    },
+    "save": "Save",
+    "cancel": "Cancel",
+    "messages": {
+      "languageUpdated": "Language setting updated",
+      "darkModeOn": "Switched to dark mode",
+      "darkModeOff": "Switched to light mode",
+      "borderRadiusUpdated": "Border radius setting updated"
+    }
+  }
+}

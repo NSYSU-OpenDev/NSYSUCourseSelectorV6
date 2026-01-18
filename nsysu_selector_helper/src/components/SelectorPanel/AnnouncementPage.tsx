@@ -15,7 +15,7 @@ import remarkGfm from 'remark-gfm';
 
 import { AnnouncementService } from '@/services';
 import type { Announcement } from '@/types';
-import { useWindowSize } from '@/hooks';
+import { useTranslation, useWindowSize } from '@/hooks';
 import { useAppSelector } from '@/store/hooks';
 import { selectIsDarkMode } from '@/store';
 
@@ -190,6 +190,7 @@ const FooterContainer = styled.div<{ $isDark: boolean }>`
  * 顯示應用程式的公告、更新和相關資訊
  */
 const AnnouncementPage: React.FC = () => {
+  const { t } = useTranslation();
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -221,7 +222,7 @@ const AnnouncementPage: React.FC = () => {
 
   if (loading) {
     return (
-      <StyledCard title='系統公告' loading={true}>
+      <StyledCard title={t('announcementPage.title')} loading={true}>
         <div style={{ height: 200 }} />
       </StyledCard>
     );
@@ -229,10 +230,10 @@ const AnnouncementPage: React.FC = () => {
 
   if (error || !announcement) {
     return (
-      <StyledCard title='系統公告'>
+      <StyledCard title={t('announcementPage.title')}>
         <Alert
-          message='載入失敗'
-          description={error || '無法載入公告資料'}
+          message={t('announcementPage.loadFailed')}
+          description={error || t('announcementPage.loadFailedDescription')}
           type='error'
           showIcon
         />
@@ -241,7 +242,7 @@ const AnnouncementPage: React.FC = () => {
   }
   const CardTitle = (
     <Flex justify='space-between' align='center'>
-      <span>系統公告</span>
+      <span>{t('announcementPage.title')}</span>
       <Tag color='blue'>{announcement.version}</Tag>
     </Flex>
   );
@@ -257,7 +258,7 @@ const AnnouncementPage: React.FC = () => {
           $isDark={isDark}
         >
           <Text strong style={{ fontSize: isMobile ? '14px' : '15px' }}>
-            當前版本：{announcement.version}
+            {t('announcementPage.currentVersion')}：{announcement.version}
           </Text>
           <QuickActionContainer size={isMobile ? 'small' : 'middle'} wrap>
             {announcement.feedbackFormUrl && (
@@ -267,7 +268,9 @@ const AnnouncementPage: React.FC = () => {
                 href={announcement.feedbackFormUrl}
                 target='_blank'
               >
-                {isMobile ? '回饋' : '意見回饋'}
+                {isMobile
+                  ? t('announcementPage.feedbackShort')
+                  : t('announcementPage.feedback')}
               </Button>
             )}
             {announcement.dcForumUrl && (
@@ -305,7 +308,7 @@ const AnnouncementPage: React.FC = () => {
                     fontWeight: 600,
                   }}
                 >
-                  重要說明
+                  {t('announcementPage.importantNotes')}
                 </span>
               </Flex>
             }
@@ -326,7 +329,7 @@ const AnnouncementPage: React.FC = () => {
           <SectionContainer>
             <SectionTitle level={5} $isDark={isDark}>
               <InfoCircleOutlined style={{ marginRight: 6 }} />
-              最新更新
+              {t('announcementPage.latestUpdates')}
             </SectionTitle>
             <Alert
               type='success'
@@ -349,7 +352,7 @@ const AnnouncementPage: React.FC = () => {
           <SectionContainer>
             <SectionTitle level={5} $isDark={isDark}>
               <InfoCircleOutlined style={{ marginRight: 6 }} />
-              功能特色
+              {t('announcementPage.features')}
             </SectionTitle>
             <Alert
               type='success'
@@ -372,7 +375,7 @@ const AnnouncementPage: React.FC = () => {
           <SectionContainer>
             <SectionTitle level={5} $isDark={isDark}>
               <BugOutlined style={{ marginRight: 6 }} />
-              已知問題
+              {t('announcementPage.knownIssues')}
             </SectionTitle>
             <Alert
               type='warning'
@@ -395,7 +398,7 @@ const AnnouncementPage: React.FC = () => {
           <SectionContainer>
             <SectionTitle level={5} $isDark={isDark}>
               <FileTextOutlined style={{ marginRight: 6 }} />
-              使用條款
+              {t('announcementPage.termsOfUse')}
             </SectionTitle>
             <MarkdownContent $isDark={isDark}>
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -416,7 +419,8 @@ const AnnouncementPage: React.FC = () => {
             <Space size='small'>
               {announcement.contactEmail && (
                 <a href={`mailto:${announcement.contactEmail}`}>
-                  <MailOutlined style={{ marginRight: 4 }} /> 聯絡我們
+                  <MailOutlined style={{ marginRight: 4 }} />{' '}
+                  {t('announcementPage.contactUs')}
                 </a>
               )}
             </Space>

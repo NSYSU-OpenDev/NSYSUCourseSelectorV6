@@ -98,25 +98,28 @@ const Settings: FC = () => {
       value: 'zh-TW',
       label: t('settings.language.options.zh-TW'),
     },
-    // 可以在未來添加更多語言
-    // {
-    //   value: 'en',
-    //   label: t('settings.language.options.en'),
-    // },
+    {
+      value: 'en',
+      label: t('settings.language.options.en'),
+    },
   ];
 
   // 處理語言變更
   const handleLanguageChange = (language: string) => {
     setCurrentLanguage(language);
     void i18n.changeLanguage(language);
-    void messageApi.success('語言設定已更新');
+    void messageApi.success(t('settings.messages.languageUpdated'));
   };
 
   // 處理暗色模式切換
   const handleDarkModeChange = (checked: boolean) => {
     setIsDarkModeLocal(checked);
     dispatch(setDarkMode(checked));
-    void messageApi.success(checked ? '已切換到暗色模式' : '已切換到亮色模式');
+    void messageApi.success(
+      checked
+        ? t('settings.messages.darkModeOn')
+        : t('settings.messages.darkModeOff'),
+    );
   };
 
   // 處理圓角大小變更 - 只更新本地狀態
@@ -127,7 +130,7 @@ const Settings: FC = () => {
   // 處理圓角大小變更完成 - 更新 Redux 狀態
   const handleBorderRadiusChangeComplete = (value: number) => {
     dispatch(setBorderRadius(value));
-    void messageApi.success('圓角設定已更新');
+    void messageApi.success(t('settings.messages.borderRadiusUpdated'));
   };
   // 重置所有設定
   const handleResetSettings = () => {
@@ -198,8 +201,8 @@ const Settings: FC = () => {
                 <Switch
                   checked={isDarkMode}
                   onChange={handleDarkModeChange}
-                  checkedChildren='暗色'
-                  unCheckedChildren='亮色'
+                  checkedChildren={t('settings.theme.mode.options.dark')}
+                  unCheckedChildren={t('settings.theme.mode.options.light')}
                 />
               </Col>
             </Row>
