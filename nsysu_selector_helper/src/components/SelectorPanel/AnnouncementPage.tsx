@@ -190,7 +190,7 @@ const FooterContainer = styled.div<{ $isDark: boolean }>`
  * 顯示應用程式的公告、更新和相關資訊
  */
 const AnnouncementPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -200,13 +200,15 @@ const AnnouncementPage: React.FC = () => {
 
   /**
    * 載入公告資料
+   *
+   * 當語言變更時，重新載入公告
    */
   useEffect(() => {
     const loadAnnouncement = async () => {
       try {
         setLoading(true);
         const config = await AnnouncementService.loadAnnouncementsFromJson(
-          '/announcements.json',
+          i18n.language,
         );
         const data = AnnouncementService.getCurrentAnnouncement(config);
         setAnnouncement(data);
@@ -218,7 +220,7 @@ const AnnouncementPage: React.FC = () => {
     };
 
     void loadAnnouncement();
-  }, []);
+  }, [i18n.language]);
 
   if (loading) {
     return (

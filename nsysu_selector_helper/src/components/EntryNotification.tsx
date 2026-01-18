@@ -97,7 +97,7 @@ const SectionTitle = styled.h4<{ $isDark: boolean }>`
 `;
 
 const EntryNotification: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -113,7 +113,7 @@ const EntryNotification: React.FC = () => {
       try {
         setLoading(true);
         const config = await AnnouncementService.loadAnnouncementsFromJson(
-          '/announcements.json',
+          i18n.language,
         );
         const data = AnnouncementService.getCurrentAnnouncement(config);
         setAnnouncement(data);
@@ -145,7 +145,7 @@ const EntryNotification: React.FC = () => {
 
     void loadAnnouncementAndCheckVisibility();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [i18n.language]);
 
   const handleOk = () => {
     setIsModalOpen(false);

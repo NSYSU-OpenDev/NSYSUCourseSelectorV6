@@ -1,0 +1,41 @@
+{
+  "announcements": [
+    {
+      "version": "v6.1.5",
+      "date": "2026-01-18",
+      "title": "NSYSU Course Selector Helper V6",
+      "feedbackFormUrl": "https://forms.gle/gFBZDgkSbj85zukP6",
+      "dcForumUrl": "https://discord.gg/Md4x9frrHf",
+      "githubUrl": "https://github.com/NSYSU-OpenDev/NSYSUCourseSelectorV6/",
+      "contactEmail": "yochen0123@gmail.com",
+      "description": "This is an auxiliary system for course selection, **for reference only**.\n\nCourse data updates every hour, **please ensure you manually refresh the page to get the updated data**.",
+      "updates": [
+        "Brand new V6 version released!",
+        "New: Whole day filter for course time",
+        "New: Button to quickly copy course ID",
+        "New: Export schedule as image",
+        "Change: Time filter now applies to all courses",
+        "Change: Always show tags if they exist",
+        "Change: Fixed table header for schedule"
+      ],
+      "features": [
+        "Beautiful UI",
+        "Conflict detection",
+        "Dynamic schedule updates",
+        "Auto-fill script for school course selection system",
+        "Powerful filters and smart search",
+        "Local Storage auto-saves selection data when browser closes"
+      ],
+      "knownIssues": [
+        "Safari browser may have rendering issues. Please contact us if you encounter any rendering errors and note your browser version. (If you're willing to be a tester, please mention you want to be an iOS frontend tester in the form, much appreciated)",
+        "If you experience any lag, please fill out the feedback form and note the location.",
+        "Course data is static data crawled from the web, updated every hour. Those interested in using this API can refer to [NSYSU Course Open API](https://github.com/nsysu-opendev/NSYSUCourseAPI)"
+      ],
+      "termsOfUse": "By using this website, you agree to the [Terms of Use](https://github.com/NSYSU-OpenDev/NSYSUSelectorHelper/blob/main/term_of_use.md)",
+      "copyright": [
+        "Copyright © 2025 NSYSU Open Development Community. All rights reserved."
+      ]
+    }
+  ],
+  "currentAnnouncementIndex": 0
+}
