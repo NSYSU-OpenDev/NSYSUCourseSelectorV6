@@ -1,8 +1,8 @@
 {
   "announcements": [
     {
-      "version": "v6.1.4 beta",
-      "date": "2025-08-27",
+      "version": "v6.1.5",
+      "date": "2026-01-18",
       "title": "NSYSU 課程選擇輔助系統 V6",
       "feedbackFormUrl": "https://forms.gle/gFBZDgkSbj85zukP6",
       "dcForumUrl": "https://discord.gg/Md4x9frrHf",
@@ -17,7 +17,8 @@
         "新增: 新增快速複製課程 id 按鈕",
         "新增: 自訂篩選器、標籤、排序功能",
         "變更: 時間篩選現在能作用於所有課程",
-        "變更: 當有給予標籤時候，始終都會顯示"
+        "變更: 當有給予標籤時候，始終都會顯示",
+        "變更: 課程表固定表頭"
       ],
       "features": [
         "超漂亮UI",
