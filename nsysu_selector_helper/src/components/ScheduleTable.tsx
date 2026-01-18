@@ -59,6 +59,8 @@ const { Text } = Typography;
 
 const StyledCard = styled(Card)<{ $isDark: boolean }>`
   height: 100%;
+  display: flex;
+  flex-direction: column;
   border-radius: 8px;
   box-shadow: 0 2px 8px
     ${(props) => (props.$isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.06)')};
@@ -68,11 +70,16 @@ const StyledCard = styled(Card)<{ $isDark: boolean }>`
     padding: 0;
     border-bottom: none;
     min-height: auto;
+    flex-shrink: 0;
   }
 
   .ant-card-body {
     padding: 0;
-    overflow: auto;
+    overflow: hidden;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
   }
 
   &:hover {
@@ -85,6 +92,19 @@ const StyledCard = styled(Card)<{ $isDark: boolean }>`
 
 // Fix StyledTable to preserve generic type parameter
 const StyledTable = styled(Table<ScheduleTableRow>)<{ $isDark: boolean }>`
+  .ant-table {
+    width: 100%;
+    border-radius: 0 0 6px 6px;
+  }
+
+  .ant-table-container {
+    border-left: 1px solid ${(props) => (props.$isDark ? '#434343' : '#f0f0f0')};
+    border-right: 1px solid
+      ${(props) => (props.$isDark ? '#434343' : '#f0f0f0')};
+    border-bottom: 1px solid
+      ${(props) => (props.$isDark ? '#434343' : '#f0f0f0')};
+  }
+
   .ant-table-thead > tr > th {
     text-align: center;
     background: ${(props) => (props.$isDark ? '#1f1f1f' : '#f8f9fa')};
@@ -107,20 +127,6 @@ const StyledTable = styled(Table<ScheduleTableRow>)<{ $isDark: boolean }>`
     background: ${(props) => (props.$isDark ? '#262626' : '#fafafa')};
   }
 
-  .ant-table {
-    width: 100%;
-    border-radius: 0 0 6px 6px;
-    overflow: hidden;
-  }
-
-  .ant-table-container {
-    border-left: 1px solid ${(props) => (props.$isDark ? '#434343' : '#f0f0f0')};
-    border-right: 1px solid
-      ${(props) => (props.$isDark ? '#434343' : '#f0f0f0')};
-    border-bottom: 1px solid
-      ${(props) => (props.$isDark ? '#434343' : '#f0f0f0')};
-  }
-
   // 手機版樣式調整
   @media screen and (max-width: 768px) {
     .ant-table-thead > tr > th {
@@ -140,10 +146,35 @@ const StyledTable = styled(Table<ScheduleTableRow>)<{ $isDark: boolean }>`
   }
 `;
 
-const TableWrapper = styled.div`
+const TableWrapper = styled.div<{ $isDark: boolean }>`
   width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch; /* 為iOS添加慣性滾動 */
+  flex: 1;
+  min-height: 0;
+  overflow: auto; /* 同時處理 X 和 Y 滾動 */
+  -webkit-overflow-scrolling: touch;
+
+  /* 覆蓋 Ant Design 的 overflow 設定 */
+  .ant-table-wrapper,
+  .ant-table,
+  .ant-table-container,
+  .ant-table-content {
+    overflow: visible !important;
+  }
+
+  /* 表頭 sticky */
+  .ant-table-thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  /* 設定表頭背景色為不透明，並確保堆疊順序正確 */
+  .ant-table-thead > tr > th {
+    background: ${(props) =>
+      props.$isDark ? '#1f1f1f' : '#f8f9fa'} !important;
+    position: relative;
+    z-index: 10;
+  }
 `;
 
 const CourseTag = styled(Tag)<{
@@ -851,7 +882,7 @@ const ScheduleTable: React.FC = () => {
   return (
     <>
       <StyledCard title={<TitleComponent />} $isDark={isDark}>
-        <TableWrapper>
+        <TableWrapper $isDark={isDark}>
           <StyledTable
             dataSource={dataSource}
             columns={columns}
