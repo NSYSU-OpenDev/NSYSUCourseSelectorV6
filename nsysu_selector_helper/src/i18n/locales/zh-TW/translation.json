@@ -21,6 +21,14 @@
     "filtering": "篩選中",
     "filteringCount": "篩選中 ({{count}})"
   },
+  "scheduleExport": {
+    "export": "匯出",
+    "exportAsImage": "匯出為圖片",
+    "exporting": "匯出中...",
+    "exportSuccess": "圖片已儲存！",
+    "exportFailed": "匯出失敗",
+    "noCoursesToExport": "沒有課程可匯出"
+  },
   "course": {
     "select": {
       "name": "選"

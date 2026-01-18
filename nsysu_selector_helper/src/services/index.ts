@@ -6,3 +6,4 @@ export * from './filterPersistenceService';
 export * from './courseLabelService';
 export * from './announcementService';
 export * from './departmentCourseService';
+export * from './scheduleExportService';

@@ -1,9 +1,22 @@
 import React, { ReactNode, useEffect, useState } from 'react';
-import { Card, Table, Typography, Tag, Switch, Flex, Button } from 'antd';
+import {
+  Card,
+  Table,
+  Typography,
+  Tag,
+  Switch,
+  Flex,
+  Button,
+  message,
+} from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import { CheckOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  CheckOutlined,
+  PlusOutlined,
+  DownloadOutlined,
+} from '@ant-design/icons';
 
 import type { Course } from '@/types';
 import { timeSlot } from '@/constants';
@@ -25,6 +38,7 @@ import {
   clearAllTimeSlotFilters,
 } from '@/store';
 import { GetProbability } from '@/utils';
+import { downloadScheduleImage } from '@/services';
 import MobileCourseDetailsModal from '#/ScheduleTable/MobileCourseDetailsModal';
 
 // Department color mapping - using Ant Design official colors
@@ -501,6 +515,7 @@ const ScheduleTable: React.FC = () => {
     localStorage.getItem('NSYSUCourseSelector.showWeekends') === 'true' ||
       false,
   );
+  const [isExporting, setIsExporting] = useState(false);
 
   // 計算每個欄位的固定寬度 - 為手機優化
   const timeColumnWidth = isMobile ? 36 : 60;
@@ -516,6 +531,28 @@ const ScheduleTable: React.FC = () => {
       showWeekends.toString(),
     );
   }, [showWeekends]);
+
+  // Handle export as image
+  const handleExportImage = async () => {
+    if (selectedCourses.length === 0) {
+      message.warning(t('scheduleExport.noCoursesToExport'));
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      await downloadScheduleImage(selectedCourses, {
+        isDark,
+        title: t('課程時間表'),
+      });
+      message.success(t('scheduleExport.exportSuccess'));
+    } catch (error) {
+      console.error('Export failed:', error);
+      message.error(t('scheduleExport.exportFailed'));
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   // 解析課程教室信息
   const parseRoomInfo = (roomString: string) => {
@@ -839,6 +876,23 @@ const ScheduleTable: React.FC = () => {
           <Text strong style={{ fontSize: isMobile ? '14px' : '16px' }}>
             {t('課程時間表')}
           </Text>
+          {/* 週末顯示開關 */}
+          <Flex align='center' gap={6}>
+            <Text
+              style={{
+                fontSize: isMobile ? '12px' : '14px',
+                color: '#666',
+              }}
+            >
+              {t('顯示週末')}
+            </Text>
+            <Switch
+              checked={showWeekends}
+              onChange={setShowWeekends}
+              size={isMobile ? 'small' : 'default'}
+            />
+          </Flex>
+          {/* 時段篩選標籤 */}
           {selectedTimeSlots.length > 0 && (
             <Tag
               color='blue'
@@ -858,22 +912,19 @@ const ScheduleTable: React.FC = () => {
 
         {/* 右側 - 控制項 */}
         <Flex align='center' gap={8}>
-          {/* 週末顯示開關 */}
-          <Flex align='center' gap={6}>
-            <Text
-              style={{
-                fontSize: isMobile ? '12px' : '14px',
-                color: '#666',
-              }}
-            >
-              {t('顯示週末')}
-            </Text>
-            <Switch
-              checked={showWeekends}
-              onChange={setShowWeekends}
-              size={isMobile ? 'small' : 'default'}
-            />
-          </Flex>
+          {/* 匯出按鈕 */}
+          <Button
+            type='primary'
+            icon={<DownloadOutlined />}
+            size={isMobile ? 'small' : 'middle'}
+            loading={isExporting}
+            onClick={handleExportImage}
+            disabled={selectedCourses.length === 0}
+          >
+            {isExporting
+              ? t('scheduleExport.exporting')
+              : t('scheduleExport.exportAsImage')}
+          </Button>
         </Flex>
       </Flex>
     </CardHeader>
