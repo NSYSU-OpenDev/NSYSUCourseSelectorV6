@@ -1,6 +1,35 @@
 {
   "announcements": [
     {
+      "version": "v6.2.0",
+      "date": "2026-02-12",
+      "title": "Simple Filter Mode is Live!",
+      "feedbackFormUrl": "https://forms.gle/gFBZDgkSbj85zukP6",
+      "dcForumUrl": "https://discord.gg/Md4x9frrHf",
+      "githubUrl": "https://github.com/NSYSU-OpenDev/NSYSUCourseSelectorV6/",
+      "contactEmail": "yochen0123@gmail.com",
+      "description": "Added the long-awaited Simple Filter Mode! Making course filtering more intuitive and convenient.",
+      "updates": [
+        "New: Simple Filter Mode",
+        "New: Switch between Simple/Advanced modes in the filter drawer",
+        "New: Support multiple keywords search (separated by space)",
+        "Improvement: Filter UI and UX"
+      ],
+      "features": [
+        "Dual mode filtering (Simple/Advanced)",
+        "Intuitive toggle and include/exclude settings",
+        "Retains original powerful filtering capabilities"
+      ],
+      "knownIssues": [
+        "Safari browser may have rendering issues",
+        "Please report any issues to us"
+      ],
+      "termsOfUse": "By using this website, you agree to the [Terms of Use](https://github.com/NSYSU-OpenDev/NSYSUSelectorHelper/blob/main/term_of_use.md)",
+      "copyright": [
+        "Copyright © 2025 NSYSU Open Development Community. All rights reserved."
+      ]
+    },
+    {
       "version": "v6.1.5",
       "date": "2026-01-18",
       "title": "NSYSU Course Selector Helper V6",

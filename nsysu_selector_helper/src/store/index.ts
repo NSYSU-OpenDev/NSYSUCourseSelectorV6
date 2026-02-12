@@ -30,6 +30,7 @@ export {
   removeFilterCondition,
   updateFilterCondition,
   setFilterConditions,
+  setSimpleFilterMode,
   // 時間段篩選相關
   addTimeSlotFilter,
   removeTimeSlotFilter,
@@ -80,7 +81,9 @@ export {
   selectScrollToCourseId,
   selectSearchQuery,
   selectAdvancedFilterDrawerOpen,
-  selectFilterConditions, // 時間段篩選相關
+  selectFilterConditions,
+  selectSimpleFilterMode,
+  // 時間段篩選相關
   selectSelectedTimeSlots,
   selectIsDayFullySelected,
   // 課程排序相關

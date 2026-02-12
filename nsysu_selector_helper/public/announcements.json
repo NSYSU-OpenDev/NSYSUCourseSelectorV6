@@ -1,6 +1,33 @@
 {
   "announcements": [
     {
+      "version": "v6.2.0",
+      "date": "2026-02-12",
+      "title": "簡易篩選模式正式上線！",
+      "feedbackFormUrl": "https://forms.gle/gFBZDgkSbj85zukP6",
+      "dcForumUrl": "https://discord.gg/Md4x9frrHf",
+      "githubUrl": "https://github.com/NSYSU-OpenDev/NSYSUCourseSelectorV6/",
+      "contactEmail": "yochen0123@gmail.com",
+      "description": "新增了大家期待已久的簡易篩選模式！讓選課篩選更加直觀方便。",
+      "updates": [
+        "新增: 簡易篩選模式 (Simple Filter Mode)",
+        "新增: 在篩選器中切換簡易/進階模式",
+        "新增: 支援多關鍵字搜尋 (空白鍵分隔)",
+        "優化: 篩選器介面與體驗"
+      ],
+      "features": [
+        "簡易/進階雙模式篩選",
+        "直觀的開關與包含/排除設定",
+        "保留原有的強大篩選功能"
+      ],
+      "knownIssues": [
+        "Safari 瀏覽器有可能會出現渲染問題",
+        "如果有任何問題請回報給我們"
+      ],
+      "termsOfUse": "當您使用本網站時，即表示您同意 [使用條款](https://github.com/NSYSU-OpenDev/NSYSUSelectorHelper/blob/main/term_of_use.md)",
+      "copyright": ["版權所有 © 2025 中山開源社群，保留一切權利。"]
+    },
+    {
       "version": "v6.1.5",
       "date": "2026-01-18",
       "title": "NSYSU 課程選擇輔助系統 V6",

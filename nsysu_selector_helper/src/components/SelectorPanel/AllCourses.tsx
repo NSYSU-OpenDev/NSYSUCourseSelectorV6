@@ -35,6 +35,7 @@ import {
 } from '@/store';
 import CoursesList from '#/Common/CoursesList';
 import AdvancedFilterDrawer from '#/SelectorPanel/AllCourses/AdvancedFilterDrawer';
+import SimpleFilterDrawer from '#/SelectorPanel/AllCourses/SimpleFilterDrawer';
 import CreditsStatistics from '#/Common/CreditsStatistics';
 import CompactSortButton from '#/SelectorPanel/AllCourses/CompactSortButton';
 import CourseSortSelector from '#/SelectorPanel/AllCourses/CourseSortSelector';
@@ -182,6 +183,7 @@ const AllCourses: React.FC = () => {
         />
       </StyledCard>
       <AdvancedFilterDrawer />
+      <SimpleFilterDrawer />
       <CourseSortSelector
         visible={sortSelectorVisible}
         onClose={handleCloseSortSelector}

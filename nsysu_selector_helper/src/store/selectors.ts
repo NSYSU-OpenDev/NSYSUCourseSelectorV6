@@ -41,6 +41,8 @@ export const selectAdvancedFilterDrawerOpen = (state: RootState) =>
   state.ui.advancedFilterDrawerOpen;
 export const selectFilterConditions = (state: RootState) =>
   state.ui.filterConditions;
+export const selectSimpleFilterMode = (state: RootState) =>
+  state.ui.simpleFilterMode;
 
 // Time slot filter selectors
 export const selectSelectedTimeSlots = (state: RootState) =>

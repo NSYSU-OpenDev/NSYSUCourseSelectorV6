@@ -16,6 +16,7 @@ import {
   Card,
   Popconfirm,
   Tooltip,
+  Switch,
 } from 'antd';
 import {
   PlusOutlined,
@@ -33,6 +34,7 @@ import {
   selectFilterConditions,
   selectCourses,
   selectLabels,
+  selectSimpleFilterMode,
 } from '@/store/selectors';
 import {
   setAdvancedFilterDrawerOpen,
@@ -40,6 +42,7 @@ import {
   removeFilterCondition,
   updateFilterCondition,
   clearAllFilterConditions,
+  setSimpleFilterMode,
 } from '@/store/slices/uiSlice';
 import {
   AdvancedFilterService,
@@ -47,7 +50,7 @@ import {
 } from '@/services/advancedFilterService';
 import type { FilterCondition } from '@/store/slices/uiSlice';
 import { QUICK_FILTER } from '@/constants';
-import { useCustomQuickFilters } from '@/hooks';
+import { useCustomQuickFilters, useTranslation } from '@/hooks';
 import CustomQuickFilters from './CustomQuickFilters';
 import CustomFilterModal from './CustomFilterModal';
 
@@ -304,11 +307,13 @@ const FilterConditionItem: React.FC<FilterConditionItemProps> = ({
 };
 
 const AdvancedFilterDrawer: React.FC = () => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const open = useAppSelector(selectAdvancedFilterDrawerOpen);
   const filterConditions = useAppSelector(selectFilterConditions);
   const courses = useAppSelector(selectCourses);
   const labels = useAppSelector(selectLabels);
+  const simpleFilterMode = useAppSelector(selectSimpleFilterMode);
 
   // 使用自定義快速篩選器 hook
   useCustomQuickFilters();
@@ -350,6 +355,13 @@ const AdvancedFilterDrawer: React.FC = () => {
     dispatch(addFilterCondition(newCondition));
   };
 
+  const handleSwitchToSimple = () => {
+    dispatch(setSimpleFilterMode(true));
+  };
+
+  // 在簡易模式下不渲染進階 Drawer
+  if (simpleFilterMode) return null;
+
   return (
     <StyledDrawer
       title={
@@ -365,6 +377,16 @@ const AdvancedFilterDrawer: React.FC = () => {
       onClose={handleClose}
       extra={
         <Space>
+          <Space size={4}>
+            <Typography.Text style={{ fontSize: '12px' }}>
+              {t('simpleFilter.simpleMode')}
+            </Typography.Text>
+            <Switch
+              size='small'
+              checked={false}
+              onChange={handleSwitchToSimple}
+            />
+          </Space>
           <Popconfirm
             title='清除所有篩選條件'
             onConfirm={handleClearAll}

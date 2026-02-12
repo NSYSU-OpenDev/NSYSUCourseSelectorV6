@@ -11,6 +11,7 @@
   "panelNotFound": "Panel not found",
   "noData": "No data available",
   "unknown": "Unknown",
+  "backToV5": "Switch to use V5",
   "semester": {
     "fall": "Fall",
     "spring": "Spring",
@@ -165,6 +166,30 @@
   "allCourse": {
     "totalSelectedCourses": "Filtered {totalCourses} courses, selected {totalSelectedCourses} courses"
   },
+  "simpleFilter": {
+    "title": "Simple Filter",
+    "simpleMode": "Simple Mode",
+    "include": "Include",
+    "exclude": "Exclude",
+    "description": "Use spaces to separate keywords (AND logic), use commas for OR logic. Department filter includes general education & liberal arts!",
+    "searchPlaceholder": "Search {{label}}...",
+    "disabledPlaceholder": "Disabled {{count}} items",
+    "noMatch": "No matching options",
+    "clearAll": "Clear all filter conditions",
+    "clear": "Clear",
+    "cancel": "Cancel",
+    "fields": {
+      "name": "Name",
+      "teacher": "Teacher",
+      "tags": "Program",
+      "department": "Dept.",
+      "grade": "Grade",
+      "class": "Class",
+      "credit": "Credits",
+      "compulsory": "Req.",
+      "english": "English"
+    }
+  },
   "creditsOverlay": {
     "totalCredits": "Total Credits",
     "totalHours": "Total Hours",
@@ -180,6 +205,7 @@
     "edit": "Edit Labels",
     "newLabel": "New Label",
     "name": "Label Name",
+
     "bgColor": "Background Color",
     "borderColor": "Border Color"
   },

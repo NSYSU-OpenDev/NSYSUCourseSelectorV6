@@ -11,6 +11,7 @@
   "panelNotFound": "找不到該控制面板",
   "noData": "目前沒有任何資料",
   "unknown": "未知",
+  "backToV5": "切換使用 V5 版本",
   "semester": {
     "fall": "上",
     "spring": "下",
@@ -164,6 +165,30 @@
   },
   "allCourse": {
     "totalSelectedCourses": "共篩選 {totalCourses} 門課程，已選 {totalSelectedCourses} 門課程"
+  },
+  "simpleFilter": {
+    "title": "簡易篩選",
+    "simpleMode": "簡易模式",
+    "include": "包含",
+    "exclude": "排除",
+    "description": "可以用空格分隔多個關鍵字，空格是「且」的意思，逗號是「或」的意思，系所篩選包含通識與博雅喔！",
+    "searchPlaceholder": "搜尋{{label}}...",
+    "disabledPlaceholder": "未啟用 {{count}} 項",
+    "noMatch": "無匹配選項",
+    "clearAll": "清除所有篩選條件",
+    "clear": "清除",
+    "cancel": "取消",
+    "fields": {
+      "name": "名稱",
+      "teacher": "教師",
+      "tags": "學程",
+      "department": "系所",
+      "grade": "年級",
+      "class": "班別",
+      "credit": "學分",
+      "compulsory": "必修",
+      "english": "英課"
+    }
   },
   "creditsOverlay": {
     "totalCredits": "總學分",

@@ -32,6 +32,8 @@ export interface UIState {
   // 精確篩選相關
   advancedFilterDrawerOpen: boolean;
   filterConditions: FilterCondition[];
+  // 簡易篩選模式
+  simpleFilterMode: boolean;
   // 時間段篩選相關
   selectedTimeSlots: TimeSlotFilter[]; // 選中的時間段  // 自定義快速篩選器相關
   customQuickFilters: CustomQuickFilter[];
@@ -49,6 +51,16 @@ export interface UIState {
 }
 
 // 初始狀態
+// 從 localStorage 讀取簡易篩選模式偏好
+const loadSimpleFilterMode = (): boolean => {
+  try {
+    const saved = localStorage.getItem('simpleFilterMode');
+    return saved === 'true';
+  } catch {
+    return false;
+  }
+};
+
 const initialState: UIState = {
   selectedTabKey: 'allCourses',
   hoveredCourseId: '',
@@ -61,6 +73,8 @@ const initialState: UIState = {
   // 精確篩選相關
   advancedFilterDrawerOpen: false,
   filterConditions: [],
+  // 簡易篩選模式
+  simpleFilterMode: loadSimpleFilterMode(),
   // 時間段篩選相關
   selectedTimeSlots: [],
   // 自定義快速篩選器相關
@@ -131,6 +145,14 @@ const uiSlice = createSlice({
     },
     setFilterConditions: (state, action: PayloadAction<FilterCondition[]>) => {
       state.filterConditions = action.payload;
+    },
+    setSimpleFilterMode: (state, action: PayloadAction<boolean>) => {
+      state.simpleFilterMode = action.payload;
+      try {
+        localStorage.setItem('simpleFilterMode', String(action.payload));
+      } catch {
+        // ignore
+      }
     },
     // 時間段篩選相關
     addTimeSlotFilter: (state, action: PayloadAction<TimeSlotFilter>) => {
@@ -311,6 +333,7 @@ export const {
   updateFilterCondition,
   clearAllFilterConditions,
   setFilterConditions,
+  setSimpleFilterMode,
   // 時間段篩選相關
   addTimeSlotFilter,
   removeTimeSlotFilter,

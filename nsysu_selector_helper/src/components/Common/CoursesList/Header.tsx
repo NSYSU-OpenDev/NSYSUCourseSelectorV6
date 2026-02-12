@@ -47,7 +47,7 @@ const TinyCourseInfo = styled(CourseInfo)`
 const Header: React.FC = () => {
   const { t, i18n } = useTranslation();
   const isDarkMode = useAppSelector(selectIsDarkMode);
-  
+
   const isEnglish = i18n.language.startsWith('en');
 
   // Use type assertion without strict structure check to resolve the type error
