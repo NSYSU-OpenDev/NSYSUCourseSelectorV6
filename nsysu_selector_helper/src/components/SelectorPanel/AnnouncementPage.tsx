@@ -8,6 +8,7 @@ import {
   MailOutlined,
   ExclamationCircleOutlined,
   DiscordOutlined,
+  RollbackOutlined,
 } from '@ant-design/icons';
 import styled from 'styled-components';
 import ReactMarkdown from 'react-markdown';
@@ -295,6 +296,15 @@ const AnnouncementPage: React.FC = () => {
                 GitHub
               </Button>
             )}
+            <Button
+              type='dashed'
+              size={isMobile ? 'small' : 'middle'}
+              icon={<RollbackOutlined />}
+              href='https://nsysu-opendev.github.io/NSYSUSelectorHelper/'
+              target='_blank'
+            >
+              {isMobile ? 'V5' : t('backToV5')}
+            </Button>
           </QuickActionContainer>
         </VersionInfo>
 
