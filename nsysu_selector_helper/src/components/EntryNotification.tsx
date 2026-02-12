@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Checkbox, Alert, Tag, Flex, Space } from 'antd';
-import { NotificationOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import {
+  NotificationOutlined,
+  InfoCircleOutlined,
+  DiscordOutlined,
+} from '@ant-design/icons';
 import styled from 'styled-components';
 import type { CheckboxChangeEvent } from 'antd/es/checkbox';
 import ReactMarkdown from 'react-markdown';
@@ -206,6 +210,16 @@ const EntryNotification: React.FC = () => {
             <Button key='cancel' onClick={handleCancel}>
               {t('entryNotification.close')}
             </Button>
+            {announcement.dcForumUrl && (
+              <Button
+                key='discord'
+                icon={<DiscordOutlined />}
+                href={announcement.dcForumUrl}
+                target='_blank'
+              >
+                Discord
+              </Button>
+            )}
             {announcement.feedbackFormUrl && (
               <Button key='feedback' type='primary'>
                 <a
