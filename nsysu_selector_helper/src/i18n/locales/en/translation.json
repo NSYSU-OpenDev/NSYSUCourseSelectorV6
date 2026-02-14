@@ -188,6 +188,18 @@
       "credit": "Credits",
       "compulsory": "Req.",
       "english": "English"
+    },
+    "timeFilter": {
+      "title": "Time Filter",
+      "description": "Select days or periods to filter courses. Results are synced to the schedule table.",
+      "day": "Day",
+      "period": "Period",
+      "dayPlaceholder": "Select day...",
+      "periodPlaceholder": "Select period...",
+      "activeCount": "Filtering {{count}} time slots"
+    },
+    "conditionFilter": {
+      "title": "Condition Filter"
     }
   },
   "creditsOverlay": {

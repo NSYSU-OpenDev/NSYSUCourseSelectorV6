@@ -188,6 +188,18 @@
       "credit": "學分",
       "compulsory": "必修",
       "english": "英課"
+    },
+    "timeFilter": {
+      "title": "時間篩選",
+      "description": "選擇星期或節次來篩選課程，結果會同步顯示在課表上。",
+      "day": "星期",
+      "period": "節次",
+      "dayPlaceholder": "選擇星期...",
+      "periodPlaceholder": "選擇節次...",
+      "activeCount": "目前篩選中 {{count}} 個時段"
+    },
+    "conditionFilter": {
+      "title": "條件篩選"
     }
   },
   "creditsOverlay": {

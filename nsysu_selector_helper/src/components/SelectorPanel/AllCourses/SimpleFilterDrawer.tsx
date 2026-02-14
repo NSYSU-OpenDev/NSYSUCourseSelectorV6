@@ -9,8 +9,13 @@ import {
   Popconfirm,
   Flex,
   Tooltip,
+  Divider,
 } from 'antd';
-import { FilterOutlined, ClearOutlined } from '@ant-design/icons';
+import {
+  FilterOutlined,
+  ClearOutlined,
+  ClockCircleOutlined,
+} from '@ant-design/icons';
 import styled from 'styled-components';
 
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
@@ -20,18 +25,22 @@ import {
   selectCourses,
   selectLabels,
   selectSimpleFilterMode,
+  selectSelectedTimeSlots,
 } from '@/store/selectors';
 import {
   setAdvancedFilterDrawerOpen,
   setFilterConditions,
   clearAllFilterConditions,
   setSimpleFilterMode,
+  setSelectedTimeSlots,
+  clearAllTimeSlotFilters,
 } from '@/store/slices/uiSlice';
+import type { FilterCondition, TimeSlotFilter } from '@/store/slices/uiSlice';
 import {
   AdvancedFilterService,
   type FieldOptions,
 } from '@/services/advancedFilterService';
-import type { FilterCondition } from '@/store/slices/uiSlice';
+import { timeSlot } from '@/constants';
 import { useTranslation } from '@/hooks';
 
 const { Text } = Typography;
@@ -75,6 +84,35 @@ const FieldLabel = styled(Text)`
   color: var(--ant-color-primary);
 `;
 
+const TimeFieldLabel = styled(Text)`
+  min-width: 42px;
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+  color: var(--ant-color-warning);
+`;
+
+const TimeFilterRow = styled.div<{ $hasValue: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: ${(props) =>
+    props.$hasValue ? 'var(--ant-color-warning-bg)' : 'transparent'};
+  border: 1px solid
+    ${(props) =>
+      props.$hasValue
+        ? 'var(--ant-color-warning-border)'
+        : 'var(--ant-color-border)'};
+  transition: all 0.2s ease;
+  margin-bottom: 6px;
+
+  &:hover {
+    border-color: var(--ant-color-warning-border-hover);
+  }
+`;
+
 // 簡易篩選的欄位配置
 // 'tags' = Select with mode='tags' (autocomplete + free text)
 // 'select' = Select with mode='multiple' (strict options only)
@@ -90,6 +128,23 @@ const SIMPLE_FILTER_FIELDS = [
   { field: 'compulsory', labelKey: 'compulsory', inputType: 'select' as const },
   { field: 'english', labelKey: 'english', inputType: 'select' as const },
 ];
+
+// 星期選項 (day options for column filter)
+const WEEKDAY_OPTIONS = [
+  { label: '一', value: 0 },
+  { label: '二', value: 1 },
+  { label: '三', value: 2 },
+  { label: '四', value: 3 },
+  { label: '五', value: 4 },
+  { label: '六', value: 5 },
+  { label: '日', value: 6 },
+];
+
+// 節次選項 (period options for row filter)
+const PERIOD_OPTIONS = timeSlot.map((slot) => ({
+  label: slot.key,
+  value: slot.key,
+}));
 
 // 管理每一列的本地狀態
 interface SimpleFilterRowState {
@@ -107,6 +162,7 @@ const SimpleFilterDrawer: React.FC = () => {
   const courses = useAppSelector(selectCourses);
   const labels = useAppSelector(selectLabels);
   const simpleFilterMode = useAppSelector(selectSimpleFilterMode);
+  const selectedTimeSlots = useAppSelector(selectSelectedTimeSlots);
 
   // 動態計算篩選選項
   const fieldOptions = useMemo(() => {
@@ -218,10 +274,126 @@ const SimpleFilterDrawer: React.FC = () => {
     [syncToRedux],
   );
 
+  // 時間篩選的本地狀態 — 獨立追蹤選中的星期和節次
+  const [filterDays, setFilterDays] = useState<number[]>([]);
+  const [filterPeriods, setFilterPeriods] = useState<string[]>([]);
+
+  // 從 selectedTimeSlots 反推初始化（drawer 開啟時）
+  useEffect(() => {
+    if (open && simpleFilterMode) {
+      // 嘗試從 selectedTimeSlots 反推出 days 和 periods
+      if (selectedTimeSlots.length === 0) {
+        setFilterDays([]);
+        setFilterPeriods([]);
+        return;
+      }
+
+      // 找出哪些 day 和 period 出現在 selectedTimeSlots
+      const daysInSlots = new Set(selectedTimeSlots.map((s) => s.day));
+      const periodsInSlots = new Set(selectedTimeSlots.map((s) => s.timeSlot));
+
+      // 檢查是否為 cross product (days × periods === selectedTimeSlots.length)
+      const isCrossProduct =
+        daysInSlots.size * periodsInSlots.size === selectedTimeSlots.length &&
+        Array.from(daysInSlots).every((day) =>
+          Array.from(periodsInSlots).every((period) =>
+            selectedTimeSlots.some(
+              (s) => s.day === day && s.timeSlot === period,
+            ),
+          ),
+        );
+
+      if (isCrossProduct) {
+        const allPeriodKeys = timeSlot.map((s) => s.key);
+        const allDays = [0, 1, 2, 3, 4, 5, 6];
+
+        // 如果是全部 periods → 只有 days 被選
+        const isAllPeriods =
+          periodsInSlots.size === allPeriodKeys.length &&
+          allPeriodKeys.every((p) => periodsInSlots.has(p));
+        // 如果是全部 days → 只有 periods 被選
+        const isAllDays =
+          daysInSlots.size === allDays.length &&
+          allDays.every((d) => daysInSlots.has(d));
+
+        if (isAllPeriods && !isAllDays) {
+          // 只有 days 被選
+          setFilterDays(Array.from(daysInSlots));
+          setFilterPeriods([]);
+        } else if (isAllDays && !isAllPeriods) {
+          // 只有 periods 被選
+          setFilterDays([]);
+          setFilterPeriods(Array.from(periodsInSlots));
+        } else {
+          // 兩者都有選
+          setFilterDays(Array.from(daysInSlots));
+          setFilterPeriods(Array.from(periodsInSlots));
+        }
+      } else {
+        // 不是 cross product → 無法反推，清空本地狀態
+        setFilterDays([]);
+        setFilterPeriods([]);
+      }
+    }
+  }, [open, simpleFilterMode]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 從 filterDays + filterPeriods 計算出 selectedTimeSlots（cross product）
+  const syncTimeFilterToRedux = useCallback(
+    (days: number[], periods: string[]) => {
+      const allPeriodKeys = timeSlot.map((s) => s.key);
+      const allDays = [0, 1, 2, 3, 4, 5, 6];
+
+      // 決定最終的 days 和 periods
+      const effectiveDays = days.length > 0 ? days : allDays;
+      const effectivePeriods = periods.length > 0 ? periods : allPeriodKeys;
+
+      // 如果兩者都為空 → 清空
+      if (days.length === 0 && periods.length === 0) {
+        dispatch(clearAllTimeSlotFilters());
+        return;
+      }
+
+      // 產生 cross product
+      const result: TimeSlotFilter[] = [];
+      for (const day of effectiveDays) {
+        for (const period of effectivePeriods) {
+          result.push({ day, timeSlot: period });
+        }
+      }
+
+      dispatch(setSelectedTimeSlots(result));
+    },
+    [dispatch],
+  );
+
+  // 處理「星期」變更
+  const handleDayFilterChange = useCallback(
+    (newDays: number[]) => {
+      setFilterDays(newDays);
+      syncTimeFilterToRedux(newDays, filterPeriods);
+    },
+    [syncTimeFilterToRedux, filterPeriods],
+  );
+
+  // 處理「節次」變更
+  const handlePeriodFilterChange = useCallback(
+    (newPeriods: string[]) => {
+      setFilterPeriods(newPeriods);
+      syncTimeFilterToRedux(filterDays, newPeriods);
+    },
+    [syncTimeFilterToRedux, filterDays],
+  );
+
   const handleClearAll = () => {
     dispatch(clearAllFilterConditions());
+    dispatch(clearAllTimeSlotFilters());
+    setFilterDays([]);
+    setFilterPeriods([]);
     setRowStates(initRowStatesFromConditions([]));
   };
+
+  const hasAnyFilter =
+    filterConditions.length > 0 || selectedTimeSlots.length > 0;
 
   const handleClose = () => {
     dispatch(setAdvancedFilterDrawerOpen(false));
@@ -274,8 +446,8 @@ const SimpleFilterDrawer: React.FC = () => {
             <Button
               type='text'
               icon={<ClearOutlined />}
-              disabled={filterConditions.length === 0}
-              danger={filterConditions.length > 0}
+              disabled={!hasAnyFilter}
+              danger={hasAnyFilter}
               size='small'
             />
           </Popconfirm>
@@ -283,6 +455,86 @@ const SimpleFilterDrawer: React.FC = () => {
       }
     >
       <Flex vertical gap={2}>
+        {/* 時間篩選特殊區域 */}
+        <Divider
+          orientation='start'
+          style={{ margin: '4px 0', fontSize: '12px' }}
+        >
+          <Space size={4}>
+            <ClockCircleOutlined
+              style={{ color: 'var(--ant-color-warning)' }}
+            />
+            <span>{t('simpleFilter.timeFilter.title')}</span>
+          </Space>
+        </Divider>
+        <Text
+          type='secondary'
+          style={{ fontSize: '11px', marginBottom: '4px', lineHeight: 1.4 }}
+        >
+          {t('simpleFilter.timeFilter.description')}
+        </Text>
+
+        {/* 星期篩選 (column) */}
+        <TimeFilterRow $hasValue={filterDays.length > 0}>
+          <TimeFieldLabel>{t('simpleFilter.timeFilter.day')}</TimeFieldLabel>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <Select
+              size='small'
+              mode='multiple'
+              placeholder={t('simpleFilter.timeFilter.dayPlaceholder')}
+              value={filterDays}
+              onChange={handleDayFilterChange}
+              options={WEEKDAY_OPTIONS.map((opt) => ({
+                label: opt.label,
+                value: opt.value,
+              }))}
+              allowClear
+              maxTagCount={3}
+              maxTagPlaceholder={(omitted) => `+${omitted.length}`}
+              style={{ width: '100%' }}
+            />
+          </div>
+        </TimeFilterRow>
+
+        {/* 節次篩選 (row) */}
+        <TimeFilterRow $hasValue={filterPeriods.length > 0}>
+          <TimeFieldLabel>{t('simpleFilter.timeFilter.period')}</TimeFieldLabel>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <Select
+              size='small'
+              mode='multiple'
+              placeholder={t('simpleFilter.timeFilter.periodPlaceholder')}
+              value={filterPeriods}
+              onChange={handlePeriodFilterChange}
+              options={PERIOD_OPTIONS.map((opt) => ({
+                label: opt.label,
+                value: opt.value,
+              }))}
+              allowClear
+              maxTagCount={4}
+              maxTagPlaceholder={(omitted) => `+${omitted.length}`}
+              style={{ width: '100%' }}
+            />
+          </div>
+        </TimeFilterRow>
+
+        {selectedTimeSlots.length > 0 && (
+          <Text type='warning' style={{ fontSize: '11px', lineHeight: 1.4 }}>
+            {t('simpleFilter.timeFilter.activeCount', {
+              count: selectedTimeSlots.length,
+            })}
+          </Text>
+        )}
+
+        <Divider
+          orientation='start'
+          style={{ margin: '4px 0', fontSize: '12px' }}
+        >
+          <Space size={4}>
+            <FilterOutlined style={{ color: 'var(--ant-color-primary)' }} />
+            <span>{t('simpleFilter.conditionFilter.title')}</span>
+          </Space>
+        </Divider>
         <Text
           type='secondary'
           style={{ fontSize: '11px', marginBottom: '4px', lineHeight: 1.4 }}
