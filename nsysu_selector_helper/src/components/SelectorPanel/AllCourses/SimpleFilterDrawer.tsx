@@ -42,6 +42,7 @@ import {
 } from '@/services/advancedFilterService';
 import { timeSlot } from '@/constants';
 import { useTranslation } from '@/hooks';
+import type { TranslationKey } from '@/types';
 
 const { Text } = Typography;
 
@@ -129,15 +130,15 @@ const SIMPLE_FILTER_FIELDS = [
   { field: 'english', labelKey: 'english', inputType: 'select' as const },
 ];
 
-// 星期選項 (day options for column filter)
-const WEEKDAY_OPTIONS = [
-  { label: '一', value: 0 },
-  { label: '二', value: 1 },
-  { label: '三', value: 2 },
-  { label: '四', value: 3 },
-  { label: '五', value: 4 },
-  { label: '六', value: 5 },
-  { label: '日', value: 6 },
+// 星期選項 keys (day options for column filter). Labels are resolved via i18n.
+const WEEKDAY_OPTION_KEYS: { labelKey: TranslationKey; value: number }[] = [
+  { labelKey: 'weekdays.mon', value: 0 },
+  { labelKey: 'weekdays.tue', value: 1 },
+  { labelKey: 'weekdays.wed', value: 2 },
+  { labelKey: 'weekdays.thu', value: 3 },
+  { labelKey: 'weekdays.fri', value: 4 },
+  { labelKey: 'weekdays.sat', value: 5 },
+  { labelKey: 'weekdays.sun', value: 6 },
 ];
 
 // 節次選項 (period options for row filter)
@@ -484,8 +485,8 @@ const SimpleFilterDrawer: React.FC = () => {
               placeholder={t('simpleFilter.timeFilter.dayPlaceholder')}
               value={filterDays}
               onChange={handleDayFilterChange}
-              options={WEEKDAY_OPTIONS.map((opt) => ({
-                label: opt.label,
+              options={WEEKDAY_OPTION_KEYS.map((opt) => ({
+                label: t(opt.labelKey),
                 value: opt.value,
               }))}
               allowClear

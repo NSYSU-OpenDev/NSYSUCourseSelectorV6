@@ -27,6 +27,7 @@ import { CustomQuickFiltersService } from '@/services/customQuickFiltersService'
 import type { FilterCondition } from '@/store/slices/uiSlice';
 import type { FieldOptions } from '@/services/advancedFilterService';
 import { BulbOutlined } from '@ant-design/icons';
+import { useTranslation } from '@/hooks';
 
 const { Text } = Typography;
 
@@ -37,6 +38,7 @@ interface CustomFilterModalProps {
 const CustomFilterModal: React.FC<CustomFilterModalProps> = ({
   fieldOptions,
 }) => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const open = useAppSelector(selectShowCustomFilterModal);
   const editingFilter = useAppSelector(selectEditingCustomFilter);
@@ -108,11 +110,11 @@ const CustomFilterModal: React.FC<CustomFilterModalProps> = ({
             updates: { label: values.label.trim(), condition },
           }),
         );
-        messageApi.success('快速篩選器更新成功！');
+        messageApi.success(t('customFilter.updateSuccess'));
       } else {
         // 檢查是否已存在相同條件
         if (CustomQuickFiltersService.isFilterExists(condition)) {
-          messageApi.warning('相同的篩選條件已存在！');
+          messageApi.warning(t('customFilter.alreadyExists'));
           return;
         }
 
@@ -122,13 +124,13 @@ const CustomFilterModal: React.FC<CustomFilterModalProps> = ({
           condition,
         );
         dispatch(addCustomQuickFilter(newFilter));
-        messageApi.success('快速篩選器保存成功！');
+        messageApi.success(t('customFilter.saveSuccess'));
       }
 
       handleCancel();
     } catch (error) {
       console.error('Save custom filter error:', error);
-      messageApi.error('保存失敗，請重試');
+      messageApi.error(t('customFilter.saveFailed'));
     } finally {
       setLoading(false);
     }
@@ -139,12 +141,16 @@ const CustomFilterModal: React.FC<CustomFilterModalProps> = ({
 
   return (
     <Modal
-      title={editingFilter ? '編輯快速篩選器' : '新增快速篩選器'}
+      title={
+        editingFilter
+          ? t('customFilter.editTitle')
+          : t('customFilter.createTitle')
+      }
       open={open}
       onCancel={handleCancel}
       footer={[
         <Button key='cancel' onClick={handleCancel}>
-          取消
+          {t('simpleFilter.cancel')}
         </Button>,
         <Button
           key='submit'
@@ -152,7 +158,7 @@ const CustomFilterModal: React.FC<CustomFilterModalProps> = ({
           loading={loading}
           onClick={handleSubmit}
         >
-          {editingFilter ? '更新' : '保存'}
+          {editingFilter ? t('customFilter.update') : t('customFilter.save')}
         </Button>,
       ]}
       destroyOnHidden
@@ -167,24 +173,26 @@ const CustomFilterModal: React.FC<CustomFilterModalProps> = ({
       >
         <Form.Item
           name='label'
-          label='篩選器名稱'
+          label={t('customFilter.nameLabel')}
           rules={[
-            { required: true, message: '請輸入篩選器名稱' },
-            { max: 50, message: '名稱不能超過50個字符' },
+            { required: true, message: t('customFilter.nameRequired') },
+            { max: 50, message: t('customFilter.nameMaxLength') },
           ]}
         >
-          <Input placeholder='為這個篩選器取個名字' />
+          <Input placeholder={t('customFilter.namePlaceholder')} />
         </Form.Item>
 
         <Divider />
 
         <Form.Item
           name='field'
-          label='篩選欄位'
-          rules={[{ required: true, message: '請選擇篩選欄位' }]}
+          label={t('customFilter.fieldLabel')}
+          rules={[
+            { required: true, message: t('customFilter.fieldRequired') },
+          ]}
         >
           <Select
-            placeholder='選擇要篩選的欄位'
+            placeholder={t('customFilter.fieldPlaceholder')}
             showSearch
             optionFilterProp='label'
             options={fieldOptions.map((field) => ({
@@ -196,24 +204,26 @@ const CustomFilterModal: React.FC<CustomFilterModalProps> = ({
 
         <Form.Item
           name='type'
-          label='篩選類型'
-          rules={[{ required: true, message: '請選擇篩選類型' }]}
+          label={t('customFilter.typeLabel')}
+          rules={[{ required: true, message: t('customFilter.typeRequired') }]}
         >
           <Radio.Group>
-            <Radio value='include'>包含</Radio>
-            <Radio value='exclude'>排除</Radio>
+            <Radio value='include'>{t('simpleFilter.include')}</Radio>
+            <Radio value='exclude'>{t('simpleFilter.exclude')}</Radio>
           </Radio.Group>
         </Form.Item>
 
         <Form.Item
           name='value'
-          label='篩選值'
-          rules={[{ required: true, message: '請設定篩選值' }]}
+          label={t('customFilter.valueLabel')}
+          rules={[
+            { required: true, message: t('customFilter.valueRequired') },
+          ]}
         >
           {currentFieldOption?.searchable ? (
             <Select
               mode='tags'
-              placeholder='輸入篩選值，支援多個值'
+              placeholder={t('customFilter.valuePlaceholderTags')}
               options={currentFieldOption.options.map((option) => ({
                 value: option.value,
                 label: `${option.label}${option.count ? ` (${option.count})` : ''}`,
@@ -224,7 +234,7 @@ const CustomFilterModal: React.FC<CustomFilterModalProps> = ({
           ) : currentFieldOption?.options ? (
             <Select
               mode='multiple'
-              placeholder='選擇篩選值'
+              placeholder={t('customFilter.valuePlaceholderSelect')}
               options={currentFieldOption.options.map((option) => ({
                 value: option.value,
                 label: `${option.label}${option.count ? ` (${option.count})` : ''}`,
@@ -233,7 +243,7 @@ const CustomFilterModal: React.FC<CustomFilterModalProps> = ({
               optionFilterProp='label'
             />
           ) : (
-            <Input placeholder='輸入篩選值' />
+            <Input placeholder={t('customFilter.valuePlaceholder')} />
           )}
         </Form.Item>
 
@@ -242,7 +252,7 @@ const CustomFilterModal: React.FC<CustomFilterModalProps> = ({
             <Divider />
             <Space direction='vertical' size='small' style={{ width: '100%' }}>
               <Text type='secondary' style={{ fontSize: '12px' }}>
-                <BulbOutlined /> 提示：表單已根據您當前的篩選條件預填
+                <BulbOutlined /> {t('customFilter.prefilledHint')}
               </Text>
             </Space>
           </>
