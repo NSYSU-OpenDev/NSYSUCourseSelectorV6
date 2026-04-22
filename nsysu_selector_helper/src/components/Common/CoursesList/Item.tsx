@@ -36,6 +36,17 @@ import { useTranslation, useWindowSize } from '@/hooks';
 import { GetProbability } from '@/utils';
 import { Color } from 'antd/es/color-picker';
 import { CoursesState } from '@/store/slices/coursesSlice';
+import type { TranslationKey } from '@/types';
+
+const WEEKDAY_KEYS: TranslationKey[] = [
+  'weekdays.mon',
+  'weekdays.tue',
+  'weekdays.wed',
+  'weekdays.thu',
+  'weekdays.fri',
+  'weekdays.sat',
+  'weekdays.sun',
+];
 
 const StyledTag = styled(Tag)`
   font-size: 10px;
@@ -375,22 +386,15 @@ const Item: React.FC<ItemProps> = ({
   };
 
   const displayClassTime = !classTime.every((time) => time === '') ? (
-    classTime.map(
-      (time, index) =>
-        time !== '' && (
-          <StyledTag color={'purple'} key={`${id}-${index}`}>
-            {`${'一二三四五六日'[index]}\n${time}`
-              .split('')
-              .reduce(
-                (acc, curr, i) =>
-                  (i + 1) % 3 === 0 && i !== 2
-                    ? `${acc}\n${curr}`
-                    : `${acc}${curr}`,
-                '',
-              )}
-          </StyledTag>
-        ),
-    )
+    classTime.map((time, index) => {
+      if (time === '') return false;
+      const wrappedTime = time.replace(/(.{3})(?=.)/g, '$1\n');
+      return (
+        <StyledTag color={'purple'} key={`${id}-${index}`}>
+          {`${t(WEEKDAY_KEYS[index])}\n${wrappedTime}`}
+        </StyledTag>
+      );
+    })
   ) : (
     <StyledTag color={'red'}>{t('course.item.unknown')}</StyledTag>
   );

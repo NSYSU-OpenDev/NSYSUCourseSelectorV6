@@ -522,7 +522,15 @@ const ScheduleTable: React.FC = () => {
   const dayColumnWidth = isMobile ? 45 : 80; // 減小每天欄位在手機上的寬度
 
   // 定義表格列
-  const weekdays = ['一', '二', '三', '四', '五', '六', '日'];
+  const weekdays = [
+    t('weekdays.mon'),
+    t('weekdays.tue'),
+    t('weekdays.wed'),
+    t('weekdays.thu'),
+    t('weekdays.fri'),
+    t('weekdays.sat'),
+    t('weekdays.sun'),
+  ];
 
   useEffect(() => {
     // 儲存週末顯示狀態到 localStorage
@@ -559,8 +567,9 @@ const ScheduleTable: React.FC = () => {
     // 解析如 "一2,3,4(理PH 1008) 三2,3,4(理PH 1008) 五2,3,4(理PH 1008)" 的格式
     const roomMap: Record<number, Record<string, string>> = {};
 
-    // 星期對應表
-    const dayMap: Record<string, number> = weekdays.reduce(
+    // 星期對應表 - API 資料固定使用中文字，不隨語系改變
+    const WEEKDAY_CHARS = ['一', '二', '三', '四', '五', '六', '日'];
+    const dayMap: Record<string, number> = WEEKDAY_CHARS.reduce(
       (acc, day, index) => {
         acc[day] = index;
         return acc;

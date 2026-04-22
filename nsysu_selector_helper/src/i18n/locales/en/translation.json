@@ -17,6 +17,15 @@
     "spring": "Spring",
     "summer": "Summer"
   },
+  "weekdays": {
+    "mon": "Mon",
+    "tue": "Tue",
+    "wed": "Wed",
+    "thu": "Thu",
+    "fri": "Fri",
+    "sat": "Sat",
+    "sun": "Sun"
+  },
   "顯示週末": "Show Weekend",
   "課程時間表": "Course Schedule",
   "scheduleTable": {
