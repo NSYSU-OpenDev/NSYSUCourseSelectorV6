@@ -195,6 +195,7 @@ const CourseTag = styled(Tag)<{
   $isHovered?: boolean;
   $isActive?: boolean;
   $isDark: boolean;
+  $isEnglish?: boolean;
 }>`
   width: 100%;
   margin: 1px 0;
@@ -233,9 +234,10 @@ const CourseTag = styled(Tag)<{
   }
 
   @media screen and (max-width: 768px) {
-    font-size: 9px;
+    font-size: ${(props) => (props.$isEnglish ? '7.5px' : '9px')};
     padding: 2px 4px;
     margin: 1px 0;
+    line-height: ${(props) => (props.$isEnglish ? '1.15' : '1.3')};
   }
 `;
 
@@ -681,6 +683,7 @@ const ScheduleTable: React.FC = () => {
                   }
                   $isHovered={isHovered}
                   $isDark={isDark}
+                  $isEnglish={i18n.language.toLowerCase().startsWith('en')}
                   onClick={(e) => {
                     if (isMobile) {
                       // 手機版：阻止事件冒泡，但不執行課程點擊
@@ -752,8 +755,12 @@ const ScheduleTable: React.FC = () => {
                       if (!isMobile) {
                         return `${localizedName}\n(${course.roomForThisSlot || '未知'})`;
                       }
-                      return localizedName.length > 6
-                        ? `${localizedName.substring(0, 6)}...`
+                      const isEnglish = i18n.language
+                        .toLowerCase()
+                        .startsWith('en');
+                      const maxLen = isEnglish ? 14 : 6;
+                      return localizedName.length > maxLen
+                        ? `${localizedName.substring(0, maxLen)}...`
                         : localizedName;
                     })()}
                     <ProbabilityText
