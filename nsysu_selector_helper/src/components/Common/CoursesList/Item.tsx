@@ -33,7 +33,7 @@ import {
 import { LabelEditDrawer } from '#/Common/Labels';
 import LabelEditModal from '#/Common/Labels/LabelEditModal';
 import { useTranslation, useWindowSize } from '@/hooks';
-import { GetProbability } from '@/utils';
+import { GetProbability, getLocalizedCourseName } from '@/utils';
 import { Color } from 'antd/es/color-picker';
 import { CoursesState } from '@/store/slices/coursesSlice';
 import type { TranslationKey } from '@/types';
@@ -219,7 +219,8 @@ const Item: React.FC<ItemProps> = ({
   isHovered,
   displayMode = 'all',
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const displayName = getLocalizedCourseName(course.name, i18n.language);
   const [messageApi, contextHolder] = message.useMessage();
   const dispatch = useAppDispatch();
   const { width } = useWindowSize();
@@ -348,7 +349,6 @@ const Item: React.FC<ItemProps> = ({
 
   const {
     id,
-    name,
     url,
     classTime,
     department,
@@ -547,7 +547,7 @@ const Item: React.FC<ItemProps> = ({
                   }}
                   $isDark={isDarkMode}
                 >
-                  {name.split('\n')[0]}
+                  {displayName}
                 </StyledLink>
                 <CourseCodeContainer>
                   <CourseCodeText
@@ -565,7 +565,7 @@ const Item: React.FC<ItemProps> = ({
                 </CourseCodeContainer>
               </div>
               <Modal
-                title={`${name.split('\n')[0]} (${id})`}
+                title={`${displayName} (${id})`}
                 open={isModalVisible}
                 onCancel={hideModal}
                 footer={null}
@@ -642,7 +642,7 @@ const Item: React.FC<ItemProps> = ({
                 content={content}
                 title={
                   <>
-                    {name.split('\n')[0]} ({id})
+                    {displayName} ({id})
                   </>
                 }
                 trigger={['hover', 'focus']}
@@ -654,7 +654,7 @@ const Item: React.FC<ItemProps> = ({
                   rel='noreferrer'
                   $isDark={isDarkMode}
                 >
-                  {name.split('\n')[0]}
+                  {displayName}
                 </StyledLink>
               </Popover>
               <CourseCodeContainer>

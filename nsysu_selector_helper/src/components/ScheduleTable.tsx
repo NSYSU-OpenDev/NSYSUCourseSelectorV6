@@ -37,7 +37,7 @@ import {
   toggleDayTimeSlots,
   clearAllTimeSlotFilters,
 } from '@/store';
-import { GetProbability } from '@/utils';
+import { GetProbability, getLocalizedCourseName } from '@/utils';
 import { downloadScheduleImage } from '@/services';
 import MobileCourseDetailsModal from '#/ScheduleTable/MobileCourseDetailsModal';
 
@@ -415,7 +415,7 @@ interface ScheduleTableRow {
 }
 
 const ScheduleTable: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { width } = useWindowSize();
   const dispatch = useAppDispatch();
   const isDark = useAppSelector(selectIsDarkMode);
@@ -552,6 +552,7 @@ const ScheduleTable: React.FC = () => {
       await downloadScheduleImage(selectedCourses, {
         isDark,
         title: t('課程時間表'),
+        language: i18n.language,
       });
       message.success(t('scheduleExport.exportSuccess'));
     } catch (error) {
@@ -743,11 +744,18 @@ const ScheduleTable: React.FC = () => {
                     )}
                   />
                   <CourseTagContent>
-                    {!isMobile
-                      ? `${course.name.split('\n')[0]}\n(${course.roomForThisSlot || '未知'})`
-                      : course.name.length > 6
-                        ? `${course.name.substring(0, 6)}...`
-                        : course.name}
+                    {(() => {
+                      const localizedName = getLocalizedCourseName(
+                        course.name,
+                        i18n.language,
+                      );
+                      if (!isMobile) {
+                        return `${localizedName}\n(${course.roomForThisSlot || '未知'})`;
+                      }
+                      return localizedName.length > 6
+                        ? `${localizedName.substring(0, 6)}...`
+                        : localizedName;
+                    })()}
                     <ProbabilityText
                       $status={GetProbability.getProbabilityStatus(
                         course.remaining,

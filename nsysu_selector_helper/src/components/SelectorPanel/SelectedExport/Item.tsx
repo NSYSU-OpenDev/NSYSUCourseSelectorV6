@@ -28,8 +28,8 @@ import {
 } from '@/store';
 import { LabelEditDrawer } from '#/Common/Labels';
 import LabelEditModal from '#/Common/Labels/LabelEditModal';
-import { useWindowSize } from '@/hooks';
-import { GetProbability } from '@/utils';
+import { useTranslation, useWindowSize } from '@/hooks';
+import { GetProbability, getLocalizedCourseName } from '@/utils';
 import { Color } from 'antd/es/color-picker';
 import { CoursesState } from '@/store/slices/coursesSlice';
 
@@ -159,6 +159,8 @@ type ItemProps = {
 };
 
 const Item: React.FC<ItemProps> = ({ course, isHovered }) => {
+  const { i18n } = useTranslation();
+  const displayName = getLocalizedCourseName(course.name, i18n.language);
   const dispatch = useAppDispatch();
   const { width } = useWindowSize();
   const isDarkMode = useAppSelector(selectIsDarkMode);
@@ -259,7 +261,6 @@ const Item: React.FC<ItemProps> = ({ course, isHovered }) => {
 
   const {
     id,
-    name,
     url,
     department,
     credit,
@@ -410,10 +411,10 @@ const Item: React.FC<ItemProps> = ({ course, isHovered }) => {
                 }}
                 $isDark={isDarkMode}
               >
-                {name.split('\n')[0]}
+                {displayName}
               </StyledLink>
               <Modal
-                title={`${name.split('\n')[0]} (${id})`}
+                title={`${displayName} (${id})`}
                 open={isModalVisible}
                 onCancel={hideModal}
                 footer={null}
@@ -472,7 +473,7 @@ const Item: React.FC<ItemProps> = ({ course, isHovered }) => {
               content={content}
               title={
                 <>
-                  {name.split('\n')[0]} ({id})
+                  {displayName} ({id})
                 </>
               }
               trigger={['hover', 'focus']}
@@ -484,7 +485,7 @@ const Item: React.FC<ItemProps> = ({ course, isHovered }) => {
                 rel='noreferrer'
                 $isDark={isDarkMode}
               >
-                {name.split('\n')[0]}
+                {displayName}
               </StyledLink>
             </Popover>
           )}

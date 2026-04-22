@@ -1,5 +1,6 @@
 import type { Course } from '@/types';
 import { timeSlot } from '@/constants';
+import { getLocalizedCourseName } from '@/utils';
 
 /**
  * Time slot mapping for calendar display
@@ -70,6 +71,7 @@ interface ExportOptions {
   isDark?: boolean;
   scale?: number;
   title?: string;
+  language?: string;
 }
 
 interface MergedCourseBlock {
@@ -237,7 +239,12 @@ export const exportScheduleAsImage = async (
   courses: Course[],
   options: ExportOptions = {},
 ): Promise<Blob> => {
-  const { isDark = false, scale = 2, title = '課程時間表' } = options;
+  const {
+    isDark = false,
+    scale = 2,
+    title = '課程時間表',
+    language = 'zh-TW',
+  } = options;
 
   // Determine if we need weekend columns
   const includeWeekends = hasWeekendCourses(courses);
@@ -475,7 +482,7 @@ export const exportScheduleAsImage = async (
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
 
-    const courseName = block.course.name.split('\n')[0];
+    const courseName = getLocalizedCourseName(block.course.name, language);
     const nameLines = wrapText(ctx, courseName, contentWidth);
 
     // Show more lines for taller blocks
