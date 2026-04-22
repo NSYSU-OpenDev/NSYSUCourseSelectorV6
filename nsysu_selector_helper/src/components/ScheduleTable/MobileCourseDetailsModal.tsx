@@ -8,7 +8,8 @@ import {
   setSelectedTabKey,
 } from '@/store';
 import { useAppDispatch } from '@/store/hooks';
-import { useWindowSize } from '@/hooks';
+import { useTranslation, useWindowSize } from '@/hooks';
+import { getLocalizedCourseName } from '@/utils';
 import type { Course } from '@/types';
 
 interface MobileCourseDetailsModalProps {
@@ -22,6 +23,7 @@ const MobileCourseDetailsModal: React.FC<MobileCourseDetailsModalProps> = ({
   setModalVisible,
   selectedCourse,
 }) => {
+  const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
   const { width } = useWindowSize();
   const isMobile = width <= 768;
@@ -42,12 +44,12 @@ const MobileCourseDetailsModal: React.FC<MobileCourseDetailsModalProps> = ({
 
   return (
     <Modal
-      title='課程詳情'
+      title={t('scheduleTable.mobileDetails.title')}
       open={modalVisible}
       onCancel={() => setModalVisible(false)}
       footer={[
         <Button key='cancel' onClick={() => setModalVisible(false)}>
-          關閉
+          {t('scheduleTable.mobileDetails.close')}
         </Button>,
         <Button
           key='navigate'
@@ -60,7 +62,7 @@ const MobileCourseDetailsModal: React.FC<MobileCourseDetailsModalProps> = ({
             }
           }}
         >
-          查看課程
+          {t('scheduleTable.mobileDetails.viewCourse')}
         </Button>,
       ]}
       centered
@@ -68,27 +70,28 @@ const MobileCourseDetailsModal: React.FC<MobileCourseDetailsModalProps> = ({
       {selectedCourse && (
         <div>
           <div style={{ marginBottom: '12px' }}>
-            <strong>課程名稱：</strong>
-            {selectedCourse.name}
+            <strong>{t('scheduleTable.mobileDetails.name')}：</strong>
+            {getLocalizedCourseName(selectedCourse.name, i18n.language)}
           </div>
           <div style={{ marginBottom: '12px' }}>
-            <strong>授課教師：</strong>
+            <strong>{t('scheduleTable.mobileDetails.teacher')}：</strong>
             {selectedCourse.teacher}
           </div>
           <div style={{ marginBottom: '12px' }}>
-            <strong>課程代號：</strong>
+            <strong>{t('scheduleTable.mobileDetails.courseId')}：</strong>
             {selectedCourse.id}
           </div>
           <div style={{ marginBottom: '12px' }}>
-            <strong>學分數：</strong>
+            <strong>{t('scheduleTable.mobileDetails.credit')}：</strong>
             {selectedCourse.credit}
           </div>
           <div style={{ marginBottom: '12px' }}>
-            <strong>教室：</strong>
-            {selectedCourse.roomForThisSlot || '未知'}
+            <strong>{t('scheduleTable.mobileDetails.room')}：</strong>
+            {selectedCourse.roomForThisSlot ||
+              t('scheduleTable.unknownRoom')}
           </div>
           <div style={{ marginBottom: '12px' }}>
-            <strong>系所：</strong>
+            <strong>{t('scheduleTable.mobileDetails.department')}：</strong>
             {selectedCourse.department}
           </div>
         </div>

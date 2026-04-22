@@ -35,7 +35,19 @@
     "cancelSelectAllDay": "取消選擇星期{{day}}全天",
     "clickToFilter": "點擊篩選星期{{day}} 第{{timeSlot}}節課程",
     "filtering": "篩選中",
-    "filteringCount": "篩選中 ({{count}})"
+    "filteringCount": "篩選中 ({{count}})",
+    "unknownRoom": "未知",
+    "mobileDetails": {
+      "title": "課程詳情",
+      "close": "關閉",
+      "viewCourse": "查看課程",
+      "name": "課程名稱",
+      "teacher": "授課教師",
+      "courseId": "課程代號",
+      "credit": "學分數",
+      "room": "教室",
+      "department": "系所"
+    }
   },
   "scheduleExport": {
     "export": "匯出",

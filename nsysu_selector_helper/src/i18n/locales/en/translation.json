@@ -35,7 +35,19 @@
     "cancelSelectAllDay": "Cancel selection for {{day}}",
     "clickToFilter": "Click to filter {{day}} period {{timeSlot}}",
     "filtering": "Filtering",
-    "filteringCount": "Filtering ({{count}})"
+    "filteringCount": "Filtering ({{count}})",
+    "unknownRoom": "Unknown",
+    "mobileDetails": {
+      "title": "Course Details",
+      "close": "Close",
+      "viewCourse": "View Course",
+      "name": "Course Name",
+      "teacher": "Teacher",
+      "courseId": "Course ID",
+      "credit": "Credits",
+      "room": "Room",
+      "department": "Department"
+    }
   },
   "scheduleExport": {
     "export": "Export",

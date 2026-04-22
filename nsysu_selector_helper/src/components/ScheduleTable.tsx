@@ -492,7 +492,7 @@ const ScheduleTable: React.FC = () => {
   const handleCourseClick = (course: Course, roomForThisSlot?: string) => {
     if (isMobile) {
       // 手機端：顯示 Modal
-      handleMobileCourseClick(course, roomForThisSlot || '未知');
+      handleMobileCourseClick(course, roomForThisSlot || t('scheduleTable.unknownRoom'));
     } else {
       // 桌面端：直接導航
       handleCourseNavigate(course.id);
@@ -502,7 +502,7 @@ const ScheduleTable: React.FC = () => {
   // 處理手機版長按課程標籤
   const handleCourseLongPress = (course: Course, roomForThisSlot?: string) => {
     if (isMobile) {
-      handleMobileCourseClick(course, roomForThisSlot || '未知');
+      handleMobileCourseClick(course, roomForThisSlot || t('scheduleTable.unknownRoom'));
     }
   };
 
@@ -637,7 +637,8 @@ const ScheduleTable: React.FC = () => {
             const courseWithRoom = {
               ...course,
               labels: labelMap[course.id] || [],
-              roomForThisSlot: roomInfo[dayIndex]?.[slot] || '未知',
+              roomForThisSlot:
+                roomInfo[dayIndex]?.[slot] || t('scheduleTable.unknownRoom'),
             };
             scheduleMap[slot][dayIndex].push(courseWithRoom);
           }
@@ -753,7 +754,7 @@ const ScheduleTable: React.FC = () => {
                         i18n.language,
                       );
                       if (!isMobile) {
-                        return `${localizedName}\n(${course.roomForThisSlot || '未知'})`;
+                        return `${localizedName}\n(${course.roomForThisSlot || t('scheduleTable.unknownRoom')})`;
                       }
                       const isEnglish = i18n.language
                         .toLowerCase()
