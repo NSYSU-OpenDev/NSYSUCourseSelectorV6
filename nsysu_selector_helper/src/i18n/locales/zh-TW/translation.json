@@ -243,6 +243,97 @@
     "addButton": "新增自定義篩選器",
     "saveCurrentButton": "保存目前篩選條件"
   },
+  "sort": {
+    "customSortTitle": "自訂課程排序",
+    "resetToDefault": "重置為預設排序",
+    "resetWarning": "這將清除所有自訂排序規則",
+    "resetButton": "重置",
+    "multiSortHint": "可設定多層排序條件，排序將依照優先級依次執行。變更會即時套用到課程列表中。",
+    "commonSortTag": "常用排序",
+    "commonSortHint": "點擊添加到當前排序",
+    "commonSort": {
+      "byProbability": "依概率",
+      "byAvailable": "依剩餘名額",
+      "byCompulsoryAndLevel": "必修+課程等級"
+    },
+    "addCondition": "新增排序條件",
+    "canAddMore": "(還可新增 {{count}} 個)",
+    "rulesList": "排序規則列表",
+    "defaultSortDescription": "使用預設排序（按課程順序）",
+    "preview": "排序預覽",
+    "priorityTag": "第 {{priority}} 優先",
+    "increasePriority": "提高優先級",
+    "decreasePriority": "降低優先級",
+    "deleteRule": "刪除此排序",
+    "method": "排序方式：",
+    "selectMethod": "選擇排序方式",
+    "direction": "排序方向：",
+    "ascending": "升序",
+    "descending": "降序",
+    "defaultLabel": "預設",
+    "defaultSort": "預設排序",
+    "options": {
+      "default": {
+        "label": "預設順序",
+        "description": "系統原始排序（無升序降序）"
+      },
+      "probability": {
+        "label": "選上概率",
+        "description": "升序：一般概率(低到高)；降序：一般概率(高到低)"
+      },
+      "remaining": {
+        "label": "剩餘名額",
+        "description": "升序：負數(超收)→0→正數(剩餘名額少到多)；降序：正數(剩餘名額多到少)→0→負數(超收)"
+      },
+      "available": {
+        "label": "可選人數",
+        "description": "升序：負數(超收)→0→正數(可選名額少到多)；降序：正數(可選名額多到少)→0→負數(超收)"
+      },
+      "credit": {
+        "label": "學分數",
+        "description": "升序：學分少到多(1→2→3→...)；降序：學分多到少(...→3→2→1)"
+      },
+      "courseLevel": {
+        "label": "課程等級",
+        "description": "升序：大學部→碩士班→碩士專班→博士班；降序：博士班→碩士專班→碩士班→大學部"
+      },
+      "compulsory": {
+        "label": "必修優先",
+        "description": "升序：必修課程→選修課程；降序：選修課程→必修課程"
+      }
+    }
+  },
+  "department": {
+    "title": "系所必/選修",
+    "allGrades": "不分年級",
+    "gradeLabel": "{{grade}} 年級",
+    "allClasses": "不分班",
+    "department": "系所：",
+    "selectDepartment": "選擇系所",
+    "grade": "年級：",
+    "selectGrade": "選擇年級",
+    "class": "班別：",
+    "selectClass": "選擇班別",
+    "type": "類型：",
+    "selectType": "選擇課程類型",
+    "selectAll": "全選 ({{count}})",
+    "selectFilterFirst": "請先篩選條件",
+    "clearSelected": "清除已選 ({{count}})",
+    "allCoursesAlreadySelected": "當前篩選結果中的課程都已被選擇",
+    "batchSelectLimit": "批量選課限制",
+    "batchSelectLimitExceeded": "為防止載入過多課程造成瀏覽器崩潰，單次選擇課程數量不能超過 50 門。請縮小篩選條件或手動選擇課程。",
+    "confirmBatchSelect": "批量選課確認",
+    "batchSelectWarning": "您即將選擇 {{count}} 門課程，這可能會造成大量時間衝突。確定要繼續嗎？",
+    "coursesSelected": "已選擇 {{count}} 門課程",
+    "noSelectedCoursesInFilter": "當前篩選結果中沒有已選課程",
+    "clearSelectedCourses": "清除篩選結果中的已選課程",
+    "clearSelectedWarning": "確定要清除當前篩選結果中的 {{count}} 門已選課程嗎？",
+    "coursesCleared": "已清除 {{count}} 門已選課程",
+    "confirm": "確定",
+    "typeCompulsory": "必修課程",
+    "typeElective": "選修課程",
+    "typeMultipleCompulsory": "多選必修"
+  },
   "simpleFilter": {
     "title": "簡易篩選",
     "simpleMode": "簡易模式",
@@ -295,7 +386,41 @@
     "newLabel": "新增標籤",
     "name": "標籤名稱",
     "bgColor": "背景色",
-    "borderColor": "框線色"
+    "borderColor": "邊框色",
+    "textColor": "文字色",
+    "nameRequired": "請輸入標籤名稱",
+    "namePlaceholder": "請輸入標籤名稱",
+    "bgColorRequired": "請選擇背景色",
+    "borderColorRequired": "請選擇邊框色",
+    "textColorRequired": "請選擇文字色",
+    "colorSettings": "顏色設定",
+    "colorPresets": "常用顏色組合",
+    "applyColorPreset": "應用{{name}}配色",
+    "createLabel": "新增",
+    "updateLabel": "更新",
+    "delete": "刪除",
+    "manage": "標籤管理",
+    "apply": "標籤應用",
+    "applyToCurrentCourseHint": "點擊標籤即可快速應用到當前課程",
+    "selectCourseFirstLong": "請先從課程列表開啟標籤管理",
+    "selectCourseFirst": "請先選擇課程",
+    "alreadyApplied": "已應用標籤「{{name}}」",
+    "applyLabelToCourse": "應用標籤「{{name}}」到課程",
+    "noLabelsCreated": "尚未建立任何標籤",
+    "createFirstLabel": "建立第一個標籤",
+    "currentCourseLabels": "當前課程標籤",
+    "labelCount": "({{count}} 個標籤)",
+    "noCourseLabelsSet": "此課程尚未設定標籤",
+    "colors": {
+      "blue": "藍色",
+      "green": "綠色",
+      "orange": "橙色",
+      "red": "紅色",
+      "purple": "紫色",
+      "cyan": "青色",
+      "yellow": "黃色",
+      "pink": "粉色"
+    }
   },
   "selectedExport": {
     "title": "已選匯出",

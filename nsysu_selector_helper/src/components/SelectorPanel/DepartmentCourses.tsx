@@ -25,6 +25,7 @@ import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import {
   useCourseSorting,
   useDepartmentCoursesFilterPersistence,
+  useTranslation,
 } from '@/hooks';
 import {
   selectCourses,
@@ -105,6 +106,7 @@ const ActionButtonsContainer = styled(Flex)`
 
 const DepartmentCourses: React.FC = () => {
   useDepartmentCoursesFilterPersistence();
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const courses = useAppSelector(selectCourses);
   const selectedCourses = useAppSelector(selectSelectedCourses);
@@ -128,19 +130,30 @@ const DepartmentCourses: React.FC = () => {
 
   const gradeOptions = useMemo(() => {
     return DepartmentCourseService.extractGrades(courses).map((grade) => ({
-      label: grade === '0' ? '不分年級' : `${grade}年級`,
+      label:
+        grade === '0' ? t('department.allGrades') : t('department.gradeLabel', { grade }),
       value: grade,
     }));
-  }, [courses]);
+  }, [courses, t]);
 
   const classOptions = useMemo(() => {
     return DepartmentCourseService.extractClasses(courses).map((cls) => ({
-      label: cls || '不分班',
+      label: cls || t('department.allClasses'),
       value: cls || '',
     }));
-  }, [courses]);
-  const compulsoryTypeOptions =
-    DepartmentCourseService.getCompulsoryTypeOptions();
+  }, [courses, t]);
+  // 必修類型的翻譯對照（value 固定，label 依語系切換）
+  const COMPULSORY_TYPE_LABELS: Record<string, string> = {
+    compulsory: t('department.typeCompulsory'),
+    elective: t('department.typeElective'),
+    multipleCompulsory: t('department.typeMultipleCompulsory'),
+  };
+  const compulsoryTypeOptions = DepartmentCourseService
+    .getCompulsoryTypeOptions()
+    .map((opt) => ({
+      ...opt,
+      label: COMPULSORY_TYPE_LABELS[opt.value] ?? opt.label,
+    }));
 
   // 根據篩選條件過濾課程
   const filteredCourses = useMemo(() => {
@@ -173,31 +186,37 @@ const DepartmentCourses: React.FC = () => {
     );
 
     if (unselectedCourses.length === 0) {
-      void messageApi.info('當前篩選結果中的課程都已被選擇');
+      void messageApi.info(t('department.allCoursesAlreadySelected'));
       return;
     }
 
     if (unselectedCourses.length > 50) {
       modalApi.error({
-        title: '批量選課限制',
-        content: `為防止載入過多課程造成瀏覽器崩潰，單次選擇課程數量不能超過 50 門。請縮小篩選條件或手動選擇課程。`,
-        okText: '確定',
+        title: t('department.batchSelectLimit'),
+        content: t('department.batchSelectLimitExceeded'),
+        okText: t('department.confirm'),
       });
       return;
     }
 
     if (unselectedCourses.length > 20) {
       modalApi.confirm({
-        title: '批量選課確認',
-        content: `您即將選擇 ${unselectedCourses.length} 門課程，這可能會造成大量時間衝突。確定要繼續嗎？`,
+        title: t('department.confirmBatchSelect'),
+        content: t('department.batchSelectWarning', {
+          count: unselectedCourses.length,
+        }),
         onOk: () => {
           unselectedCourses.forEach((course) => {
             dispatch(selectCourse({ course, isSelected: true }));
           });
-          void messageApi.success(`已選擇 ${unselectedCourses.length} 門課程`);
+          void messageApi.success(
+            t('department.coursesSelected', {
+              count: unselectedCourses.length,
+            }),
+          );
         },
-        okText: '確定',
-        cancelText: '取消',
+        okText: t('department.confirm'),
+        cancelText: t('simpleFilter.cancel'),
       });
       return;
     }
@@ -205,7 +224,9 @@ const DepartmentCourses: React.FC = () => {
     unselectedCourses.forEach((course) => {
       dispatch(selectCourse({ course, isSelected: true }));
     });
-    void messageApi.success(`已選擇 ${unselectedCourses.length} 門課程`);
+    void messageApi.success(
+      t('department.coursesSelected', { count: unselectedCourses.length }),
+    );
   };
   // 處理清空當前篩選結果中的已選課程
   const handleClearSelectedCourses = () => {
@@ -215,23 +236,27 @@ const DepartmentCourses: React.FC = () => {
     );
 
     if (selectedCoursesInFilter.length === 0) {
-      void messageApi.info('當前篩選結果中沒有已選課程');
+      void messageApi.info(t('department.noSelectedCoursesInFilter'));
       return;
     }
 
     modalApi.confirm({
-      title: '清除篩選結果中的已選課程',
-      content: `確定要清除當前篩選結果中的 ${selectedCoursesInFilter.length} 門已選課程嗎？`,
+      title: t('department.clearSelectedCourses'),
+      content: t('department.clearSelectedWarning', {
+        count: selectedCoursesInFilter.length,
+      }),
       onOk: () => {
         selectedCoursesInFilter.forEach((course) => {
           dispatch(selectCourse({ course, isSelected: false }));
         });
         void messageApi.success(
-          `已清除 ${selectedCoursesInFilter.length} 門已選課程`,
+          t('department.coursesCleared', {
+            count: selectedCoursesInFilter.length,
+          }),
         );
       },
-      okText: '確定',
-      cancelText: '取消',
+      okText: t('department.confirm'),
+      cancelText: t('simpleFilter.cancel'),
     });
   };
 
@@ -253,7 +278,7 @@ const DepartmentCourses: React.FC = () => {
       >
         <Typography.Title level={5} style={{ margin: 0, marginBottom: 6 }}>
           <ApartmentOutlined style={{ marginRight: 8 }} />
-          系所必/選修
+          {t('department.title')}
         </Typography.Title>
         {/* 操作按鈕 */}
         <ActionButtonsContainer gap={6} justify='space-between' align='center'>
@@ -264,7 +289,9 @@ const DepartmentCourses: React.FC = () => {
             onClick={handleSelectAll}
             disabled={sortedCourses.length === 0 || isEmptyFilter}
           >
-            {isEmptyFilter ? '請先篩選條件' : `全選 (${sortedCourses.length})`}
+            {isEmptyFilter
+              ? t('department.selectFilterFirst')
+              : t('department.selectAll', { count: sortedCourses.length })}
           </Button>
           <Button
             danger
@@ -273,7 +300,9 @@ const DepartmentCourses: React.FC = () => {
             onClick={handleClearSelectedCourses}
             disabled={selectedCoursesInFilterCount === 0}
           >
-            清除已選 ({selectedCoursesInFilterCount})
+            {t('department.clearSelected', {
+              count: selectedCoursesInFilterCount,
+            })}
           </Button>
         </ActionButtonsContainer>
       </Flex>
@@ -283,11 +312,11 @@ const DepartmentCourses: React.FC = () => {
           <FilterRow>
             <FilterLabel>
               <ApartmentOutlined />
-              系所：
+              {t('department.department')}
             </FilterLabel>
             <StyledSelect
               mode='multiple'
-              placeholder='選擇系所'
+              placeholder={t('department.selectDepartment')}
               options={departmentOptions}
               value={departmentFilters.selectedDepartments}
               onChange={(value) =>
@@ -308,11 +337,11 @@ const DepartmentCourses: React.FC = () => {
           <FilterRow>
             <FilterLabel>
               <UserOutlined />
-              年級：
+              {t('department.grade')}
             </FilterLabel>
             <StyledSelect
               mode='multiple'
-              placeholder='選擇年級'
+              placeholder={t('department.selectGrade')}
               options={gradeOptions}
               value={departmentFilters.selectedGrades}
               onChange={(value) =>
@@ -325,11 +354,11 @@ const DepartmentCourses: React.FC = () => {
           <FilterRow>
             <FilterLabel>
               <TeamOutlined />
-              班別：
+              {t('department.class')}
             </FilterLabel>
             <StyledSelect
               mode='multiple'
-              placeholder='選擇班別'
+              placeholder={t('department.selectClass')}
               options={classOptions}
               value={departmentFilters.selectedClasses}
               onChange={(value) =>
@@ -342,11 +371,11 @@ const DepartmentCourses: React.FC = () => {
           <FilterRow>
             <FilterLabel>
               <BookOutlined />
-              類型：
+              {t('department.type')}
             </FilterLabel>
             <StyledSelect
               mode='multiple'
-              placeholder='選擇課程類型'
+              placeholder={t('department.selectType')}
               options={compulsoryTypeOptions}
               value={departmentFilters.selectedCompulsoryTypes}
               onChange={(value) =>
@@ -367,7 +396,7 @@ const DepartmentCourses: React.FC = () => {
         <Space>
           <Space size={2}>
             <Typography.Text style={{ fontSize: '11px' }}>
-              僅顯示已選：
+              {t('allCourse.showSelectedOnly')}
             </Typography.Text>
             <Switch
               checked={displaySelectedOnly}
@@ -377,7 +406,7 @@ const DepartmentCourses: React.FC = () => {
           </Space>
           <Space size={2}>
             <Typography.Text style={{ fontSize: '11px' }}>
-              顯示衝突：
+              {t('allCourse.showConflicts')}
             </Typography.Text>
             <Switch
               checked={displayConflictCourses}

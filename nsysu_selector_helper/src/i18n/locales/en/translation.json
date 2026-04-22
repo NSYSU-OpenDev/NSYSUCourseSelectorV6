@@ -243,6 +243,97 @@
     "addButton": "Add Custom Filter",
     "saveCurrentButton": "Save Current Filter"
   },
+  "sort": {
+    "customSortTitle": "Custom Course Sort",
+    "resetToDefault": "Reset to default sort",
+    "resetWarning": "This will clear all custom sort rules.",
+    "resetButton": "Reset",
+    "multiSortHint": "Set up multi-level sort rules. Sorting follows rule priority; changes apply to the course list immediately.",
+    "commonSortTag": "Common sorts",
+    "commonSortHint": "Click to add to current sort",
+    "commonSort": {
+      "byProbability": "By probability",
+      "byAvailable": "By remaining",
+      "byCompulsoryAndLevel": "Required + level"
+    },
+    "addCondition": "Add sort rule",
+    "canAddMore": "({{count}} more available)",
+    "rulesList": "Sort rules",
+    "defaultSortDescription": "Using default sort (by course order)",
+    "preview": "Sort preview",
+    "priorityTag": "Priority {{priority}}",
+    "increasePriority": "Increase priority",
+    "decreasePriority": "Decrease priority",
+    "deleteRule": "Delete this rule",
+    "method": "Sort by:",
+    "selectMethod": "Choose a sort method",
+    "direction": "Direction:",
+    "ascending": "Ascending",
+    "descending": "Descending",
+    "defaultLabel": "Default",
+    "defaultSort": "Default sort",
+    "options": {
+      "default": {
+        "label": "Default order",
+        "description": "System's original order (no ascending/descending)"
+      },
+      "probability": {
+        "label": "Selection probability",
+        "description": "Asc: probability low → high; Desc: probability high → low"
+      },
+      "remaining": {
+        "label": "Remaining seats",
+        "description": "Asc: negative (over) → 0 → positive (few → many); Desc: positive (many → few) → 0 → negative (over)"
+      },
+      "available": {
+        "label": "Available seats",
+        "description": "Asc: negative (over) → 0 → positive (few → many); Desc: positive (many → few) → 0 → negative (over)"
+      },
+      "credit": {
+        "label": "Credits",
+        "description": "Asc: credits low → high (1→2→3→...); Desc: credits high → low (...→3→2→1)"
+      },
+      "courseLevel": {
+        "label": "Course level",
+        "description": "Asc: Undergrad → Master → Master (EMBA) → PhD; Desc: PhD → Master (EMBA) → Master → Undergrad"
+      },
+      "compulsory": {
+        "label": "Required first",
+        "description": "Asc: required → elective; Desc: elective → required"
+      }
+    }
+  },
+  "department": {
+    "title": "Department courses",
+    "allGrades": "All grades",
+    "gradeLabel": "Grade {{grade}}",
+    "allClasses": "All classes",
+    "department": "Department:",
+    "selectDepartment": "Select department",
+    "grade": "Grade:",
+    "selectGrade": "Select grade",
+    "class": "Class:",
+    "selectClass": "Select class",
+    "type": "Type:",
+    "selectType": "Select course type",
+    "selectAll": "Select all ({{count}})",
+    "selectFilterFirst": "Apply a filter first",
+    "clearSelected": "Clear selected ({{count}})",
+    "allCoursesAlreadySelected": "All courses in the current filter are already selected.",
+    "batchSelectLimit": "Bulk selection limit",
+    "batchSelectLimitExceeded": "To prevent browser crashes from loading too many courses, you can't select more than 50 at once. Narrow the filter or select courses manually.",
+    "confirmBatchSelect": "Confirm bulk selection",
+    "batchSelectWarning": "You're about to select {{count}} courses. This may cause many time conflicts. Continue?",
+    "coursesSelected": "Selected {{count}} courses",
+    "noSelectedCoursesInFilter": "No selected courses in the current filter.",
+    "clearSelectedCourses": "Clear selected courses in filter",
+    "clearSelectedWarning": "Clear {{count}} selected courses from the current filter?",
+    "coursesCleared": "Cleared {{count}} selected courses",
+    "confirm": "OK",
+    "typeCompulsory": "Required courses",
+    "typeElective": "Elective courses",
+    "typeMultipleCompulsory": "Multi-select required"
+  },
   "simpleFilter": {
     "title": "Simple Filter",
     "simpleMode": "Simple Mode",
@@ -294,9 +385,42 @@
     "edit": "Edit Labels",
     "newLabel": "New Label",
     "name": "Label Name",
-
     "bgColor": "Background Color",
-    "borderColor": "Border Color"
+    "borderColor": "Border Color",
+    "textColor": "Text Color",
+    "nameRequired": "Please enter a label name",
+    "namePlaceholder": "Enter a label name",
+    "bgColorRequired": "Please pick a background color",
+    "borderColorRequired": "Please pick a border color",
+    "textColorRequired": "Please pick a text color",
+    "colorSettings": "Color settings",
+    "colorPresets": "Color presets",
+    "applyColorPreset": "Apply {{name}} colors",
+    "createLabel": "Create",
+    "updateLabel": "Update",
+    "delete": "Delete",
+    "manage": "Label Manager",
+    "apply": "Apply labels",
+    "applyToCurrentCourseHint": "Click a label to apply it to the current course",
+    "selectCourseFirstLong": "Open label management from the course list first",
+    "selectCourseFirst": "Select a course first",
+    "alreadyApplied": "Label \"{{name}}\" already applied",
+    "applyLabelToCourse": "Apply label \"{{name}}\" to course",
+    "noLabelsCreated": "No labels created yet",
+    "createFirstLabel": "Create your first label",
+    "currentCourseLabels": "Current course labels",
+    "labelCount": "({{count}} labels)",
+    "noCourseLabelsSet": "No labels set for this course",
+    "colors": {
+      "blue": "Blue",
+      "green": "Green",
+      "orange": "Orange",
+      "red": "Red",
+      "purple": "Purple",
+      "cyan": "Cyan",
+      "yellow": "Yellow",
+      "pink": "Pink"
+    }
   },
   "selectedExport": {
     "title": "Selected Export",

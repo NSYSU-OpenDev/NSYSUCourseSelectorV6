@@ -21,7 +21,12 @@ import {
 } from '@ant-design/icons';
 import styled from 'styled-components';
 
-import { getSortRuleDisplayText } from '@/utils';
+import {
+  getSortOptionDescription,
+  getSortOptionLabel,
+  getSortRuleDisplayText,
+} from '@/utils';
+import { useTranslation } from '@/hooks';
 
 const { Text } = Typography;
 
@@ -63,6 +68,7 @@ const SortRuleItem: React.FC<SortRuleItemProps> = ({
   isFirst,
   isLast,
 }) => {
+  const { t } = useTranslation();
   const currentOption = DEFAULT_SORT_OPTIONS.find(
     (opt) => opt.key === rule.option,
   );
@@ -75,7 +81,7 @@ const SortRuleItem: React.FC<SortRuleItemProps> = ({
     onUpdate(index, { ...rule, direction });
   };
 
-  const displayText = getSortRuleDisplayText(rule);
+  const displayText = getSortRuleDisplayText(rule, t);
 
   return (
     <StyledCollapse
@@ -87,7 +93,9 @@ const SortRuleItem: React.FC<SortRuleItemProps> = ({
             <Space>
               <SortAscendingOutlined />
               <Text>{displayText}</Text>
-              <Tag color='blue'>第 {index + 1} 優先</Tag>
+              <Tag color='blue'>
+                {t('sort.priorityTag', { priority: index + 1 })}
+              </Tag>
             </Space>
           ),
           extra: (
@@ -101,7 +109,7 @@ const SortRuleItem: React.FC<SortRuleItemProps> = ({
                     e.stopPropagation();
                     onMoveUp?.(index);
                   }}
-                  title='提高優先級'
+                  title={t('sort.increasePriority')}
                 />
               )}
               {!isLast && (
@@ -113,7 +121,7 @@ const SortRuleItem: React.FC<SortRuleItemProps> = ({
                     e.stopPropagation();
                     onMoveDown?.(index);
                   }}
-                  title='降低優先級'
+                  title={t('sort.decreasePriority')}
                 />
               )}
               <Button
@@ -125,7 +133,7 @@ const SortRuleItem: React.FC<SortRuleItemProps> = ({
                   onRemove(index);
                 }}
                 danger
-                title='刪除此排序'
+                title={t('sort.deleteRule')}
               />
             </Space>
           ),
@@ -146,23 +154,23 @@ const SortRuleItem: React.FC<SortRuleItemProps> = ({
                         display: 'block',
                       }}
                     >
-                      排序方式：
+                      {t('sort.method')}
                     </Text>
                     <Select
                       style={{ width: '100%' }}
                       value={rule.option}
                       onChange={handleOptionChange}
-                      placeholder='選擇排序方式'
+                      placeholder={t('sort.selectMethod')}
                       options={DEFAULT_SORT_OPTIONS.filter(
                         (opt) => opt.key !== 'default',
                       ).map((option) => ({
                         value: option.key,
-                        label: option.label,
+                        label: getSortOptionLabel(option.key, t),
                       }))}
                     />
-                    {currentOption?.description &&
-                      currentOption?.description
-                        .split('；')
+                    {currentOption &&
+                      getSortOptionDescription(currentOption.key, t)
+                        .split(/[；;]\s*/)
                         .map((desc, idx) => (
                           <Text
                             key={idx}
@@ -187,7 +195,7 @@ const SortRuleItem: React.FC<SortRuleItemProps> = ({
                         display: 'block',
                       }}
                     >
-                      排序方向：
+                      {t('sort.direction')}
                     </Text>
                     <Radio.Group
                       value={rule.direction}
@@ -195,10 +203,10 @@ const SortRuleItem: React.FC<SortRuleItemProps> = ({
                       size='small'
                     >
                       <Radio.Button value='asc'>
-                        <SortAscendingOutlined /> 升序
+                        <SortAscendingOutlined /> {t('sort.ascending')}
                       </Radio.Button>
                       <Radio.Button value='desc'>
-                        <SortDescendingOutlined /> 降序
+                        <SortDescendingOutlined /> {t('sort.descending')}
                       </Radio.Button>
                     </Radio.Group>
                   </div>

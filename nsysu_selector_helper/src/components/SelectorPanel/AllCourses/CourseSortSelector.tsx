@@ -27,6 +27,7 @@ import { CourseSortingService, SortConfig, SortRule } from '@/services';
 import { DEFAULT_SORT_OPTIONS } from '@/constants';
 import SortRuleItem from './SortRuleItem';
 import { getSortRuleDisplayText } from '@/utils';
+import { useTranslation } from '@/hooks';
 
 const { Text, Title } = Typography;
 
@@ -49,6 +50,7 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
   visible,
   onClose,
 }) => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const currentSortConfig = useAppSelector(selectSortConfig);
   const isDarkMode = useAppSelector(selectIsDarkMode);
@@ -187,7 +189,7 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
       title={
         <Space>
           <SortAscendingOutlined />
-          <span>自訂課程排序</span>
+          <span>{t('sort.customSortTitle')}</span>
         </Space>
       }
       placement='left'
@@ -198,11 +200,11 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
       width={400}
       extra={
         <Popconfirm
-          title='重置為預設排序'
-          description='這將清除所有自訂排序規則'
+          title={t('sort.resetToDefault')}
+          description={t('sort.resetWarning')}
           onConfirm={handleReset}
-          okText='重置'
-          cancelText='取消'
+          okText={t('sort.resetButton')}
+          cancelText={t('simpleFilter.cancel')}
         >
           <Button
             type='text'
@@ -213,7 +215,7 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
             }
             size='small'
           >
-            重置
+            {t('sort.resetButton')}
           </Button>
         </Popconfirm>
       }
@@ -228,7 +230,7 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
         >
           <Text type='secondary' style={{ fontSize: '12px' }}>
             <BulbOutlined style={{ marginRight: '4px' }} />
-            可設定多層排序條件，排序將依照優先級依次執行。變更會即時套用到課程列表中。
+            {t('sort.multiSortHint')}
           </Text>
         </Card>
         {/* 快速排序預設 */}
@@ -236,9 +238,9 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
           size='small'
           title={
             <Space>
-              <Tag color='green'>常用排序</Tag>
+              <Tag color='green'>{t('sort.commonSortTag')}</Tag>
               <Text type='secondary' style={{ fontSize: '11px' }}>
-                點擊添加到當前排序
+                {t('sort.commonSortHint')}
               </Text>
             </Space>
           }
@@ -253,7 +255,7 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
                 ])
               }
             >
-              <AimOutlined /> 依概率
+              <AimOutlined /> {t('sort.commonSort.byProbability')}
             </Button>
             <Button
               size='small'
@@ -264,7 +266,7 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
                 ])
               }
             >
-              <BarChartOutlined /> 依剩餘名額
+              <BarChartOutlined /> {t('sort.commonSort.byAvailable')}
             </Button>
             <Button
               size='small'
@@ -275,7 +277,7 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
                 ])
               }
             >
-              <BookOutlined /> 必修+課程等級
+              <BookOutlined /> {t('sort.commonSort.byCompulsoryAndLevel')}
             </Button>
           </Space>
         </Card>
@@ -287,9 +289,9 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
           block
           disabled={!canAddMore}
         >
-          新增排序條件
+          {t('sort.addCondition')}
           {availableOptions.length > 0 &&
-            `(還可新增 ${availableOptions.length} 個)`}
+            ` ${t('sort.canAddMore', { count: availableOptions.length })}`}
         </Button>
         <Divider style={{ margin: '12px 0' }} />
         {/* 排序規則列表 */}
@@ -297,7 +299,7 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
         tempConfig.rules[0].option !== 'default' ? (
           <div>
             <Title level={5} style={{ margin: '0 0 12px 0' }}>
-              排序規則列表
+              {t('sort.rulesList')}
             </Title>
             {tempConfig.rules.map((rule, index) => (
               <SortRuleItem
@@ -317,7 +319,7 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
           <Card size='small'>
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
-              description='使用預設排序（按課程順序）'
+              description={t('sort.defaultSortDescription')}
             />
           </Card>
         )}
@@ -326,7 +328,7 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
           tempConfig.rules[0].option !== 'default' && (
             <Card
               size='small'
-              title='排序預覽'
+              title={t('sort.preview')}
               style={{
                 background: isDarkMode ? '#1a1a1a' : '#f9f9f9',
               }}
@@ -338,7 +340,7 @@ const CourseSortSelector: React.FC<CourseSortSelectorProps> = ({
               >
                 {tempConfig.rules.map((rule, index) => (
                   <Text key={index} style={{ fontSize: '12px' }}>
-                    {index + 1}. {getSortRuleDisplayText(rule)}
+                    {index + 1}. {getSortRuleDisplayText(rule, t)}
                   </Text>
                 ))}
               </Space>

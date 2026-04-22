@@ -35,6 +35,7 @@ import {
 import type { CourseLabel } from '@/services/courseLabelService';
 import { DEFAULT_LABELS } from '@/constants';
 import LabelEditModal from '#/Common/Labels/LabelEditModal';
+import { useTranslation } from '@/hooks';
 
 const { Text } = Typography;
 
@@ -67,6 +68,7 @@ const LabelEditDrawer: React.FC<LabelEditDrawerProps> = ({
   onClose,
   courseId,
 }) => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const labels = useAppSelector(selectLabels);
   const currentCourseLabels = useAppSelector((state) =>
@@ -111,7 +113,7 @@ const LabelEditDrawer: React.FC<LabelEditDrawerProps> = ({
   const getDropdownMenuItems = (label: CourseLabel): MenuProps['items'] => [
     {
       key: 'edit',
-      label: '編輯',
+      label: t('quickFilter.edit'),
       icon: <EditOutlined />,
       onClick: () => handleEditLabel(label),
     },
@@ -120,7 +122,7 @@ const LabelEditDrawer: React.FC<LabelEditDrawerProps> = ({
     },
     {
       key: 'delete',
-      label: '刪除',
+      label: t('labels.delete'),
       icon: <DeleteOutlined />,
       danger: true,
       onClick: () => handleDeleteLabel(label.id),
@@ -165,7 +167,7 @@ const LabelEditDrawer: React.FC<LabelEditDrawerProps> = ({
         title={
           <Space>
             <TagOutlined />
-            <span>標籤管理</span>
+            <span>{t('labels.manage')}</span>
           </Space>
         }
         placement='left'
@@ -180,12 +182,12 @@ const LabelEditDrawer: React.FC<LabelEditDrawerProps> = ({
             title={
               <Space>
                 <TagOutlined />
-                <span>標籤應用</span>
+                <span>{t('labels.apply')}</span>
                 <Tooltip
                   title={
                     courseId
-                      ? '點擊標籤即可快速應用到當前課程'
-                      : '請先從課程列表開啟標籤管理'
+                      ? t('labels.applyToCurrentCourseHint')
+                      : t('labels.selectCourseFirstLong')
                   }
                 >
                   <InfoCircleOutlined />
@@ -193,7 +195,7 @@ const LabelEditDrawer: React.FC<LabelEditDrawerProps> = ({
               </Space>
             }
             extra={
-              <Tooltip title='新增標籤'>
+              <Tooltip title={t('labels.newLabel')}>
                 <Button
                   type='text'
                   size='small'
@@ -214,10 +216,12 @@ const LabelEditDrawer: React.FC<LabelEditDrawerProps> = ({
                       key={label.id}
                       title={
                         !courseId
-                          ? '請先選擇課程'
+                          ? t('labels.selectCourseFirst')
                           : isApplied
-                            ? `已應用標籤「${label.name}」`
-                            : `應用標籤「${label.name}」到課程`
+                            ? t('labels.alreadyApplied', { name: label.name })
+                            : t('labels.applyLabelToCourse', {
+                                name: label.name,
+                              })
                       }
                       placement='top'
                     >
@@ -280,14 +284,14 @@ const LabelEditDrawer: React.FC<LabelEditDrawerProps> = ({
             ) : (
               <Empty
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
-                description='尚未建立任何標籤'
+                description={t('labels.noLabelsCreated')}
               >
                 <Button
                   type='primary'
                   icon={<PlusOutlined />}
                   onClick={handleCreateLabel}
                 >
-                  建立第一個標籤
+                  {t('labels.createFirstLabel')}
                 </Button>
               </Empty>
             )}
@@ -299,9 +303,11 @@ const LabelEditDrawer: React.FC<LabelEditDrawerProps> = ({
               title={
                 <Space>
                   <TagOutlined />
-                  <span>當前課程標籤</span>
+                  <span>{t('labels.currentCourseLabels')}</span>
                   <Text type='secondary' style={{ fontSize: '12px' }}>
-                    ({currentCourseLabels.length} 個標籤)
+                    {t('labels.labelCount', {
+                      count: currentCourseLabels.length,
+                    })}
                   </Text>
                 </Space>
               }
@@ -330,7 +336,7 @@ const LabelEditDrawer: React.FC<LabelEditDrawerProps> = ({
               ) : (
                 <Empty
                   image={Empty.PRESENTED_IMAGE_SIMPLE}
-                  description='此課程尚未設定標籤'
+                  description={t('labels.noCourseLabelsSet')}
                 />
               )}
             </Card>
