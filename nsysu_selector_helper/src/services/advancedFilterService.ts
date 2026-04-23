@@ -1,5 +1,6 @@
 import type { Course } from '@/types';
 import type { FilterCondition } from '@/store/slices/uiSlice';
+import { toReadableEnglishCourseName } from '@/utils';
 import type { CourseLabel } from './courseLabelService';
 
 export interface FilterOption {
@@ -262,7 +263,10 @@ export class AdvancedFilterService {
         options: this.getUniqueOptions(courses, 'name').map((opt) => {
           const [zh, en] = opt.value.split('\n');
           if (en && en.trim() && zh && zh.trim()) {
-            return { ...opt, label: `${en}\n${zh}` };
+            return {
+              ...opt,
+              label: `${toReadableEnglishCourseName(en)}\n${zh}`,
+            };
           }
           return opt;
         }),
