@@ -167,8 +167,12 @@ const SimpleFilterDrawer: React.FC = () => {
 
   // 動態計算篩選選項
   const fieldOptions = useMemo(() => {
-    return AdvancedFilterService.getFilterOptions(courses, labels);
-  }, [courses, labels]);
+    return AdvancedFilterService.getFilterOptions(
+      courses,
+      labels,
+      (key: string) => t(key as TranslationKey),
+    );
+  }, [courses, labels, t]);
 
   // 初始化與同步本地狀態 —— 從 Redux filterConditions 反推出每一列的狀態
   const [rowStates, setRowStates] = useState<SimpleFilterRowState[]>(() =>

@@ -15,6 +15,10 @@ export interface FieldOptions {
   searchable: boolean; // 是否支援搜尋輸入
 }
 
+// 輕量的翻譯函式介面；若未提供，服務會回退到繁體中文硬編碼標籤，
+// 保持既有單元測試不變。
+export type LabelTranslator = (key: string) => string;
+
 export class AdvancedFilterService {
   /**
    * 篩選課程
@@ -146,62 +150,70 @@ export class AdvancedFilterService {
   static getFilterOptions(
     courses: Course[],
     labels: CourseLabel[] = [],
+    t?: LabelTranslator,
   ): FieldOptions[] {
+    // 欄位與選項的 label 若提供 t 就走 i18n，否則保持繁體中文硬編碼。
+    // 注意：`value` 絕不翻譯——它是過濾判斷的依據，而且會被寫入使用者的 localStorage（自訂快速篩選器）。
+    const fieldLabel = (key: string, fallback: string) =>
+      t ? t(`filterField.${key}`) : fallback;
+    const valueLabel = (key: string, fallback: string) =>
+      t ? t(`filterValue.${key}`) : fallback;
+
     const fields: FieldOptions[] = [
       {
         field: 'department',
-        label: '開課系所',
+        label: fieldLabel('department', '開課系所'),
         options: this.getUniqueOptions(courses, 'department'),
         searchable: true,
       },
       {
         field: 'labels',
-        label: '自訂標籤',
+        label: fieldLabel('labels', '自訂標籤'),
         options: labels.map((l) => ({ value: l.id, label: l.name })),
         searchable: false,
       },
       {
         field: 'tags',
-        label: '學程標籤',
+        label: fieldLabel('tags', '學程標籤'),
         options: this.getTagOptions(courses),
         searchable: true,
       },
       {
         field: 'teacher',
-        label: '授課教師',
+        label: fieldLabel('teacher', '授課教師'),
         options: this.getUniqueOptions(courses, 'teacher'),
         searchable: true,
       },
       {
         field: 'grade',
-        label: '年級',
+        label: fieldLabel('grade', '年級'),
         options: this.getUniqueOptions(courses, 'grade'),
         searchable: true,
       },
       {
         field: 'credit',
-        label: '學分數',
+        label: fieldLabel('credit', '學分數'),
         options: this.getUniqueOptions(courses, 'credit'),
         searchable: false,
       },
       {
         field: 'yearSemester',
-        label: '年期',
+        label: fieldLabel('yearSemester', '年期'),
         options: this.getUniqueOptions(courses, 'yearSemester'),
         searchable: false,
       },
       {
         field: 'compulsory',
-        label: '必修/選修',
+        label: fieldLabel('compulsory', '必修/選修'),
         options: [
           {
             value: '必修',
-            label: '必修',
+            label: valueLabel('compulsory.required', '必修'),
             count: courses.filter((c) => c.compulsory).length,
           },
           {
             value: '選修',
-            label: '選修',
+            label: valueLabel('compulsory.elective', '選修'),
             count: courses.filter((c) => !c.compulsory).length,
           },
         ],
@@ -209,16 +221,16 @@ export class AdvancedFilterService {
       },
       {
         field: 'english',
-        label: '授課語言',
+        label: fieldLabel('english', '授課語言'),
         options: [
           {
             value: '英語授課',
-            label: '英語授課',
+            label: valueLabel('english.english', '英語授課'),
             count: courses.filter((c) => c.english).length,
           },
           {
             value: '中文授課',
-            label: '中文授課',
+            label: valueLabel('english.chinese', '中文授課'),
             count: courses.filter((c) => !c.english).length,
           },
         ],
@@ -226,16 +238,16 @@ export class AdvancedFilterService {
       },
       {
         field: 'multipleCompulsory',
-        label: '多選必修',
+        label: fieldLabel('multipleCompulsory', '多選必修'),
         options: [
           {
             value: '多選必修',
-            label: '多選必修',
+            label: valueLabel('multipleCompulsory.yes', '多選必修'),
             count: courses.filter((c) => c.multipleCompulsory).length,
           },
           {
             value: '一般課程',
-            label: '一般課程',
+            label: valueLabel('multipleCompulsory.no', '一般課程'),
             count: courses.filter((c) => !c.multipleCompulsory).length,
           },
         ],
@@ -243,50 +255,61 @@ export class AdvancedFilterService {
       },
       {
         field: 'name',
-        label: '課程名稱',
+        label: fieldLabel('name', '課程名稱'),
         options: this.getUniqueOptions(courses, 'name'),
         searchable: true,
       },
       {
         field: 'id',
-        label: '課程代碼',
+        label: fieldLabel('id', '課程代碼'),
         options: this.getUniqueOptions(courses, 'id'),
         searchable: true,
       },
       {
         field: 'class',
-        label: '班別',
-        options: this.getUniqueOptions(courses, 'class'),
+        label: fieldLabel('class', '班別'),
+        // 將已知的班別代碼對應到與課程列表一致的顯示名稱；value 保留原始資料值，
+        // 確保過濾邏輯與 localStorage 既有的自訂快速篩選器不受影響。
+        options: this.getUniqueOptions(courses, 'class').map((opt) => {
+          const knownClassKey: Record<string, string> = {
+            不分班: 'course.item.noClass',
+            全英班: 'course.item.englishClass',
+            甲班: 'course.item.classA',
+            乙班: 'course.item.classB',
+          };
+          const key = knownClassKey[opt.value];
+          return key && t ? { ...opt, label: t(key) } : opt;
+        }),
         searchable: true,
       },
       {
         field: 'room',
-        label: '上課教室',
+        label: fieldLabel('room', '上課教室'),
         options: this.getUniqueOptions(courses, 'room'),
         searchable: true,
       },
       {
         field: 'remaining',
-        label: '剩餘名額',
+        label: fieldLabel('remaining', '剩餘名額'),
         options: [
           {
             value: '大於0',
-            label: '有剩餘名額',
+            label: valueLabel('remaining.hasAny', '有剩餘名額'),
             count: courses.filter((c) => c.remaining > 0).length,
           },
           {
             value: '等於0',
-            label: '已額滿',
+            label: valueLabel('remaining.full', '已額滿'),
             count: courses.filter((c) => c.remaining === 0).length,
           },
           {
             value: '大於5',
-            label: '剩餘5人以上',
+            label: valueLabel('remaining.over5', '剩餘5人以上'),
             count: courses.filter((c) => c.remaining > 5).length,
           },
           {
             value: '大於10',
-            label: '剩餘10人以上',
+            label: valueLabel('remaining.over10', '剩餘10人以上'),
             count: courses.filter((c) => c.remaining > 10).length,
           },
           ...this.getUniqueOptions(courses, 'remaining'),
@@ -295,16 +318,16 @@ export class AdvancedFilterService {
       },
       {
         field: 'restrict',
-        label: '限選人數',
+        label: fieldLabel('restrict', '限選人數'),
         options: [
           {
             value: '大於50',
-            label: '50人以上',
+            label: valueLabel('restrict.over50', '50人以上'),
             count: courses.filter((c) => c.restrict > 50).length,
           },
           {
             value: '大於100',
-            label: '100人以上',
+            label: valueLabel('restrict.over100', '100人以上'),
             count: courses.filter((c) => c.restrict > 100).length,
           },
           ...this.getUniqueOptions(courses, 'restrict'),
@@ -313,7 +336,7 @@ export class AdvancedFilterService {
       },
       {
         field: 'description',
-        label: '課程描述',
+        label: fieldLabel('description', '課程描述'),
         options: [],
         searchable: true,
       },
@@ -368,21 +391,28 @@ export class AdvancedFilterService {
   /**
    * 獲取可用的篩選欄位（簡化版本，用於快速選擇）
    */
-  static getAvailableFields(): Array<{ value: string; label: string }> {
+  static getAvailableFields(
+    t?: LabelTranslator,
+  ): Array<{ value: string; label: string }> {
+    const fieldLabel = (key: string, fallback: string) =>
+      t ? t(`filterField.${key}`) : fallback;
     return [
-      { value: 'labels', label: '自訂標籤' },
-      { value: 'name', label: '課程名稱' },
-      { value: 'teacher', label: '授課教師' },
-      { value: 'department', label: '開課系所' },
-      { value: 'grade', label: '年級' },
-      { value: 'credit', label: '學分數' },
-      { value: 'yearSemester', label: '年期' },
-      { value: 'compulsory', label: '必修/選修' },
-      { value: 'english', label: '授課語言' },
-      { value: 'multipleCompulsory', label: '多選必修' },
-      { value: 'tags', label: '學程標籤' },
-      { value: 'room', label: '上課教室' },
-      { value: 'id', label: '課程代碼' },
+      { value: 'labels', label: fieldLabel('labels', '自訂標籤') },
+      { value: 'name', label: fieldLabel('name', '課程名稱') },
+      { value: 'teacher', label: fieldLabel('teacher', '授課教師') },
+      { value: 'department', label: fieldLabel('department', '開課系所') },
+      { value: 'grade', label: fieldLabel('grade', '年級') },
+      { value: 'credit', label: fieldLabel('credit', '學分數') },
+      { value: 'yearSemester', label: fieldLabel('yearSemester', '年期') },
+      { value: 'compulsory', label: fieldLabel('compulsory', '必修/選修') },
+      { value: 'english', label: fieldLabel('english', '授課語言') },
+      {
+        value: 'multipleCompulsory',
+        label: fieldLabel('multipleCompulsory', '多選必修'),
+      },
+      { value: 'tags', label: fieldLabel('tags', '學程標籤') },
+      { value: 'room', label: fieldLabel('room', '上課教室') },
+      { value: 'id', label: fieldLabel('id', '課程代碼') },
     ];
   }
 }

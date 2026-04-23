@@ -266,6 +266,49 @@
     "notSet": "not set",
     "andMore": " +{{count}} more"
   },
+  "filterField": {
+    "department": "Department",
+    "labels": "My labels",
+    "tags": "Program tags",
+    "teacher": "Teacher",
+    "grade": "Year",
+    "credit": "Credits",
+    "yearSemester": "Year/Semester",
+    "compulsory": "Required / elective",
+    "english": "Language",
+    "multipleCompulsory": "Multi-choice required",
+    "name": "Course name",
+    "id": "Course code",
+    "class": "Class",
+    "room": "Room",
+    "remaining": "Seats remaining",
+    "restrict": "Enrollment cap",
+    "description": "Description"
+  },
+  "filterValue": {
+    "compulsory": {
+      "required": "Required",
+      "elective": "Elective"
+    },
+    "english": {
+      "english": "English-taught",
+      "chinese": "Chinese-taught"
+    },
+    "multipleCompulsory": {
+      "yes": "Multi-choice required",
+      "no": "Regular course"
+    },
+    "remaining": {
+      "hasAny": "Has seats",
+      "full": "Full",
+      "over5": "5+ seats",
+      "over10": "10+ seats"
+    },
+    "restrict": {
+      "over50": "50+ cap",
+      "over100": "100+ cap"
+    }
+  },
   "sort": {
     "customSortTitle": "Custom Course Sort",
     "resetToDefault": "Reset to default sort",

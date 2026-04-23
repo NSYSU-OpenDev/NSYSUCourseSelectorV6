@@ -339,8 +339,12 @@ const AdvancedFilterDrawer: React.FC = () => {
 
   // 動態計算篩選選項
   const fieldOptions = useMemo(() => {
-    return AdvancedFilterService.getFilterOptions(courses, labels);
-  }, [courses, labels]);
+    return AdvancedFilterService.getFilterOptions(
+      courses,
+      labels,
+      (key: string) => t(key as TranslationKey),
+    );
+  }, [courses, labels, t]);
 
   const handleClose = () => {
     dispatch(setAdvancedFilterDrawerOpen(false));

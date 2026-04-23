@@ -266,6 +266,49 @@
     "notSet": "未設定",
     "andMore": " 等{{count}}項"
   },
+  "filterField": {
+    "department": "開課系所",
+    "labels": "自訂標籤",
+    "tags": "學程標籤",
+    "teacher": "授課教師",
+    "grade": "年級",
+    "credit": "學分數",
+    "yearSemester": "年期",
+    "compulsory": "必修/選修",
+    "english": "授課語言",
+    "multipleCompulsory": "多選必修",
+    "name": "課程名稱",
+    "id": "課程代碼",
+    "class": "班別",
+    "room": "上課教室",
+    "remaining": "剩餘名額",
+    "restrict": "限選人數",
+    "description": "課程描述"
+  },
+  "filterValue": {
+    "compulsory": {
+      "required": "必修",
+      "elective": "選修"
+    },
+    "english": {
+      "english": "英語授課",
+      "chinese": "中文授課"
+    },
+    "multipleCompulsory": {
+      "yes": "多選必修",
+      "no": "一般課程"
+    },
+    "remaining": {
+      "hasAny": "有剩餘名額",
+      "full": "已額滿",
+      "over5": "剩餘5人以上",
+      "over10": "剩餘10人以上"
+    },
+    "restrict": {
+      "over50": "50人以上",
+      "over100": "100人以上"
+    }
+  },
   "sort": {
     "customSortTitle": "自訂課程排序",
     "resetToDefault": "重置為預設排序",
