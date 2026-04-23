@@ -1,6 +1,9 @@
 import type { Course } from '@/types';
 import type { FilterCondition } from '@/store/slices/uiSlice';
-import { toReadableEnglishCourseName } from '@/utils';
+import {
+  getLocalizedCourseName,
+  toReadableEnglishCourseName,
+} from '@/utils';
 import type { CourseLabel } from './courseLabelService';
 
 export interface FilterOption {
@@ -152,6 +155,7 @@ export class AdvancedFilterService {
     courses: Course[],
     labels: CourseLabel[] = [],
     t?: LabelTranslator,
+    language?: string,
   ): FieldOptions[] {
     // 欄位與選項的 label 若提供 t 就走 i18n，否則保持繁體中文硬編碼。
     // 注意：`value` 絕不翻譯——它是過濾判斷的依據，而且會被寫入使用者的 localStorage（自訂快速篩選器）。
@@ -262,13 +266,15 @@ export class AdvancedFilterService {
         // 讓篩選邏輯（substring 比對 course.name）維持正確。
         options: this.getUniqueOptions(courses, 'name').map((opt) => {
           const [zh, en] = opt.value.split('\n');
-          if (en && en.trim() && zh && zh.trim()) {
-            return {
-              ...opt,
-              label: `${toReadableEnglishCourseName(en)}\n${zh}`,
-            };
-          }
-          return opt;
+          if (!en || !en.trim() || !zh || !zh.trim()) return opt;
+          const primary = language
+            ? getLocalizedCourseName(opt.value, language)
+            : toReadableEnglishCourseName(en);
+          const secondary =
+            language && language.toLowerCase().startsWith('en')
+              ? zh
+              : toReadableEnglishCourseName(en);
+          return { ...opt, label: `${primary}\n${secondary}` };
         }),
         searchable: true,
       },

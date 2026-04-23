@@ -326,7 +326,7 @@ const FilterConditionItem: React.FC<FilterConditionItemProps> = ({
 };
 
 const AdvancedFilterDrawer: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
   const open = useAppSelector(selectAdvancedFilterDrawerOpen);
   const filterConditions = useAppSelector(selectFilterConditions);
@@ -343,8 +343,9 @@ const AdvancedFilterDrawer: React.FC = () => {
       courses,
       labels,
       (key: string) => t(key as TranslationKey),
+      i18n.language,
     );
-  }, [courses, labels, t]);
+  }, [courses, labels, t, i18n.language]);
 
   const handleClose = () => {
     dispatch(setAdvancedFilterDrawerOpen(false));

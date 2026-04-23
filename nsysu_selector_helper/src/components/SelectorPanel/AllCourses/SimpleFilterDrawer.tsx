@@ -156,7 +156,7 @@ interface SimpleFilterRowState {
 }
 
 const SimpleFilterDrawer: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
   const open = useAppSelector(selectAdvancedFilterDrawerOpen);
   const filterConditions = useAppSelector(selectFilterConditions);
@@ -171,8 +171,9 @@ const SimpleFilterDrawer: React.FC = () => {
       courses,
       labels,
       (key: string) => t(key as TranslationKey),
+      i18n.language,
     );
-  }, [courses, labels, t]);
+  }, [courses, labels, t, i18n.language]);
 
   // 初始化與同步本地狀態 —— 從 Redux filterConditions 反推出每一列的狀態
   const [rowStates, setRowStates] = useState<SimpleFilterRowState[]>(() =>
