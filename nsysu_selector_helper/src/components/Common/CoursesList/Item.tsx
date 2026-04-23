@@ -221,7 +221,6 @@ const Item: React.FC<ItemProps> = ({
 }) => {
   const { t, i18n } = useTranslation();
   const displayName = getLocalizedCourseName(course.name, i18n.language);
-  const [messageApi, contextHolder] = message.useMessage();
   const dispatch = useAppDispatch();
   const { width } = useWindowSize();
   const isDarkMode = useAppSelector(selectIsDarkMode);
@@ -277,7 +276,7 @@ const Item: React.FC<ItemProps> = ({
     e.preventDefault();
     try {
       await navigator.clipboard.writeText(course.id);
-      messageApi.success(
+      void message.success(
         t('selectedExportMessages.courseIdCopied', { id: course.id }),
       );
     } catch {
@@ -288,7 +287,7 @@ const Item: React.FC<ItemProps> = ({
       textArea.select();
       void document.execCommand('copy');
       document.body.removeChild(textArea);
-      messageApi.success(
+      void message.success(
         t('selectedExportMessages.courseIdCopied', { id: course.id }),
       );
     }
@@ -502,7 +501,6 @@ const Item: React.FC<ItemProps> = ({
       onMouseEnter={handleHoverCourse}
       onMouseLeave={() => dispatch(setHoveredCourseId(''))}
     >
-      {contextHolder}
       <CourseMainRow>
         {displayMode === 'all' ? (
           <>
@@ -564,6 +562,7 @@ const Item: React.FC<ItemProps> = ({
                   />
                 </CourseCodeContainer>
               </div>
+              {isModalVisible && (
               <Modal
                 title={`${displayName} (${id})`}
                 open={isModalVisible}
@@ -635,6 +634,7 @@ const Item: React.FC<ItemProps> = ({
                   </Card>
                 </Space>
               </Modal>
+              )}
             </>
           ) : (
             <div style={{ textAlign: 'center' }}>
@@ -793,20 +793,24 @@ const Item: React.FC<ItemProps> = ({
           $status={GetProbability.getProbabilityStatus(remaining)}
         />
       </ProbabilityBar>
-      <LabelEditDrawer
-        courseId={id}
-        open={labelModalOpen}
-        onClose={closeLabelModal}
-      />
-      <LabelEditModal
-        open={labelEditModalOpen}
-        label={editingLabel}
-        mode='edit'
-        onCancel={handleLabelEditModalClose}
-        onSubmit={handleLabelEditSubmit}
-      />
+      {labelModalOpen && (
+        <LabelEditDrawer
+          courseId={id}
+          open={labelModalOpen}
+          onClose={closeLabelModal}
+        />
+      )}
+      {labelEditModalOpen && (
+        <LabelEditModal
+          open={labelEditModalOpen}
+          label={editingLabel}
+          mode='edit'
+          onCancel={handleLabelEditModalClose}
+          onSubmit={handleLabelEditSubmit}
+        />
+      )}
     </CourseRow>
   );
 };
 
-export default Item;
+export default React.memo(Item);
