@@ -365,7 +365,7 @@ const AdvancedFilterDrawer: React.FC = () => {
     dispatch(clearAllFilterConditions());
   };
 
-  const handleQuickFilter = (filter: FilterCondition & { label: string }) => {
+  const handleQuickFilter = (filter: FilterCondition) => {
     const newCondition: FilterCondition = {
       field: filter.field,
       type: filter.type,
@@ -454,7 +454,7 @@ const AdvancedFilterDrawer: React.FC = () => {
                     condition.value.every((val) => filter.value.includes(val)),
                 )}
               >
-                {filter.label}
+                {t(filter.labelKey)}
               </Button>
             ))}
           </Space>

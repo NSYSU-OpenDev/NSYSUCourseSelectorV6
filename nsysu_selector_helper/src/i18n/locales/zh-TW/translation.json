@@ -243,6 +243,29 @@
     "addButton": "新增自定義篩選器",
     "saveCurrentButton": "保存目前篩選條件"
   },
+  "systemQuickFilters": {
+    "compulsory": "必修",
+    "elective": "選修",
+    "chineseTaught": "中文授課",
+    "hasRemaining": "有剩餘名額",
+    "liberalArts": "博雅課",
+    "physicalEducationRequired": "體育(必修)",
+    "chineseThinkingRequired": "中文思辯與表達(必修)",
+    "englishIntermediateHigh": "英文中高級",
+    "grade1": "年級一",
+    "grade2": "年級二",
+    "grade3": "年級三",
+    "grade4": "年級四",
+    "gradeAll": "不分年級",
+    "favorite": "我的最愛",
+    "candidate": "候選中課程"
+  },
+  "suggestedLabel": {
+    "include": "包含",
+    "exclude": "排除",
+    "notSet": "未設定",
+    "andMore": " 等{{count}}項"
+  },
   "sort": {
     "customSortTitle": "自訂課程排序",
     "resetToDefault": "重置為預設排序",

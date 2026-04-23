@@ -243,6 +243,29 @@
     "addButton": "Add Custom Filter",
     "saveCurrentButton": "Save Current Filter"
   },
+  "systemQuickFilters": {
+    "compulsory": "Required",
+    "elective": "Elective",
+    "chineseTaught": "Chinese-taught",
+    "hasRemaining": "Has seats",
+    "liberalArts": "Liberal arts",
+    "physicalEducationRequired": "PE (required)",
+    "chineseThinkingRequired": "Chinese thinking & expression (required)",
+    "englishIntermediateHigh": "English upper-intermediate",
+    "grade1": "Year 1",
+    "grade2": "Year 2",
+    "grade3": "Year 3",
+    "grade4": "Year 4",
+    "gradeAll": "All years",
+    "favorite": "Favorites",
+    "candidate": "Candidates"
+  },
+  "suggestedLabel": {
+    "include": "includes",
+    "exclude": "excludes",
+    "notSet": "not set",
+    "andMore": " +{{count}} more"
+  },
   "sort": {
     "customSortTitle": "Custom Course Sort",
     "resetToDefault": "Reset to default sort",

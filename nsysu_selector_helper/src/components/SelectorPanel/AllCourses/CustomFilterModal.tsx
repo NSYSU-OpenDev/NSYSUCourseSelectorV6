@@ -67,6 +67,13 @@ const CustomFilterModal: React.FC<CustomFilterModalProps> = ({
             CustomQuickFiltersService.generateSuggestedLabel(
               firstCondition,
               fieldOptions,
+              {
+                include: t('suggestedLabel.include'),
+                exclude: t('suggestedLabel.exclude'),
+                notSet: t('suggestedLabel.notSet'),
+                andMore: (count: number) =>
+                  t('suggestedLabel.andMore', { count }),
+              },
             );
           form.setFieldsValue({
             label: suggestedLabel,
@@ -79,7 +86,7 @@ const CustomFilterModal: React.FC<CustomFilterModalProps> = ({
         }
       }
     }
-  }, [open, editingFilter, currentFilterConditions, fieldOptions, form]);
+  }, [open, editingFilter, currentFilterConditions, fieldOptions, form, t]);
 
   const handleCancel = () => {
     form.resetFields();

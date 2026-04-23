@@ -185,12 +185,19 @@ export class CustomQuickFiltersService {
       label: string;
       options: Array<{ value: string; label: string }>;
     }>,
+    labels: {
+      include: string;
+      exclude: string;
+      notSet: string;
+      andMore: (count: number) => string;
+    },
   ): string {
     const fieldOption = fieldOptions.find((f) => f.field === condition.field);
     const fieldLabel = fieldOption?.label || condition.field;
-    const typeLabel = condition.type === 'include' ? '包含' : '排除';
+    const typeLabel =
+      condition.type === 'include' ? labels.include : labels.exclude;
 
-    let valueText = '未設定';
+    let valueText = labels.notSet;
     if (condition.value) {
       if (Array.isArray(condition.value)) {
         if (condition.value.length > 0) {
@@ -203,13 +210,13 @@ export class CustomQuickFiltersService {
           valueText =
             displayValues.length === 1
               ? displayValues[0]
-              : `${displayValues[0]} 等${displayValues.length}項`;
+              : `${displayValues[0]}${labels.andMore(displayValues.length)}`;
         }
       } else {
         const option = fieldOption?.options.find(
           (opt) => opt.value === condition.value,
         );
-        valueText = option?.label || condition.value || '未設定';
+        valueText = option?.label || condition.value || labels.notSet;
       }
     }
 

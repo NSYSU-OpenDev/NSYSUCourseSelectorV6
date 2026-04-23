@@ -51,13 +51,14 @@ export interface UIState {
 }
 
 // 初始狀態
-// 從 localStorage 讀取簡易篩選模式偏好
+// 從 localStorage 讀取簡易篩選模式偏好；未設定時預設為簡易模式
 const loadSimpleFilterMode = (): boolean => {
   try {
     const saved = localStorage.getItem('simpleFilterMode');
-    return saved === 'true';
+    if (saved === null) return true;
+    return saved !== 'false';
   } catch {
-    return false;
+    return true;
   }
 };
 

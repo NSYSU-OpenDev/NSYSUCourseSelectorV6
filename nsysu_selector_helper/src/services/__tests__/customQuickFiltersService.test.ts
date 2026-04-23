@@ -113,6 +113,12 @@ describe('CustomQuickFiltersService', () => {
     const label = CustomQuickFiltersService.generateSuggestedLabel(
       cond,
       options,
+      {
+        include: '包含',
+        exclude: '排除',
+        notSet: '未設定',
+        andMore: (count) => ` 等${count}項`,
+      },
     );
     expect(label).toBe('系所包含資訊工程學系');
   });
