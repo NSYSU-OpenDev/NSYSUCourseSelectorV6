@@ -256,7 +256,16 @@ export class AdvancedFilterService {
       {
         field: 'name',
         label: fieldLabel('name', '課程名稱'),
-        options: this.getUniqueOptions(courses, 'name'),
+        // 資料庫的 course.name 格式為 `中文名稱\n英文名稱`；下拉選項顯示時
+        // 把英文擺第一，方便使用者以英文搜尋。value 保留原始字串，
+        // 讓篩選邏輯（substring 比對 course.name）維持正確。
+        options: this.getUniqueOptions(courses, 'name').map((opt) => {
+          const [zh, en] = opt.value.split('\n');
+          if (en && en.trim() && zh && zh.trim()) {
+            return { ...opt, label: `${en}\n${zh}` };
+          }
+          return opt;
+        }),
         searchable: true,
       },
       {
