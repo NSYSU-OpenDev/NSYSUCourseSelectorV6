@@ -1,14 +1,15 @@
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState, useRef } from 'react';
 import { Card, Table, Typography, Tag, Switch, Flex, Button } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import { CheckOutlined, PlusOutlined } from '@ant-design/icons';
+import { CheckOutlined, PlusOutlined, CloseOutlined } from '@ant-design/icons';
 
 import type { Course } from '@/types';
 import { timeSlot } from '@/constants';
 import { useWindowSize } from '@/hooks';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import { selectCourse } from '@/store/slices/coursesSlice';
 import {
   selectSelectedCourses,
   selectHoveredCourseId,
@@ -21,6 +22,8 @@ import {
   setSelectedTabKey,
   setActiveCollapseKey,
   toggleTimeSlotFilter,
+  addTimeSlotFilter,
+  removeTimeSlotFilter,
   toggleDayTimeSlots,
   clearAllTimeSlotFilters,
 } from '@/store';
@@ -173,7 +176,7 @@ const CourseTag = styled(Tag)<{
         : '0 1px 2px rgba(0, 0, 0, 0.1)'};
   transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 
   // 只在非觸摸設備上啟用 hover 效果
   @media (hover: hover) {
@@ -217,6 +220,43 @@ const ProbabilityIndicator = styled.div<{
 const CourseTagContent = styled.div`
   position: relative;
   z-index: 2;
+`;
+
+const DeleteButton = styled.div`
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 16px;
+  height: 16px;
+  background: #ff4d4f;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  cursor: pointer;
+  z-index: 10;
+  opacity: 0; /* 平常隱藏 */
+  transition: all 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+
+  // 當滑鼠移入課程方塊時才顯示
+  ${CourseTag}:hover & {
+    opacity: 1;
+  }
+
+  &:hover {
+    transform: scale(1.2);
+    background: #ff7875;
+  }
+
+  @media screen and (max-width: 768px) {
+    opacity: 1; // 手機版直接顯示，因為沒有 hover
+    width: 14px;
+    height: 14px;
+    font-size: 8px;
+  }
 `;
 
 const ProbabilityText = styled.div<{
@@ -394,7 +434,20 @@ const ScheduleTable: React.FC = () => {
       (slot) => slot.day === day && slot.timeSlot === timeSlot,
     );
   };
+  // Drag selection state
+    const isDraggingRef = useRef(false);
+    const dragActionRef = useRef<'add' | 'remove' | null>(null);
 
+    useEffect(() => {
+      const handleMouseUp = () => {
+        isDraggingRef.current = false;
+        dragActionRef.current = null;
+      };
+      window.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        window.removeEventListener('mouseup', handleMouseUp);
+      };
+    }, []);
   // 處理時間段點擊
   const handleTimeSlotClick = (day: number, timeSlot: string) => {
     dispatch(toggleTimeSlotFilter({ day, timeSlot }));
@@ -656,6 +709,15 @@ const ScheduleTable: React.FC = () => {
                     dispatch(setHoveredCourseId(''));
                   }}
                 >
+                  <DeleteButton
+                    onClick={(e) => {
+                      e.stopPropagation(); // 【關鍵】防止點擊刪除時觸發導航或 Modal
+                      dispatch(selectCourse({ course, isSelected: false }));
+                    }}
+                  >
+                    <CloseOutlined />
+                  </DeleteButton>
+
                   <ProbabilityIndicator
                     $probability={GetProbability.getSuccessProbability(
                       course.select,
@@ -755,9 +817,25 @@ const ScheduleTable: React.FC = () => {
           <TimeSlotCell
             $isSelected={isSelected}
             $hasContent={hasContent}
-            onClick={() => {
+            onMouseDown={(e) => {
               if (!isMobile) {
-                handleTimeSlotClick(index, timeSlotKey);
+                e.preventDefault(); // Prevent text selection while dragging
+                isDraggingRef.current = true;
+                dragActionRef.current = isSelected ? 'remove' : 'add';
+                if (isSelected) {
+                  dispatch(removeTimeSlotFilter({ day: index, timeSlot: timeSlotKey }));
+                } else {
+                  dispatch(addTimeSlotFilter({ day: index, timeSlot: timeSlotKey }));
+                }
+              }
+            }}
+            onMouseEnter={() => {
+              if (!isMobile && isDraggingRef.current && dragActionRef.current) {
+                if (dragActionRef.current === 'remove') {
+                  dispatch(removeTimeSlotFilter({ day: index, timeSlot: timeSlotKey }));
+                } else {
+                  dispatch(addTimeSlotFilter({ day: index, timeSlot: timeSlotKey }));
+                }
               }
             }}
             onTouchStart={(e) => {
