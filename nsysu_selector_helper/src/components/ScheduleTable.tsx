@@ -239,7 +239,7 @@ const DeleteButton = styled.div`
   z-index: 10;
   opacity: 0; /* 平常隱藏 */
   transition: all 0.2s;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 
   // 當滑鼠移入課程方塊時才顯示
   ${CourseTag}:hover & {
@@ -435,19 +435,19 @@ const ScheduleTable: React.FC = () => {
     );
   };
   // Drag selection state
-    const isDraggingRef = useRef(false);
-    const dragActionRef = useRef<'add' | 'remove' | null>(null);
+  const isDraggingRef = useRef(false);
+  const dragActionRef = useRef<'add' | 'remove' | null>(null);
 
-    useEffect(() => {
-      const handleMouseUp = () => {
-        isDraggingRef.current = false;
-        dragActionRef.current = null;
-      };
-      window.addEventListener('mouseup', handleMouseUp);
-      return () => {
-        window.removeEventListener('mouseup', handleMouseUp);
-      };
-    }, []);
+  useEffect(() => {
+    const handleMouseUp = () => {
+      isDraggingRef.current = false;
+      dragActionRef.current = null;
+    };
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
   // 處理時間段點擊
   const handleTimeSlotClick = (day: number, timeSlot: string) => {
     dispatch(toggleTimeSlotFilter({ day, timeSlot }));
@@ -823,18 +823,26 @@ const ScheduleTable: React.FC = () => {
                 isDraggingRef.current = true;
                 dragActionRef.current = isSelected ? 'remove' : 'add';
                 if (isSelected) {
-                  dispatch(removeTimeSlotFilter({ day: index, timeSlot: timeSlotKey }));
+                  dispatch(
+                    removeTimeSlotFilter({ day: index, timeSlot: timeSlotKey }),
+                  );
                 } else {
-                  dispatch(addTimeSlotFilter({ day: index, timeSlot: timeSlotKey }));
+                  dispatch(
+                    addTimeSlotFilter({ day: index, timeSlot: timeSlotKey }),
+                  );
                 }
               }
             }}
             onMouseEnter={() => {
               if (!isMobile && isDraggingRef.current && dragActionRef.current) {
                 if (dragActionRef.current === 'remove') {
-                  dispatch(removeTimeSlotFilter({ day: index, timeSlot: timeSlotKey }));
+                  dispatch(
+                    removeTimeSlotFilter({ day: index, timeSlot: timeSlotKey }),
+                  );
                 } else {
-                  dispatch(addTimeSlotFilter({ day: index, timeSlot: timeSlotKey }));
+                  dispatch(
+                    addTimeSlotFilter({ day: index, timeSlot: timeSlotKey }),
+                  );
                 }
               }
             }}

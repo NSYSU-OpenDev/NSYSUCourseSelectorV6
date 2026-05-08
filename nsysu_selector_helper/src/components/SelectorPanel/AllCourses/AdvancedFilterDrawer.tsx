@@ -347,7 +347,7 @@ const AdvancedFilterDrawer: React.FC = () => {
       (condition) =>
         condition.field === filter.field &&
         condition.type === filter.type &&
-        JSON.stringify(condition.value) === JSON.stringify(filter.value)
+        JSON.stringify(condition.value) === JSON.stringify(filter.value),
     );
 
     if (existingIndex !== -1) {
@@ -414,32 +414,33 @@ const AdvancedFilterDrawer: React.FC = () => {
             </Space>
           }
         >
-        <Space size={[4, 4]} wrap>
-          {QUICK_FILTER.map((filter, index) => {
-            // 【新增這段】判斷當前這個按鈕的篩選條件，是否已經在清單中了
-            const isActive = filterConditions.some(
-              (condition) =>
-                condition.field === filter.field &&
-                condition.type === filter.type &&
-                // 比對數組內容是否完全一樣
-                JSON.stringify(condition.value) === JSON.stringify(filter.value)
-            );
+          <Space size={[4, 4]} wrap>
+            {QUICK_FILTER.map((filter, index) => {
+              // 【新增這段】判斷當前這個按鈕的篩選條件，是否已經在清單中了
+              const isActive = filterConditions.some(
+                (condition) =>
+                  condition.field === filter.field &&
+                  condition.type === filter.type &&
+                  // 比對數組內容是否完全一樣
+                  JSON.stringify(condition.value) ===
+                    JSON.stringify(filter.value),
+              );
 
-            return (
-              <Button
-                key={index}
-                size='small'
-                // 當 isActive 為 true 時，按鈕變藍色 (primary)，否則為預設白色 (default)
-                type={isActive ? 'primary' : 'default'}
-                // 觸發我們剛才改好的「開關邏輯」
-                onClick={() => handleQuickFilter(filter)}
-                // 【重要】一定要把原本的 disabled={...} 刪掉，按鈕才點得下去！
-              >
-                {filter.label}
-              </Button>
-            );
-          })}
-        </Space>
+              return (
+                <Button
+                  key={index}
+                  size='small'
+                  // 當 isActive 為 true 時，按鈕變藍色 (primary)，否則為預設白色 (default)
+                  type={isActive ? 'primary' : 'default'}
+                  // 觸發我們剛才改好的「開關邏輯」
+                  onClick={() => handleQuickFilter(filter)}
+                  // 【重要】一定要把原本的 disabled={...} 刪掉，按鈕才點得下去！
+                >
+                  {filter.label}
+                </Button>
+              );
+            })}
+          </Space>
         </Card>
         {/* 新增篩選條件按鈕 */}
         <Button
