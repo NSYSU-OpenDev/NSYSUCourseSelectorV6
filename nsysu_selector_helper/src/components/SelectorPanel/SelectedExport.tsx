@@ -177,7 +177,7 @@ const SelectedExport: React.FC = () => {
       }));
 
     if (exportData.length === 0) {
-      void messageApi.warning('請至少選擇一門課程進行匯出');
+      void messageApi.warning(t('selectedExportMessages.selectAtLeastOne'));
       return;
     }
 
@@ -209,7 +209,7 @@ try {
 
     setGeneratedScript(script);
     setScriptModalVisible(true);
-  }, [courseData, t]);
+  }, [courseData, messageApi, t]);
 
   // 複製腳本到剪貼簿
   const copyScriptToClipboard = useCallback(async () => {
@@ -223,9 +223,9 @@ try {
         setIsCopied(false);
       }, 2000);
     } catch {
-      messageApi.error('複製失敗，請手動複製');
+      messageApi.error(t('selectedExportMessages.copyFailed'));
     }
-  }, [generatedScript, t]);
+  }, [generatedScript, messageApi, t]);
 
   // 匯入腳本
   const handleImportScript = useCallback(() => {
@@ -256,7 +256,7 @@ try {
     } catch {
       void messageApi.error(t('selectedExport.importError'));
     }
-  }, [importScript, dispatch, t]);
+  }, [importScript, dispatch, messageApi, t]);
 
   // 統計已選匯出的課程數量
   const exportedCount = useMemo(() => {
@@ -433,7 +433,7 @@ try {
         width={800}
         footer={[
           <Button key='close' onClick={() => setScriptModalVisible(false)}>
-            關閉
+            {t('common.close')}
           </Button>,
           <Button
             key='copy'

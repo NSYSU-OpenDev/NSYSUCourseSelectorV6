@@ -13,6 +13,8 @@ import {
   Space,
 } from 'antd';
 import { DEFAULT_COLOR_PRESETS } from '@/constants';
+import { useTranslation } from '@/hooks';
+import type { TranslationKey } from '@/types';
 
 const LabelEditModal: React.FC<{
   open: boolean;
@@ -29,6 +31,7 @@ const LabelEditModal: React.FC<{
   ) => void;
   mode: 'create' | 'edit';
 }> = ({ open, label, onCancel, onSubmit, mode }) => {
+  const { t } = useTranslation();
   const [form] = Form.useForm();
 
   const handleSubmit = async () => {
@@ -56,12 +59,14 @@ const LabelEditModal: React.FC<{
 
   return (
     <Modal
-      title={mode === 'create' ? '新增標籤' : '編輯標籤'}
+      title={mode === 'create' ? t('labels.newLabel') : t('labels.edit')}
       open={open}
       onOk={handleSubmit}
       onCancel={handleCancel}
-      okText={mode === 'create' ? '新增' : '更新'}
-      cancelText='取消'
+      okText={
+        mode === 'create' ? t('labels.createLabel') : t('labels.updateLabel')
+      }
+      cancelText={t('simpleFilter.cancel')}
       destroyOnHidden
       width={600}
     >
@@ -79,33 +84,38 @@ const LabelEditModal: React.FC<{
       >
         <Form.Item
           name='name'
-          label='標籤名稱'
-          rules={[{ required: true, message: '請輸入標籤名稱' }]}
+          label={t('labels.name')}
+          rules={[{ required: true, message: t('labels.nameRequired') }]}
         >
-          <Input placeholder='請輸入標籤名稱' />
+          <Input placeholder={t('labels.namePlaceholder')} />
         </Form.Item>
 
-        <Divider orientation='left'>顏色設定</Divider>
+        <Divider orientation='left'>{t('labels.colorSettings')}</Divider>
 
-        <Form.Item label='常用顏色組合'>
+        <Form.Item label={t('labels.colorPresets')}>
           <Space size={[4, 4]} wrap>
-            {DEFAULT_COLOR_PRESETS.map((preset) => (
-              <Button
-                key={preset.name}
-                size='small'
-                onClick={() => applyColorPreset(preset)}
-                style={{
-                  backgroundColor: preset.bgColor,
-                  color: preset.textColor,
-                  border: `1px solid ${preset.borderColor}`,
-                  height: 'auto',
-                  padding: '4px 8px',
-                }}
-                title={`應用${preset.name}配色`}
-              >
-                {preset.name}
-              </Button>
-            ))}
+            {DEFAULT_COLOR_PRESETS.map((preset) => {
+              const colorKey =
+                `labels.colors.${preset.nameKey}` as TranslationKey;
+              const displayName = t(colorKey);
+              return (
+                <Button
+                  key={preset.nameKey}
+                  size='small'
+                  onClick={() => applyColorPreset(preset)}
+                  style={{
+                    backgroundColor: preset.bgColor,
+                    color: preset.textColor,
+                    border: `1px solid ${preset.borderColor}`,
+                    height: 'auto',
+                    padding: '4px 8px',
+                  }}
+                  title={t('labels.applyColorPreset', { name: displayName })}
+                >
+                  {displayName}
+                </Button>
+              );
+            })}
           </Space>
         </Form.Item>
 
@@ -113,8 +123,8 @@ const LabelEditModal: React.FC<{
           <Col span={8}>
             <Form.Item
               name='bgColor'
-              label='背景色'
-              rules={[{ required: true, message: '請選擇背景色' }]}
+              label={t('labels.bgColor')}
+              rules={[{ required: true, message: t('labels.bgColorRequired') }]}
             >
               <ColorPicker showText />
             </Form.Item>
@@ -122,8 +132,10 @@ const LabelEditModal: React.FC<{
           <Col span={8}>
             <Form.Item
               name='borderColor'
-              label='邊框色'
-              rules={[{ required: true, message: '請選擇邊框色' }]}
+              label={t('labels.borderColor')}
+              rules={[
+                { required: true, message: t('labels.borderColorRequired') },
+              ]}
             >
               <ColorPicker showText />
             </Form.Item>
@@ -131,8 +143,10 @@ const LabelEditModal: React.FC<{
           <Col span={8}>
             <Form.Item
               name='textColor'
-              label='文字色'
-              rules={[{ required: true, message: '請選擇文字色' }]}
+              label={t('labels.textColor')}
+              rules={[
+                { required: true, message: t('labels.textColorRequired') },
+              ]}
             >
               <ColorPicker showText />
             </Form.Item>

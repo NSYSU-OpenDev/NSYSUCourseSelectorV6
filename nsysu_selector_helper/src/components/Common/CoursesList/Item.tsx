@@ -13,8 +13,9 @@ import {
   Space,
   Switch,
   Tag,
+  Tooltip,
 } from 'antd';
-import { EditOutlined, CopyOutlined } from '@ant-design/icons';
+import { CopyOutlined, TagsOutlined } from '@ant-design/icons';
 
 import type { Course } from '@/types';
 import type { CourseLabel } from '@/services';
@@ -31,10 +32,21 @@ import {
 } from '@/store';
 import { LabelEditDrawer } from '#/Common/Labels';
 import LabelEditModal from '#/Common/Labels/LabelEditModal';
-import { useWindowSize } from '@/hooks';
-import { GetProbability } from '@/utils';
+import { useTranslation, useWindowSize } from '@/hooks';
+import { GetProbability, getLocalizedCourseName } from '@/utils';
 import { Color } from 'antd/es/color-picker';
 import { CoursesState } from '@/store/slices/coursesSlice';
+import type { TranslationKey } from '@/types';
+
+const WEEKDAY_KEYS: TranslationKey[] = [
+  'weekdays.mon',
+  'weekdays.tue',
+  'weekdays.wed',
+  'weekdays.thu',
+  'weekdays.fri',
+  'weekdays.sat',
+  'weekdays.sun',
+];
 
 const StyledTag = styled(Tag)`
   font-size: 10px;
@@ -207,7 +219,8 @@ const Item: React.FC<ItemProps> = ({
   isHovered,
   displayMode = 'all',
 }) => {
-  const [messageApi, contextHolder] = message.useMessage();
+  const { t, i18n } = useTranslation();
+  const displayName = getLocalizedCourseName(course.name, i18n.language);
   const dispatch = useAppDispatch();
   const { width } = useWindowSize();
   const isDarkMode = useAppSelector(selectIsDarkMode);
@@ -263,8 +276,10 @@ const Item: React.FC<ItemProps> = ({
     e.preventDefault();
     try {
       await navigator.clipboard.writeText(course.id);
-      messageApi.success(`已複製課程代碼: ${course.id}`);
-    } catch (err) {
+      void message.success(
+        t('selectedExportMessages.courseIdCopied', { id: course.id }),
+      );
+    } catch {
       // 備用方案，用於不支援clipboard API的環境
       const textArea = document.createElement('textarea');
       textArea.value = course.id;
@@ -272,7 +287,9 @@ const Item: React.FC<ItemProps> = ({
       textArea.select();
       void document.execCommand('copy');
       document.body.removeChild(textArea);
-      messageApi.success(`已複製課程代碼: ${course.id}`);
+      void message.success(
+        t('selectedExportMessages.courseIdCopied', { id: course.id }),
+      );
     }
   };
 
@@ -331,7 +348,6 @@ const Item: React.FC<ItemProps> = ({
 
   const {
     id,
-    name,
     url,
     classTime,
     department,
@@ -352,37 +368,34 @@ const Item: React.FC<ItemProps> = ({
   const getClassCodeColor = (classCode: string | undefined) => {
     switch (classCode) {
       case '不分班':
-        return '不分班';
+        return t('course.item.noClass');
       case '全英班':
-        return <StyledTag color={'red'}>全英</StyledTag>;
+        return (
+          <StyledTag color={'red'}>{t('course.item.englishClass')}</StyledTag>
+        );
       case '甲班':
-        return <StyledTag color={'blue'}>甲班</StyledTag>;
+        return <StyledTag color={'blue'}>{t('course.item.classA')}</StyledTag>;
       case '乙班':
-        return <StyledTag color={'yellow'}>乙班</StyledTag>;
+        return (
+          <StyledTag color={'yellow'}>{t('course.item.classB')}</StyledTag>
+        );
       default:
         return classCode;
     }
   };
 
   const displayClassTime = !classTime.every((time) => time === '') ? (
-    classTime.map(
-      (time, index) =>
-        time !== '' && (
-          <StyledTag color={'purple'} key={`${id}-${index}`}>
-            {`${'一二三四五六日'[index]}\n${time}`
-              .split('')
-              .reduce(
-                (acc, curr, i) =>
-                  (i + 1) % 3 === 0 && i !== 2
-                    ? `${acc}\n${curr}`
-                    : `${acc}${curr}`,
-                '',
-              )}
-          </StyledTag>
-        ),
-    )
+    classTime.map((time, index) => {
+      if (time === '') return false;
+      const wrappedTime = time.replace(/(.{3})(?=.)/g, '$1\n');
+      return (
+        <StyledTag color={'purple'} key={`${id}-${index}`}>
+          {`${t(WEEKDAY_KEYS[index])}\n${wrappedTime}`}
+        </StyledTag>
+      );
+    })
   ) : (
-    <StyledTag color={'red'}>未知</StyledTag>
+    <StyledTag color={'red'}>{t('course.item.unknown')}</StyledTag>
   );
 
   const displayTeachers = teacher
@@ -390,7 +403,7 @@ const Item: React.FC<ItemProps> = ({
         .split(',')
         .filter((t, i, self) => self.indexOf(t) === i)
         .map((t) => {
-          const teacherName = t.trim().replace("'", '');
+          const teacherName = t.trim().replace(/'/g, '');
           const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(`中山大學 ${teacherName} DCard | PTT`)}`;
 
           return (
@@ -455,7 +468,7 @@ const Item: React.FC<ItemProps> = ({
         <Flex justify={'space-between'} gap={5}>
           <Flex vertical={true} align={'center'}>
             <span>
-              點選 {select}/{remaining} 剩餘
+              {t('course.item.selectRemaining', { select, remaining })}
             </span>
             <Progress
               type='circle'
@@ -466,7 +479,7 @@ const Item: React.FC<ItemProps> = ({
           </Flex>
           <Flex vertical={true} align={'center'}>
             <span>
-              選上 {selected}/{restrict} 限制
+              {t('course.item.selectedRestrict', { selected, restrict })}
             </span>
             <Progress
               type='circle'
@@ -488,7 +501,6 @@ const Item: React.FC<ItemProps> = ({
       onMouseEnter={handleHoverCourse}
       onMouseLeave={() => dispatch(setHoveredCourseId(''))}
     >
-      {contextHolder}
       <CourseMainRow>
         {displayMode === 'all' ? (
           <>
@@ -533,25 +545,26 @@ const Item: React.FC<ItemProps> = ({
                   }}
                   $isDark={isDarkMode}
                 >
-                  {name.split('\n')[0]}
+                  {displayName}
                 </StyledLink>
                 <CourseCodeContainer>
                   <CourseCodeText
                     $isDark={isDarkMode}
                     onClick={handleCopyCourseId}
-                    title='點擊複製課程代碼'
+                    title={t('course.item.clickToCopyCourseId')}
                   >
                     {id}
                   </CourseCodeText>
                   <CopyIcon
                     $isDark={isDarkMode}
                     onClick={handleCopyCourseId}
-                    title='複製課程代碼'
+                    title={t('course.item.copyCourseId')}
                   />
                 </CourseCodeContainer>
               </div>
+              {isModalVisible && (
               <Modal
-                title={`${name.split('\n')[0]} (${id})`}
+                title={`${displayName} (${id})`}
                 open={isModalVisible}
                 onCancel={hideModal}
                 footer={null}
@@ -579,7 +592,10 @@ const Item: React.FC<ItemProps> = ({
                     <Flex justify='space-between' gap={10}>
                       <Flex vertical align='center'>
                         <span style={{ fontSize: '12px', marginBottom: 8 }}>
-                          點選 {select}/{remaining} 剩餘
+                          {t('course.item.selectRemaining', {
+                            select,
+                            remaining,
+                          })}
                         </span>
                         <Progress
                           type='circle'
@@ -590,7 +606,10 @@ const Item: React.FC<ItemProps> = ({
                       </Flex>
                       <Flex vertical align='center'>
                         <span style={{ fontSize: '12px', marginBottom: 8 }}>
-                          選上 {selected}/{restrict} 限制
+                          {t('course.item.selectedRestrict', {
+                            selected,
+                            restrict,
+                          })}
                         </span>
                         <Progress
                           type='circle'
@@ -609,12 +628,13 @@ const Item: React.FC<ItemProps> = ({
                         rel='noreferrer'
                         $isDark={isDarkMode}
                       >
-                        查看課程詳細資訊
+                        {t('course.item.viewDetails')}
                       </StyledLink>
                     </div>
                   </Card>
                 </Space>
               </Modal>
+              )}
             </>
           ) : (
             <div style={{ textAlign: 'center' }}>
@@ -622,7 +642,7 @@ const Item: React.FC<ItemProps> = ({
                 content={content}
                 title={
                   <>
-                    {name.split('\n')[0]} ({id})
+                    {displayName} ({id})
                   </>
                 }
                 trigger={['hover', 'focus']}
@@ -634,21 +654,21 @@ const Item: React.FC<ItemProps> = ({
                   rel='noreferrer'
                   $isDark={isDarkMode}
                 >
-                  {name.split('\n')[0]}
+                  {displayName}
                 </StyledLink>
               </Popover>
               <CourseCodeContainer>
                 <CourseCodeText
                   $isDark={isDarkMode}
                   onClick={handleCopyCourseId}
-                  title='點擊複製課程代碼'
+                  title={t('course.item.clickToCopyCourseId')}
                 >
                   {id}
                 </CourseCodeText>
                 <CopyIcon
                   $isDark={isDarkMode}
                   onClick={handleCopyCourseId}
-                  title='複製課程代碼'
+                  title={t('course.item.copyCourseId')}
                 />
               </CourseCodeContainer>
             </div>
@@ -666,9 +686,9 @@ const Item: React.FC<ItemProps> = ({
           <>
             <SmallCourseInfo>
               {compulsory ? (
-                <StyledTag color={'red'}>必</StyledTag>
+                <StyledTag color={'red'}>{t('course.item.required')}</StyledTag>
               ) : (
-                <span>選</span>
+                <span>{t('course.item.elective')}</span>
               )}
             </SmallCourseInfo>
           </>
@@ -684,7 +704,11 @@ const Item: React.FC<ItemProps> = ({
           </StyledTag>
         </SmallCourseInfo>
         <SmallCourseInfo>
-          {english ? <StyledTag color={'red'}>英</StyledTag> : '中'}
+          {english ? (
+            <StyledTag color={'red'}>{t('course.item.english')}</StyledTag>
+          ) : (
+            t('course.item.chinese')
+          )}
         </SmallCourseInfo>
         {displayMode === 'all' && (
           <SmallCourseInfo>
@@ -722,7 +746,8 @@ const Item: React.FC<ItemProps> = ({
             $status={GetProbability.getProbabilityStatus(remaining)}
             $isDark={isDarkMode}
           >
-            選上機率: {GetProbability.getProbabilityText(select, remaining)}
+            {t('course.item.probability')}{' '}
+            {GetProbability.getProbabilityText(select, remaining)}
           </ProbabilityText>
           <span
             style={{
@@ -731,7 +756,7 @@ const Item: React.FC<ItemProps> = ({
               fontWeight: '500',
             }}
           >
-            點選: {select} | 剩餘: {remaining}
+            {t('course.item.selectStats', { select, remaining })}
           </span>
         </div>
 
@@ -743,7 +768,11 @@ const Item: React.FC<ItemProps> = ({
             </div>
           )}
           <Button
-            icon={<EditOutlined />}
+            icon={
+              <Tooltip title={t('course.item.editLabels')} placement={'left'}>
+                <TagsOutlined />
+              </Tooltip>
+            }
             type='text'
             size='small'
             onClick={openLabelModal}
@@ -754,7 +783,7 @@ const Item: React.FC<ItemProps> = ({
               opacity: 0.6,
               color: isDarkMode ? '#999' : '#666',
             }}
-            title='編輯標籤'
+            title={t('course.item.editLabels')}
           />
         </div>
       </div>
@@ -764,20 +793,24 @@ const Item: React.FC<ItemProps> = ({
           $status={GetProbability.getProbabilityStatus(remaining)}
         />
       </ProbabilityBar>
-      <LabelEditDrawer
-        courseId={id}
-        open={labelModalOpen}
-        onClose={closeLabelModal}
-      />
-      <LabelEditModal
-        open={labelEditModalOpen}
-        label={editingLabel}
-        mode='edit'
-        onCancel={handleLabelEditModalClose}
-        onSubmit={handleLabelEditSubmit}
-      />
+      {labelModalOpen && (
+        <LabelEditDrawer
+          courseId={id}
+          open={labelModalOpen}
+          onClose={closeLabelModal}
+        />
+      )}
+      {labelEditModalOpen && (
+        <LabelEditModal
+          open={labelEditModalOpen}
+          label={editingLabel}
+          mode='edit'
+          onCancel={handleLabelEditModalClose}
+          onSubmit={handleLabelEditSubmit}
+        />
+      )}
     </CourseRow>
   );
 };
 
-export default Item;
+export default React.memo(Item);

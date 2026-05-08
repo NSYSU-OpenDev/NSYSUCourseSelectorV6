@@ -1,8 +1,35 @@
 {
   "announcements": [
     {
-      "version": "v6.1.4 beta",
-      "date": "2025-08-27",
+      "version": "v6.2.0",
+      "date": "2026-02-12",
+      "title": "簡易篩選模式正式上線！",
+      "feedbackFormUrl": "https://forms.gle/gFBZDgkSbj85zukP6",
+      "dcForumUrl": "https://discord.gg/Md4x9frrHf",
+      "githubUrl": "https://github.com/NSYSU-OpenDev/NSYSUCourseSelectorV6/",
+      "contactEmail": "yochen0123@gmail.com",
+      "description": "新增了大家期待已久的簡易篩選模式！讓選課篩選更加直觀方便。",
+      "updates": [
+        "新增: 簡易篩選模式 (Simple Filter Mode)",
+        "新增: 在篩選器中切換簡易/進階模式",
+        "新增: 支援多關鍵字搜尋 (空白鍵分隔)",
+        "優化: 篩選器介面與體驗"
+      ],
+      "features": [
+        "簡易/進階雙模式篩選",
+        "直觀的開關與包含/排除設定",
+        "保留原有的強大篩選功能"
+      ],
+      "knownIssues": [
+        "Safari 瀏覽器有可能會出現渲染問題",
+        "如果有任何問題請回報給我們"
+      ],
+      "termsOfUse": "當您使用本網站時，即表示您同意 [使用條款](https://github.com/NSYSU-OpenDev/NSYSUSelectorHelper/blob/main/term_of_use.md)",
+      "copyright": ["版權所有 © 2025 中山開源社群，保留一切權利。"]
+    },
+    {
+      "version": "v6.1.5",
+      "date": "2026-01-18",
       "title": "NSYSU 課程選擇輔助系統 V6",
       "feedbackFormUrl": "https://forms.gle/gFBZDgkSbj85zukP6",
       "dcForumUrl": "https://discord.gg/Md4x9frrHf",
@@ -11,13 +38,12 @@
       "description": "這是輔助大家選課的系統，**僅供參考**。\n\n課程資料每隔 1 小時更新，請 **確保手動刷新網頁以獲取更新後資料**。",
       "updates": [
         "全新的 V6 版本上線！",
-        "新增: 課程概率統計功能",
-        "新增: 暗色主題與設定功能",
         "新增: 課程時間篩選整天功能",
         "新增: 新增快速複製課程 id 按鈕",
-        "新增: 自訂篩選器、標籤、排序功能",
+        "新增: 匯出課表為圖片功能",
         "變更: 時間篩選現在能作用於所有課程",
-        "變更: 當有給予標籤時候，始終都會顯示"
+        "變更: 當有給予標籤時候，始終都會顯示",
+        "變更: 課程表固定表頭"
       ],
       "features": [
         "超漂亮UI",

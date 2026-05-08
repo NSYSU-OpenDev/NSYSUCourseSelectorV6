@@ -25,6 +25,7 @@ import {
   type CustomQuickFilter,
 } from '@/services/customQuickFiltersService';
 import type { FieldOptions } from '@/services/advancedFilterService';
+import { useTranslation } from '@/hooks';
 
 interface CustomQuickFiltersProps {
   fieldOptions: FieldOptions[];
@@ -33,6 +34,7 @@ interface CustomQuickFiltersProps {
 const CustomQuickFilters: React.FC<CustomQuickFiltersProps> = ({
   fieldOptions,
 }) => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const customFilters = useAppSelector(selectCustomQuickFilters);
   const currentFilterConditions = useAppSelector(selectFilterConditions);
@@ -41,7 +43,7 @@ const CustomQuickFilters: React.FC<CustomQuickFiltersProps> = ({
 
   const handleApplyFilter = (filter: CustomQuickFilter) => {
     dispatch(addFilterCondition(filter.condition));
-    void messageApi.success(`已套用篩選器：${filter.label}`);
+    void messageApi.success(t('quickFilter.applied', { label: filter.label }));
   };
 
   const handleEditFilter = (filter: CustomQuickFilter) => {
@@ -52,7 +54,7 @@ const CustomQuickFilters: React.FC<CustomQuickFiltersProps> = ({
   const handleDeleteFilter = (filter: CustomQuickFilter) => {
     CustomQuickFiltersService.removeCustomFilter(filter.id);
     dispatch(removeCustomQuickFilter(filter.id));
-    void messageApi.success('篩選器已刪除');
+    void messageApi.success(t('quickFilter.deleted'));
   };
 
   const handleAddNew = () => {
@@ -65,9 +67,13 @@ const CustomQuickFilters: React.FC<CustomQuickFiltersProps> = ({
       (f) => f.field === filter.condition.field,
     );
     const fieldLabel = fieldOption?.label || filter.condition.field;
-    const typeLabel = filter.condition.type === 'include' ? '包含' : '排除';
+    const typeLabel =
+      filter.condition.type === 'include'
+        ? t('simpleFilter.include')
+        : t('simpleFilter.exclude');
+    const notSet = t('advancedFilter.notSet');
 
-    let valueText = '(未設定)';
+    let valueText = notSet;
     if (filter.condition.value) {
       if (Array.isArray(filter.condition.value)) {
         if (filter.condition.value.length > 0) {
@@ -80,13 +86,13 @@ const CustomQuickFilters: React.FC<CustomQuickFiltersProps> = ({
           valueText =
             displayValues.length === 1
               ? displayValues[0]
-              : `${displayValues[0]} 等${displayValues.length}項`;
+              : `${displayValues[0]} ${t('advancedFilter.andMore', { count: displayValues.length })}`;
         }
       } else {
         const option = fieldOption?.options.find(
           (opt) => opt.value === filter.condition.value,
         );
-        valueText = option?.label || filter.condition.value || '(未設定)';
+        valueText = option?.label || filter.condition.value || notSet;
       }
     }
 
@@ -98,7 +104,7 @@ const CustomQuickFilters: React.FC<CustomQuickFiltersProps> = ({
   ): MenuProps['items'] => [
     {
       key: 'edit',
-      label: '編輯',
+      label: t('quickFilter.edit'),
       icon: <EditOutlined />,
       onClick: () => handleEditFilter(filter),
     },
@@ -107,7 +113,7 @@ const CustomQuickFilters: React.FC<CustomQuickFiltersProps> = ({
     },
     {
       key: 'delete',
-      label: '刪除',
+      label: t('quickFilter.delete'),
       icon: <DeleteOutlined />,
       danger: true,
       onClick: () => handleDeleteFilter(filter),
@@ -120,11 +126,11 @@ const CustomQuickFilters: React.FC<CustomQuickFiltersProps> = ({
         title={
           <Space>
             <HeartOutlined style={{ color: '#8c8c8c' }} />
-            <span>我的快速篩選器</span>
+            <span>{t('quickFilter.title')}</span>
           </Space>
         }
         extra={
-          <Tooltip title='新增篩選器'>
+          <Tooltip title={t('quickFilter.addTooltip')}>
             <Button
               type='text'
               size='small'
@@ -143,7 +149,7 @@ const CustomQuickFilters: React.FC<CustomQuickFiltersProps> = ({
           disabled={fieldOptions.length === 0}
           style={{ width: '100%' }}
         >
-          新增自定義篩選器
+          {t('quickFilter.addButton')}
         </Button>
       </Card>
     );
@@ -155,12 +161,14 @@ const CustomQuickFilters: React.FC<CustomQuickFiltersProps> = ({
       title={
         <Space>
           <HeartFilled style={{ color: '#ff4d4f' }} />
-          <span>我的快速篩選器 ({customFilters.length})</span>
+          <span>
+            {t('quickFilter.title')} ({customFilters.length})
+          </span>
         </Space>
       }
       extra={
         <Space size='small'>
-          <Tooltip title='新增篩選器'>
+          <Tooltip title={t('quickFilter.addTooltip')}>
             <Button
               type='text'
               size='small'
@@ -233,7 +241,7 @@ const CustomQuickFilters: React.FC<CustomQuickFiltersProps> = ({
             onClick={handleAddNew}
             style={{ width: '100%' }}
           >
-            保存目前篩選條件
+            {t('quickFilter.saveCurrentButton')}
           </Button>
         )}
       </Space>

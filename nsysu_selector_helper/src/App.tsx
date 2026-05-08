@@ -4,6 +4,7 @@ import type { CollapseProps } from 'antd';
 import styled from 'styled-components';
 
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useTranslation } from '@/hooks';
 import {
   fetchAvailableSemesters,
   fetchCourses,
@@ -77,6 +78,7 @@ const App: React.FC = () => {
 
 // 內部組件，可以使用 theme token
 const AppContent: React.FC = () => {
+  const { t } = useTranslation();
   const themeConfig = useAppSelector(selectThemeConfig);
   const { token } = theme.useToken();
   const dispatch = useAppDispatch();
@@ -152,7 +154,7 @@ const AppContent: React.FC = () => {
   const collapseItems: CollapseProps['items'] = [
     {
       key: 'schedulePanel',
-      label: '課程時間表',
+      label: t('課程時間表'),
       children: (
         <ContentWrapper>
           <ScheduleTable />

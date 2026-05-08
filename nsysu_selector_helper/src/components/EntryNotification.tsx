@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Checkbox, Alert, Tag, Flex, Space } from 'antd';
-import { NotificationOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import {
+  NotificationOutlined,
+  InfoCircleOutlined,
+  DiscordOutlined,
+} from '@ant-design/icons';
 import styled from 'styled-components';
 import type { CheckboxChangeEvent } from 'antd/es/checkbox';
 import ReactMarkdown from 'react-markdown';
@@ -97,7 +101,7 @@ const SectionTitle = styled.h4<{ $isDark: boolean }>`
 `;
 
 const EntryNotification: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -113,7 +117,7 @@ const EntryNotification: React.FC = () => {
       try {
         setLoading(true);
         const config = await AnnouncementService.loadAnnouncementsFromJson(
-          '/announcements.json',
+          i18n.language,
         );
         const data = AnnouncementService.getCurrentAnnouncement(config);
         setAnnouncement(data);
@@ -145,7 +149,7 @@ const EntryNotification: React.FC = () => {
 
     void loadAnnouncementAndCheckVisibility();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [i18n.language]);
 
   const handleOk = () => {
     setIsModalOpen(false);
@@ -206,6 +210,16 @@ const EntryNotification: React.FC = () => {
             <Button key='cancel' onClick={handleCancel}>
               {t('entryNotification.close')}
             </Button>
+            {announcement.dcForumUrl && (
+              <Button
+                key='discord'
+                icon={<DiscordOutlined />}
+                href={announcement.dcForumUrl}
+                target='_blank'
+              >
+                Discord
+              </Button>
+            )}
             {announcement.feedbackFormUrl && (
               <Button key='feedback' type='primary'>
                 <a

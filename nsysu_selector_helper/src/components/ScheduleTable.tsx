@@ -1,9 +1,23 @@
 import React, { ReactNode, useEffect, useState, useRef } from 'react';
-import { Card, Table, Typography, Tag, Switch, Flex, Button } from 'antd';
+import {
+  Card,
+  Table,
+  Typography,
+  Tag,
+  Switch,
+  Flex,
+  Button,
+  message,
+} from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
-import { CheckOutlined, PlusOutlined, CloseOutlined } from '@ant-design/icons';
+import {
+  CheckOutlined,
+  PlusOutlined,
+  CloseOutlined,
+  DownloadOutlined,
+} from '@ant-design/icons';
 
 import type { Course } from '@/types';
 import { timeSlot } from '@/constants';
@@ -27,7 +41,8 @@ import {
   toggleDayTimeSlots,
   clearAllTimeSlotFilters,
 } from '@/store';
-import { GetProbability } from '@/utils';
+import { GetProbability, getLocalizedCourseName } from '@/utils';
+import { downloadScheduleImage } from '@/services';
 import MobileCourseDetailsModal from '#/ScheduleTable/MobileCourseDetailsModal';
 
 // Department color mapping - using Ant Design official colors
@@ -62,6 +77,8 @@ const { Text } = Typography;
 
 const StyledCard = styled(Card)<{ $isDark: boolean }>`
   height: 100%;
+  display: flex;
+  flex-direction: column;
   border-radius: 8px;
   box-shadow: 0 2px 8px
     ${(props) => (props.$isDark ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.06)')};
@@ -71,11 +88,16 @@ const StyledCard = styled(Card)<{ $isDark: boolean }>`
     padding: 0;
     border-bottom: none;
     min-height: auto;
+    flex-shrink: 0;
   }
 
   .ant-card-body {
     padding: 0;
-    overflow: auto;
+    overflow: hidden;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
   }
 
   &:hover {
@@ -88,6 +110,19 @@ const StyledCard = styled(Card)<{ $isDark: boolean }>`
 
 // Fix StyledTable to preserve generic type parameter
 const StyledTable = styled(Table<ScheduleTableRow>)<{ $isDark: boolean }>`
+  .ant-table {
+    width: 100%;
+    border-radius: 0 0 6px 6px;
+  }
+
+  .ant-table-container {
+    border-left: 1px solid ${(props) => (props.$isDark ? '#434343' : '#f0f0f0')};
+    border-right: 1px solid
+      ${(props) => (props.$isDark ? '#434343' : '#f0f0f0')};
+    border-bottom: 1px solid
+      ${(props) => (props.$isDark ? '#434343' : '#f0f0f0')};
+  }
+
   .ant-table-thead > tr > th {
     text-align: center;
     background: ${(props) => (props.$isDark ? '#1f1f1f' : '#f8f9fa')};
@@ -110,20 +145,6 @@ const StyledTable = styled(Table<ScheduleTableRow>)<{ $isDark: boolean }>`
     background: ${(props) => (props.$isDark ? '#262626' : '#fafafa')};
   }
 
-  .ant-table {
-    width: 100%;
-    border-radius: 0 0 6px 6px;
-    overflow: hidden;
-  }
-
-  .ant-table-container {
-    border-left: 1px solid ${(props) => (props.$isDark ? '#434343' : '#f0f0f0')};
-    border-right: 1px solid
-      ${(props) => (props.$isDark ? '#434343' : '#f0f0f0')};
-    border-bottom: 1px solid
-      ${(props) => (props.$isDark ? '#434343' : '#f0f0f0')};
-  }
-
   // 手機版樣式調整
   @media screen and (max-width: 768px) {
     .ant-table-thead > tr > th {
@@ -143,16 +164,42 @@ const StyledTable = styled(Table<ScheduleTableRow>)<{ $isDark: boolean }>`
   }
 `;
 
-const TableWrapper = styled.div`
+const TableWrapper = styled.div<{ $isDark: boolean }>`
   width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch; /* 為iOS添加慣性滾動 */
+  flex: 1;
+  min-height: 0;
+  overflow: auto; /* 同時處理 X 和 Y 滾動 */
+  -webkit-overflow-scrolling: touch;
+
+  /* 覆蓋 Ant Design 的 overflow 設定 */
+  .ant-table-wrapper,
+  .ant-table,
+  .ant-table-container,
+  .ant-table-content {
+    overflow: visible !important;
+  }
+
+  /* 表頭 sticky */
+  .ant-table-thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  /* 設定表頭背景色為不透明，並確保堆疊順序正確 */
+  .ant-table-thead > tr > th {
+    background: ${(props) =>
+      props.$isDark ? '#1f1f1f' : '#f8f9fa'} !important;
+    position: relative;
+    z-index: 10;
+  }
 `;
 
 const CourseTag = styled(Tag)<{
   $isHovered?: boolean;
   $isActive?: boolean;
   $isDark: boolean;
+  $isEnglish?: boolean;
 }>`
   width: 100%;
   margin: 1px 0;
@@ -191,9 +238,10 @@ const CourseTag = styled(Tag)<{
   }
 
   @media screen and (max-width: 768px) {
-    font-size: 9px;
+    font-size: ${(props) => (props.$isEnglish ? '7.5px' : '9px')};
     padding: 2px 4px;
     margin: 1px 0;
+    line-height: ${(props) => (props.$isEnglish ? '1.15' : '1.3')};
   }
 `;
 
@@ -410,7 +458,7 @@ interface ScheduleTableRow {
 }
 
 const ScheduleTable: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { width } = useWindowSize();
   const dispatch = useAppDispatch();
   const isDark = useAppSelector(selectIsDarkMode);
@@ -498,7 +546,10 @@ const ScheduleTable: React.FC = () => {
   const handleCourseClick = (course: Course, roomForThisSlot?: string) => {
     if (isMobile) {
       // 手機端：顯示 Modal
-      handleMobileCourseClick(course, roomForThisSlot || '未知');
+      handleMobileCourseClick(
+        course,
+        roomForThisSlot || t('scheduleTable.unknownRoom'),
+      );
     } else {
       // 桌面端：直接導航
       handleCourseNavigate(course.id);
@@ -508,7 +559,10 @@ const ScheduleTable: React.FC = () => {
   // 處理手機版長按課程標籤
   const handleCourseLongPress = (course: Course, roomForThisSlot?: string) => {
     if (isMobile) {
-      handleMobileCourseClick(course, roomForThisSlot || '未知');
+      handleMobileCourseClick(
+        course,
+        roomForThisSlot || t('scheduleTable.unknownRoom'),
+      );
     }
   };
 
@@ -523,13 +577,22 @@ const ScheduleTable: React.FC = () => {
     localStorage.getItem('NSYSUCourseSelector.showWeekends') === 'true' ||
       false,
   );
+  const [isExporting, setIsExporting] = useState(false);
 
   // 計算每個欄位的固定寬度 - 為手機優化
   const timeColumnWidth = isMobile ? 36 : 60;
   const dayColumnWidth = isMobile ? 45 : 80; // 減小每天欄位在手機上的寬度
 
   // 定義表格列
-  const weekdays = ['一', '二', '三', '四', '五', '六', '日'];
+  const weekdays = [
+    t('weekdays.mon'),
+    t('weekdays.tue'),
+    t('weekdays.wed'),
+    t('weekdays.thu'),
+    t('weekdays.fri'),
+    t('weekdays.sat'),
+    t('weekdays.sun'),
+  ];
 
   useEffect(() => {
     // 儲存週末顯示狀態到 localStorage
@@ -539,13 +602,37 @@ const ScheduleTable: React.FC = () => {
     );
   }, [showWeekends]);
 
+  // Handle export as image
+  const handleExportImage = async () => {
+    if (selectedCourses.length === 0) {
+      message.warning(t('scheduleExport.noCoursesToExport'));
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      await downloadScheduleImage(selectedCourses, {
+        isDark,
+        title: t('課程時間表'),
+        language: i18n.language,
+      });
+      message.success(t('scheduleExport.exportSuccess'));
+    } catch (error) {
+      console.error('Export failed:', error);
+      message.error(t('scheduleExport.exportFailed'));
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   // 解析課程教室信息
   const parseRoomInfo = (roomString: string) => {
     // 解析如 "一2,3,4(理PH 1008) 三2,3,4(理PH 1008) 五2,3,4(理PH 1008)" 的格式
     const roomMap: Record<number, Record<string, string>> = {};
 
-    // 星期對應表
-    const dayMap: Record<string, number> = weekdays.reduce(
+    // 星期對應表 - API 資料固定使用中文字，不隨語系改變
+    const WEEKDAY_CHARS = ['一', '二', '三', '四', '五', '六', '日'];
+    const dayMap: Record<string, number> = WEEKDAY_CHARS.reduce(
       (acc, day, index) => {
         acc[day] = index;
         return acc;
@@ -610,7 +697,8 @@ const ScheduleTable: React.FC = () => {
             const courseWithRoom = {
               ...course,
               labels: labelMap[course.id] || [],
-              roomForThisSlot: roomInfo[dayIndex]?.[slot] || '未知',
+              roomForThisSlot:
+                roomInfo[dayIndex]?.[slot] || t('scheduleTable.unknownRoom'),
             };
             scheduleMap[slot][dayIndex].push(courseWithRoom);
           }
@@ -656,6 +744,7 @@ const ScheduleTable: React.FC = () => {
                   }
                   $isHovered={isHovered}
                   $isDark={isDark}
+                  $isEnglish={i18n.language.toLowerCase().startsWith('en')}
                   onClick={(e) => {
                     if (isMobile) {
                       // 手機版：阻止事件冒泡，但不執行課程點擊
@@ -728,11 +817,22 @@ const ScheduleTable: React.FC = () => {
                     )}
                   />
                   <CourseTagContent>
-                    {!isMobile
-                      ? `${course.name.split('\n')[0]}\n(${course.roomForThisSlot || '未知'})`
-                      : course.name.length > 6
-                        ? `${course.name.substring(0, 6)}...`
-                        : course.name}
+                    {(() => {
+                      const localizedName = getLocalizedCourseName(
+                        course.name,
+                        i18n.language,
+                      );
+                      if (!isMobile) {
+                        return `${localizedName}\n(${course.roomForThisSlot || t('scheduleTable.unknownRoom')})`;
+                      }
+                      const isEnglish = i18n.language
+                        .toLowerCase()
+                        .startsWith('en');
+                      const maxLen = isEnglish ? 14 : 6;
+                      return localizedName.length > maxLen
+                        ? `${localizedName.substring(0, maxLen)}...`
+                        : localizedName;
+                    })()}
                     <ProbabilityText
                       $status={GetProbability.getProbabilityStatus(
                         course.remaining,
@@ -894,6 +994,23 @@ const ScheduleTable: React.FC = () => {
           <Text strong style={{ fontSize: isMobile ? '14px' : '16px' }}>
             {t('課程時間表')}
           </Text>
+          {/* 週末顯示開關 */}
+          <Flex align='center' gap={6}>
+            <Text
+              style={{
+                fontSize: isMobile ? '12px' : '14px',
+                color: '#666',
+              }}
+            >
+              {t('顯示週末')}
+            </Text>
+            <Switch
+              checked={showWeekends}
+              onChange={setShowWeekends}
+              size={isMobile ? 'small' : 'default'}
+            />
+          </Flex>
+          {/* 時段篩選標籤 */}
           {selectedTimeSlots.length > 0 && (
             <Tag
               color='blue'
@@ -913,22 +1030,19 @@ const ScheduleTable: React.FC = () => {
 
         {/* 右側 - 控制項 */}
         <Flex align='center' gap={8}>
-          {/* 週末顯示開關 */}
-          <Flex align='center' gap={6}>
-            <Text
-              style={{
-                fontSize: isMobile ? '12px' : '14px',
-                color: '#666',
-              }}
-            >
-              {t('顯示週末')}
-            </Text>
-            <Switch
-              checked={showWeekends}
-              onChange={setShowWeekends}
-              size={isMobile ? 'small' : 'default'}
-            />
-          </Flex>
+          {/* 匯出按鈕 */}
+          <Button
+            type='primary'
+            icon={<DownloadOutlined />}
+            size={isMobile ? 'small' : 'middle'}
+            loading={isExporting}
+            onClick={handleExportImage}
+            disabled={selectedCourses.length === 0}
+          >
+            {isExporting
+              ? t('scheduleExport.exporting')
+              : t('scheduleExport.exportAsImage')}
+          </Button>
         </Flex>
       </Flex>
     </CardHeader>
@@ -937,7 +1051,7 @@ const ScheduleTable: React.FC = () => {
   return (
     <>
       <StyledCard title={<TitleComponent />} $isDark={isDark}>
-        <TableWrapper>
+        <TableWrapper $isDark={isDark}>
           <StyledTable
             dataSource={dataSource}
             columns={columns}

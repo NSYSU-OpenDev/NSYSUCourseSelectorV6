@@ -3,6 +3,7 @@ import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
 import translationZHTW from '@/i18n/locales/zh-TW/translation.json';
+import translationEN from '@/i18n/locales/en/translation.json';
 
 export const resources = {
   'zh-TW': {
@@ -10,6 +11,9 @@ export const resources = {
   },
   zh: {
     translation: translationZHTW,
+  },
+  en: {
+    translation: translationEN,
   },
 };
 

@@ -19,6 +19,7 @@ import {
   useCourseSorting,
   useFilterPersistence,
   useSortPersistence,
+  useTranslation,
 } from '@/hooks';
 import {
   selectCourses,
@@ -35,6 +36,7 @@ import {
 } from '@/store';
 import CoursesList from '#/Common/CoursesList';
 import AdvancedFilterDrawer from '#/SelectorPanel/AllCourses/AdvancedFilterDrawer';
+import SimpleFilterDrawer from '#/SelectorPanel/AllCourses/SimpleFilterDrawer';
 import CreditsStatistics from '#/Common/CreditsStatistics';
 import CompactSortButton from '#/SelectorPanel/AllCourses/CompactSortButton';
 import CourseSortSelector from '#/SelectorPanel/AllCourses/CourseSortSelector';
@@ -56,6 +58,7 @@ const StyledCard = styled(Card)`
 const AllCourses: React.FC = () => {
   useFilterPersistence();
   useSortPersistence();
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const courses = useAppSelector(selectCourses);
   const displaySelectedOnly = useAppSelector(selectDisplaySelectedOnly);
@@ -116,7 +119,7 @@ const AllCourses: React.FC = () => {
       {/* 搜尋框和篩選按鈕 */}
       <Flex gap={8} style={{ marginBottom: 8 }}>
         <Input
-          placeholder='搜尋課程名稱、教師、課程代碼、系所...'
+          placeholder={t('allCourse.searchPlaceholder')}
           prefix={<SearchOutlined />}
           value={searchQuery}
           onChange={(e) => dispatch(setSearchQuery(e.target.value))}
@@ -134,7 +137,7 @@ const AllCourses: React.FC = () => {
             onClick={handleOpenAdvancedFilter}
             type={filterConditions.length > 0 ? 'primary' : 'default'}
           >
-            精確篩選
+            {t('allCourse.advancedFilter')}
           </Button>
         </Badge>
       </Flex>
@@ -147,7 +150,7 @@ const AllCourses: React.FC = () => {
         <Space size='small'>
           <Space size={4}>
             <Typography.Text style={{ fontSize: '12px' }}>
-              僅顯示已選：
+              {t('allCourse.showSelectedOnly')}
             </Typography.Text>
             <Switch
               checked={displaySelectedOnly}
@@ -157,7 +160,7 @@ const AllCourses: React.FC = () => {
           </Space>
           <Space size={4}>
             <Typography.Text style={{ fontSize: '12px' }}>
-              顯示衝突：
+              {t('allCourse.showConflicts')}
             </Typography.Text>
             <Switch
               checked={displayConflictCourses}
@@ -182,6 +185,7 @@ const AllCourses: React.FC = () => {
         />
       </StyledCard>
       <AdvancedFilterDrawer />
+      <SimpleFilterDrawer />
       <CourseSortSelector
         visible={sortSelectorVisible}
         onClose={handleCloseSortSelector}

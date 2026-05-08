@@ -1,7 +1,7 @@
 {
   "name": "nsysu_selector_helper",
   "private": true,
-  "version": "6.1.4-beta",
+  "version": "6.1.5",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -25,11 +25,11 @@
     "react-i18next": "^15.5.2",
     "react-markdown": "^10.1.0",
     "react-redux": "^9.2.0",
-    "react-syntax-highlighter": "^15.6.6",
+    "react-syntax-highlighter": "^16.1.0",
     "react-virtuoso": "^4.12.8",
     "remark-gfm": "^4.0.1",
     "styled-components": "^6.1.18",
-    "uuid": "^11.1.0"
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
@@ -55,6 +55,7 @@
     "ts-jest": "^29.3.4",
     "ts-node": "^10.9.2",
     "typescript": "5.8.3",
-    "vite": "^6.3.6"
-  }
+    "vite": "^6.4.2"
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

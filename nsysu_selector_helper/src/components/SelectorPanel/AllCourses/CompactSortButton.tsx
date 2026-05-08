@@ -9,6 +9,8 @@ import styled from 'styled-components';
 import { useAppSelector } from '@/store/hooks';
 import { selectSortConfig } from '@/store';
 import { DEFAULT_SORT_OPTIONS } from '@/constants';
+import { useTranslation } from '@/hooks';
+import { getSortOptionLabel } from '@/utils';
 
 const SortButton = styled(Button)`
   height: 28px;
@@ -26,12 +28,13 @@ interface CompactSortButtonProps {
 }
 
 const CompactSortButton: React.FC<CompactSortButtonProps> = ({ onClick }) => {
+  const { t } = useTranslation();
   const sortConfig = useAppSelector(selectSortConfig);
 
   // 獲取第一個排序規則作為主要顯示
   const primaryRule = sortConfig.rules?.[0];
   const currentOption = DEFAULT_SORT_OPTIONS.find(
-    (opt: { key: string }) => opt.key === primaryRule?.option,
+    (opt) => opt.key === primaryRule?.option,
   );
 
   const isDefaultSort = primaryRule?.option === 'default';
@@ -44,10 +47,11 @@ const CompactSortButton: React.FC<CompactSortButtonProps> = ({ onClick }) => {
 
   // 顯示排序規則數量（如果有多個）
   const ruleCount = sortConfig.rules?.length || 0;
+  const primaryLabel = currentOption
+    ? getSortOptionLabel(currentOption.key, t)
+    : t('sort.defaultLabel');
   const displayText =
-    ruleCount > 1
-      ? `${currentOption?.label || '預設'} (+${ruleCount - 1})`
-      : currentOption?.label || '預設';
+    ruleCount > 1 ? `${primaryLabel} (+${ruleCount - 1})` : primaryLabel;
 
   return (
     <SortButton

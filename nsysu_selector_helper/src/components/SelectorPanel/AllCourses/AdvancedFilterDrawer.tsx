@@ -16,6 +16,7 @@ import {
   Card,
   Popconfirm,
   Tooltip,
+  Switch,
 } from 'antd';
 import {
   PlusOutlined,
@@ -33,6 +34,7 @@ import {
   selectFilterConditions,
   selectCourses,
   selectLabels,
+  selectSimpleFilterMode,
 } from '@/store/selectors';
 import {
   setAdvancedFilterDrawerOpen,
@@ -40,6 +42,7 @@ import {
   removeFilterCondition,
   updateFilterCondition,
   clearAllFilterConditions,
+  setSimpleFilterMode,
 } from '@/store/slices/uiSlice';
 import {
   AdvancedFilterService,
@@ -47,7 +50,8 @@ import {
 } from '@/services/advancedFilterService';
 import type { FilterCondition } from '@/store/slices/uiSlice';
 import { QUICK_FILTER } from '@/constants';
-import { useCustomQuickFilters } from '@/hooks';
+import { useCustomQuickFilters, useTranslation } from '@/hooks';
+import type { TranslationKey } from '@/types';
 import CustomQuickFilters from './CustomQuickFilters';
 import CustomFilterModal from './CustomFilterModal';
 
@@ -88,16 +92,23 @@ interface FilterConditionItemProps {
   onRemove: (index: number) => void;
 }
 
+type TFn = (key: TranslationKey, options?: Record<string, unknown>) => string;
+
 // 生成篩選條件的顯示文字
 const getConditionDisplayText = (
   condition: FilterCondition,
   fieldOptions: FieldOptions[],
+  t: TFn,
 ): string => {
   const fieldOption = fieldOptions.find((f) => f.field === condition.field);
   const fieldLabel = fieldOption?.label || condition.field;
-  const typeLabel = condition.type === 'include' ? '包含' : '排除';
+  const typeLabel =
+    condition.type === 'include'
+      ? t('simpleFilter.include')
+      : t('simpleFilter.exclude');
+  const notSet = t('advancedFilter.notSet');
 
-  let valueText = '(未設定)';
+  let valueText = notSet;
   if (condition.value) {
     if (Array.isArray(condition.value)) {
       if (condition.value.length > 0) {
@@ -110,16 +121,16 @@ const getConditionDisplayText = (
         valueText =
           displayValues.length === 1
             ? displayValues[0]
-            : `${displayValues[0]} 等${displayValues.length}項`;
+            : `${displayValues[0]} ${t('advancedFilter.andMore', { count: displayValues.length })}`;
       } else {
-        valueText = '(未設定)';
+        valueText = notSet;
       }
     } else {
       // 單一值的情況
       const option = fieldOption?.options.find(
         (opt) => opt.value === condition.value,
       );
-      valueText = option?.label || condition.value || '(未設定)';
+      valueText = option?.label || condition.value || notSet;
     }
   }
 
@@ -133,6 +144,7 @@ const FilterConditionItem: React.FC<FilterConditionItemProps> = ({
   onUpdate,
   onRemove,
 }) => {
+  const { t } = useTranslation();
   const currentFieldOption = fieldOptions.find(
     (f) => f.field === condition.field,
   );
@@ -148,7 +160,7 @@ const FilterConditionItem: React.FC<FilterConditionItemProps> = ({
     onUpdate(index, { ...condition, value });
   };
 
-  const displayText = getConditionDisplayText(condition, fieldOptions);
+  const displayText = getConditionDisplayText(condition, fieldOptions, t);
 
   return (
     <StyledCollapse
@@ -191,13 +203,13 @@ const FilterConditionItem: React.FC<FilterConditionItemProps> = ({
                         display: 'block',
                       }}
                     >
-                      篩選欄位：
+                      {t('advancedFilter.fieldLabel')}
                     </Text>
                     <Select
                       style={{ width: '100%' }}
                       value={condition.field}
                       onChange={handleFieldChange}
-                      placeholder='選擇篩選欄位'
+                      placeholder={t('advancedFilter.fieldPlaceholder')}
                       showSearch
                       optionFilterProp='label'
                       options={fieldOptions.map((field) => ({
@@ -216,15 +228,19 @@ const FilterConditionItem: React.FC<FilterConditionItemProps> = ({
                         display: 'block',
                       }}
                     >
-                      篩選類型：
+                      {t('advancedFilter.typeLabel')}
                     </Text>
                     <Radio.Group
                       value={condition.type}
                       onChange={(e) => handleTypeChange(e.target.value)}
                       size='small'
                     >
-                      <Radio.Button value='include'>包含</Radio.Button>
-                      <Radio.Button value='exclude'>排除</Radio.Button>
+                      <Radio.Button value='include'>
+                        {t('simpleFilter.include')}
+                      </Radio.Button>
+                      <Radio.Button value='exclude'>
+                        {t('simpleFilter.exclude')}
+                      </Radio.Button>
                     </Radio.Group>
                   </div>
                   {/* 篩選值輸入 */}
@@ -236,13 +252,15 @@ const FilterConditionItem: React.FC<FilterConditionItemProps> = ({
                         display: 'block',
                       }}
                     >
-                      篩選值：
+                      {t('advancedFilter.valueLabel')}
                     </Text>
                     {currentFieldOption?.searchable &&
                     currentFieldOption.options.length === 0 ? (
                       // 純文本輸入字段
                       <Input
-                        placeholder={`輸入${currentFieldOption.label}...`}
+                        placeholder={t('advancedFilter.inputPlaceholder', {
+                          label: currentFieldOption.label,
+                        })}
                         value={
                           typeof condition.value === 'string'
                             ? condition.value
@@ -264,13 +282,17 @@ const FilterConditionItem: React.FC<FilterConditionItemProps> = ({
                               : []
                         }
                         onChange={(values) => handleValueChange(values)}
-                        placeholder={`選擇${currentFieldOption?.label || '篩選值'}...`}
+                        placeholder={t('advancedFilter.selectPlaceholder', {
+                          label:
+                            currentFieldOption?.label ||
+                            t('advancedFilter.fallbackValueLabel'),
+                        })}
                         showSearch
                         allowClear
                         notFoundContent={
                           <Empty
                             image={Empty.PRESENTED_IMAGE_SIMPLE}
-                            description='無匹配選項'
+                            description={t('simpleFilter.noMatch')}
                           />
                         }
                         maxTagCount={2}
@@ -304,11 +326,13 @@ const FilterConditionItem: React.FC<FilterConditionItemProps> = ({
 };
 
 const AdvancedFilterDrawer: React.FC = () => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const open = useAppSelector(selectAdvancedFilterDrawerOpen);
   const filterConditions = useAppSelector(selectFilterConditions);
   const courses = useAppSelector(selectCourses);
   const labels = useAppSelector(selectLabels);
+  const simpleFilterMode = useAppSelector(selectSimpleFilterMode);
 
   // 使用自定義快速篩選器 hook
   useCustomQuickFilters();
@@ -341,7 +365,7 @@ const AdvancedFilterDrawer: React.FC = () => {
     dispatch(clearAllFilterConditions());
   };
 
-  const handleQuickFilter = (filter: FilterCondition & { label: string }) => {
+  const handleQuickFilter = (filter: FilterCondition) => {
     // 檢查是否已經存在完全一樣的篩選條件
     const existingIndex = filterConditions.findIndex(
       (condition) =>
@@ -364,12 +388,19 @@ const AdvancedFilterDrawer: React.FC = () => {
     }
   };
 
+  const handleSwitchToSimple = () => {
+    dispatch(setSimpleFilterMode(true));
+  };
+
+  // 在簡易模式下不渲染進階 Drawer
+  if (simpleFilterMode) return null;
+
   return (
     <StyledDrawer
       title={
         <Space>
           <FilterOutlined />
-          <span>課程精確篩選</span>
+          <span>{t('advancedFilter.title')}</span>
         </Space>
       }
       placement='left'
@@ -379,11 +410,21 @@ const AdvancedFilterDrawer: React.FC = () => {
       onClose={handleClose}
       extra={
         <Space>
+          <Space size={4}>
+            <Typography.Text style={{ fontSize: '12px' }}>
+              {t('simpleFilter.simpleMode')}
+            </Typography.Text>
+            <Switch
+              size='small'
+              checked={false}
+              onChange={handleSwitchToSimple}
+            />
+          </Space>
           <Popconfirm
-            title='清除所有篩選條件'
+            title={t('simpleFilter.clearAll')}
             onConfirm={handleClearAll}
-            okText={'清除'}
-            cancelText='取消'
+            okText={t('simpleFilter.clear')}
+            cancelText={t('simpleFilter.cancel')}
           >
             <Button
               type='text'
@@ -407,8 +448,8 @@ const AdvancedFilterDrawer: React.FC = () => {
           title={
             <Space>
               <ThunderboltOutlined />
-              <span>系統快速篩選</span>
-              <Tooltip title='"年級一" 會包含所有學士一年級、碩士一年級和博士一年級的課程，其它年級同理。'>
+              <span>{t('advancedFilter.quickFiltersTitle')}</span>
+              <Tooltip title={t('advancedFilter.gradeHint')}>
                 <InfoOutlined />
               </Tooltip>
             </Space>
@@ -416,12 +457,11 @@ const AdvancedFilterDrawer: React.FC = () => {
         >
           <Space size={[4, 4]} wrap>
             {QUICK_FILTER.map((filter, index) => {
-              // 【新增這段】判斷當前這個按鈕的篩選條件，是否已經在清單中了
+              // 判斷當前這個按鈕的篩選條件，是否已經在清單中了
               const isActive = filterConditions.some(
                 (condition) =>
                   condition.field === filter.field &&
                   condition.type === filter.type &&
-                  // 比對數組內容是否完全一樣
                   JSON.stringify(condition.value) ===
                     JSON.stringify(filter.value),
               );
@@ -430,13 +470,10 @@ const AdvancedFilterDrawer: React.FC = () => {
                 <Button
                   key={index}
                   size='small'
-                  // 當 isActive 為 true 時，按鈕變藍色 (primary)，否則為預設白色 (default)
                   type={isActive ? 'primary' : 'default'}
-                  // 觸發我們剛才改好的「開關邏輯」
                   onClick={() => handleQuickFilter(filter)}
-                  // 【重要】一定要把原本的 disabled={...} 刪掉，按鈕才點得下去！
                 >
-                  {filter.label}
+                  {t(filter.labelKey)}
                 </Button>
               );
             })}
@@ -450,14 +487,14 @@ const AdvancedFilterDrawer: React.FC = () => {
           block
           disabled={fieldOptions.length === 0}
         >
-          新增篩選條件
+          {t('advancedFilter.addCondition')}
         </Button>
         <Divider style={{ margin: '12px 0' }} />
         {/* 篩選條件列表 */}
         {filterConditions.length > 0 ? (
           <div>
             <Title level={5} style={{ margin: '0 0 12px 0' }}>
-              篩選條件列表
+              {t('advancedFilter.conditionsList')}
             </Title>
             {filterConditions.map((condition, index) => (
               <FilterConditionItem
@@ -473,7 +510,7 @@ const AdvancedFilterDrawer: React.FC = () => {
         ) : (
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description='尚未設定篩選條件'
+            description={t('advancedFilter.emptyState')}
           />
         )}
       </Space>

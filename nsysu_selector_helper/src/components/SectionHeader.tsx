@@ -116,7 +116,7 @@ const SectionHeader: FC<HeaderProps> = ({
     },
     {
       key: 'departmentCourses',
-      label: '系所課程',
+      label: t('departmentCourses'),
       icon: <ApartmentOutlined />,
     },
     {
@@ -136,10 +136,10 @@ const SectionHeader: FC<HeaderProps> = ({
     },
   ];
 
-  const semesterCodeMap = {
-    1: '上',
-    2: '下',
-    3: '暑',
+  const semesterCodeMap: Record<number, string> = {
+    1: t('semester.fall'),
+    2: t('semester.spring'),
+    3: t('semester.summer'),
   };
 
   const semesterOptions: SelectProps['options'] = Object.keys(

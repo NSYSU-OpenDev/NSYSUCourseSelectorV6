@@ -19,13 +19,17 @@ export class AnnouncementService {
   }
   /**
    * 從 JSON 檔案載入公告配置
-   * @param jsonPath JSON 檔案路徑
+   * @param language 語言代碼 (預設: 'zh-TW')
    * @returns Promise<AnnouncementConfig>
    */
   static async loadAnnouncementsFromJson(
-    jsonPath: string = '/announcements.json',
+    language: string = 'zh-TW',
   ): Promise<AnnouncementConfig> {
     try {
+      // 根據語言選擇對應的公告檔案
+      const jsonPath =
+        language === 'en' ? '/announcements_en.json' : '/announcements.json';
+
       // 使用 getFullPath 來處理 base URL
       const fullPath = this.getFullPath(jsonPath);
       const response = await fetch(fullPath);
