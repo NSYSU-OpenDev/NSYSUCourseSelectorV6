@@ -23,8 +23,8 @@ import type { Course } from '@/types';
 import { timeSlot } from '@/constants';
 import { useWindowSize } from '@/hooks';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
-import { selectCourse } from '@/store/slices/coursesSlice';
 import {
+  selectCourse,
   selectSelectedCourses,
   selectHoveredCourseId,
   selectLabels,
