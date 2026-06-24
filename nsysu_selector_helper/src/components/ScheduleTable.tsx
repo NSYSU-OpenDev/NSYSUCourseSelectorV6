@@ -922,21 +922,20 @@ const ScheduleTable: React.FC = () => {
         return (
           <TimeSlotCell
             $isSelected={isSelected}
-            $hasContent={hasContent}
             onMouseDown={(e) => {
-              if (!isMobile) {
-                e.preventDefault(); // Prevent text selection while dragging
-                isDraggingRef.current = true;
-                dragActionRef.current = isSelected ? 'remove' : 'add';
-                if (isSelected) {
-                  dispatch(
-                    removeTimeSlotFilter({ day: index, timeSlot: timeSlotKey }),
-                  );
-                } else {
-                  dispatch(
-                    addTimeSlotFilter({ day: index, timeSlot: timeSlotKey }),
-                  );
-                }
+              if (isMobile || e.button !== 0) return;
+              if (e.target !== e.currentTarget) return;
+              e.preventDefault(); // Prevent text selection while dragging
+              isDraggingRef.current = true;
+              dragActionRef.current = isSelected ? 'remove' : 'add';
+              if (isSelected) {
+                dispatch(
+                  removeTimeSlotFilter({ day: index, timeSlot: timeSlotKey }),
+                );
+              } else {
+                dispatch(
+                  addTimeSlotFilter({ day: index, timeSlot: timeSlotKey }),
+                );
               }
             }}
             onMouseEnter={() => {
