@@ -1,6 +1,30 @@
 {
   "announcements": [
     {
+      "version": "v6.2.1",
+      "date": "2026-06-24",
+      "title": "課表互動與篩選操作再升級！",
+      "feedbackFormUrl": "https://forms.gle/gFBZDgkSbj85zukP6",
+      "dcForumUrl": "https://discord.gg/Md4x9frrHf",
+      "githubUrl": "https://github.com/NSYSU-OpenDev/NSYSUCourseSelectorV6/",
+      "contactEmail": "yochen0123@gmail.com",
+      "description": "這次更新聚焦在課表與篩選器的操作體驗，讓日常選課更直覺、更好用。",
+      "updates": [
+        "新增: 課表時間段可拖曳點選 / 取消選取",
+        "新增: 已選課程卡片上的移除按鈕",
+        "優化: 快速篩選按鈕可直接切換啟用 / 停用",
+        "優化: 課表與篩選互動體驗"
+      ],
+      "features": [
+        "拖曳操作時間段篩選",
+        "課程卡片快速移除",
+        "快速篩選按鈕狀態清楚可辨識"
+      ],
+      "knownIssues": ["如果有任何問題請回報給我們"],
+      "termsOfUse": "當您使用本網站時，即表示您同意 [使用條款](https://github.com/NSYSU-OpenDev/NSYSUSelectorHelper/blob/main/term_of_use.md)",
+      "copyright": ["版權所有 © 2026 中山開源社群，保留一切權利。"]
+    },
+    {
       "version": "v6.2.0",
       "date": "2026-02-12",
       "title": "簡易篩選模式正式上線！",

@@ -1,6 +1,32 @@
 {
   "announcements": [
     {
+      "version": "v6.2.1",
+      "date": "2026-06-24",
+      "title": "Schedule and filter interactions improved!",
+      "feedbackFormUrl": "https://forms.gle/gFBZDgkSbj85zukP6",
+      "dcForumUrl": "https://discord.gg/Md4x9frrHf",
+      "githubUrl": "https://github.com/NSYSU-OpenDev/NSYSUCourseSelectorV6/",
+      "contactEmail": "yochen0123@gmail.com",
+      "description": "This update focuses on schedule and filter interactions to make day-to-day course selection more intuitive and convenient.",
+      "updates": [
+        "New: Drag to select or clear schedule time slots",
+        "New: Remove button on selected course cards",
+        "Improvement: Quick filter buttons now toggle on/off directly",
+        "Improvement: Better schedule and filter interaction experience"
+      ],
+      "features": [
+        "Drag-based time slot filtering",
+        "Quick removal for selected course cards",
+        "Clearly visible quick filter states"
+      ],
+      "knownIssues": ["Please report any issues to us"],
+      "termsOfUse": "By using this website, you agree to the [Terms of Use](https://github.com/NSYSU-OpenDev/NSYSUSelectorHelper/blob/main/term_of_use.md)",
+      "copyright": [
+        "Copyright © 2026 NSYSU Open Development Community. All rights reserved."
+      ]
+    },
+    {
       "version": "v6.2.0",
       "date": "2026-02-12",
       "title": "Simple Filter Mode is Live!",

@@ -366,12 +366,26 @@ const AdvancedFilterDrawer: React.FC = () => {
   };
 
   const handleQuickFilter = (filter: FilterCondition) => {
-    const newCondition: FilterCondition = {
-      field: filter.field,
-      type: filter.type,
-      value: filter.value,
-    };
-    dispatch(addFilterCondition(newCondition));
+    // 檢查是否已經存在完全一樣的篩選條件
+    const existingIndex = filterConditions.findIndex(
+      (condition) =>
+        condition.field === filter.field &&
+        condition.type === filter.type &&
+        JSON.stringify(condition.value) === JSON.stringify(filter.value),
+    );
+
+    if (existingIndex !== -1) {
+      // 如果已經有了，就移除它（實現反選）
+      dispatch(removeFilterCondition(existingIndex));
+    } else {
+      // 如果沒有，才新增
+      const newCondition: FilterCondition = {
+        field: filter.field,
+        type: filter.type,
+        value: filter.value,
+      };
+      dispatch(addFilterCondition(newCondition));
+    }
   };
 
   const handleSwitchToSimple = () => {
@@ -442,21 +456,27 @@ const AdvancedFilterDrawer: React.FC = () => {
           }
         >
           <Space size={[4, 4]} wrap>
-            {QUICK_FILTER.map((filter, index) => (
-              <Button
-                key={index}
-                size='small'
-                onClick={() => handleQuickFilter(filter)}
-                disabled={filterConditions.some(
-                  (condition) =>
-                    condition.field === filter.field &&
-                    Array.isArray(condition.value) &&
-                    condition.value.every((val) => filter.value.includes(val)),
-                )}
-              >
-                {t(filter.labelKey)}
-              </Button>
-            ))}
+            {QUICK_FILTER.map((filter, index) => {
+              // 判斷當前這個按鈕的篩選條件，是否已經在清單中了
+              const isActive = filterConditions.some(
+                (condition) =>
+                  condition.field === filter.field &&
+                  condition.type === filter.type &&
+                  JSON.stringify(condition.value) ===
+                    JSON.stringify(filter.value),
+              );
+
+              return (
+                <Button
+                  key={index}
+                  size='small'
+                  type={isActive ? 'primary' : 'default'}
+                  onClick={() => handleQuickFilter(filter)}
+                >
+                  {t(filter.labelKey)}
+                </Button>
+              );
+            })}
           </Space>
         </Card>
         {/* 新增篩選條件按鈕 */}

@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState, useRef } from 'react';
 import {
   Card,
   Table,
@@ -7,6 +7,7 @@ import {
   Switch,
   Flex,
   Button,
+  notification,
   message,
 } from 'antd';
 import { ColumnsType } from 'antd/es/table';
@@ -15,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import {
   CheckOutlined,
   PlusOutlined,
+  CloseOutlined,
   DownloadOutlined,
 } from '@ant-design/icons';
 
@@ -23,6 +25,7 @@ import { timeSlot } from '@/constants';
 import { useWindowSize } from '@/hooks';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import {
+  selectCourse,
   selectSelectedCourses,
   selectHoveredCourseId,
   selectLabels,
@@ -34,6 +37,8 @@ import {
   setSelectedTabKey,
   setActiveCollapseKey,
   toggleTimeSlotFilter,
+  addTimeSlotFilter,
+  removeTimeSlotFilter,
   toggleDayTimeSlots,
   clearAllTimeSlotFilters,
 } from '@/store';
@@ -219,7 +224,7 @@ const CourseTag = styled(Tag)<{
         : '0 1px 2px rgba(0, 0, 0, 0.1)'};
   transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 
   // 只在非觸摸設備上啟用 hover 效果
   @media (hover: hover) {
@@ -264,6 +269,45 @@ const ProbabilityIndicator = styled.div<{
 const CourseTagContent = styled.div`
   position: relative;
   z-index: 2;
+`;
+
+const DeleteButton = styled.button`
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 16px;
+  height: 16px;
+  background: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  cursor: pointer;
+  z-index: 10;
+  opacity: 0; /* 平常隱藏 */
+  transition: all 0.2s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+
+  // 當滑鼠移入課程方塊時才顯示
+  ${CourseTag}:hover & {
+    opacity: 1;
+  }
+
+  &:hover {
+    transform: scale(1.2);
+    background: #ff7875;
+  }
+
+  @media screen and (max-width: 768px) {
+    opacity: 1; // 手機版直接顯示，因為沒有 hover
+    width: 14px;
+    height: 14px;
+    font-size: 8px;
+  }
 `;
 
 const ProbabilityText = styled.div<{
@@ -441,7 +485,20 @@ const ScheduleTable: React.FC = () => {
       (slot) => slot.day === day && slot.timeSlot === timeSlot,
     );
   };
+  // Drag selection state
+  const isDraggingRef = useRef(false);
+  const dragActionRef = useRef<'add' | 'remove' | null>(null);
 
+  useEffect(() => {
+    const handleMouseUp = () => {
+      isDraggingRef.current = false;
+      dragActionRef.current = null;
+    };
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
   // 處理時間段點擊
   const handleTimeSlotClick = (day: number, timeSlot: string) => {
     dispatch(toggleTimeSlotFilter({ day, timeSlot }));
@@ -492,7 +549,10 @@ const ScheduleTable: React.FC = () => {
   const handleCourseClick = (course: Course, roomForThisSlot?: string) => {
     if (isMobile) {
       // 手機端：顯示 Modal
-      handleMobileCourseClick(course, roomForThisSlot || t('scheduleTable.unknownRoom'));
+      handleMobileCourseClick(
+        course,
+        roomForThisSlot || t('scheduleTable.unknownRoom'),
+      );
     } else {
       // 桌面端：直接導航
       handleCourseNavigate(course.id);
@@ -502,7 +562,10 @@ const ScheduleTable: React.FC = () => {
   // 處理手機版長按課程標籤
   const handleCourseLongPress = (course: Course, roomForThisSlot?: string) => {
     if (isMobile) {
-      handleMobileCourseClick(course, roomForThisSlot || t('scheduleTable.unknownRoom'));
+      handleMobileCourseClick(
+        course,
+        roomForThisSlot || t('scheduleTable.unknownRoom'),
+      );
     }
   };
 
@@ -738,6 +801,50 @@ const ScheduleTable: React.FC = () => {
                     dispatch(setHoveredCourseId(''));
                   }}
                 >
+                  {!isMobile && (
+                    <DeleteButton
+                      type='button'
+                      aria-label={t('scheduleTable.mobileDetails.removeCourse')}
+                      onMouseDown={(e) => e.stopPropagation()}
+                      onTouchEnd={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const courseName = getLocalizedCourseName(
+                          course.name,
+                          i18n.language,
+                        );
+                        const notificationKey = `remove-course-${course.id}`;
+                        dispatch(selectCourse({ course, isSelected: false }));
+                        notification.open({
+                          key: notificationKey,
+                          message: t(
+                            'scheduleTable.mobileDetails.removedCourse',
+                            {
+                              courseName,
+                            },
+                          ),
+                          btn: (
+                            <Button
+                              type='link'
+                              size='small'
+                              onClick={() => {
+                                dispatch(
+                                  selectCourse({ course, isSelected: true }),
+                                );
+                                notification.destroy(notificationKey);
+                              }}
+                            >
+                              {t('scheduleTable.mobileDetails.undo')}
+                            </Button>
+                          ),
+                          placement: 'bottomRight',
+                        });
+                      }}
+                    >
+                      <CloseOutlined />
+                    </DeleteButton>
+                  )}
+
                   <ProbabilityIndicator
                     $probability={GetProbability.getSuccessProbability(
                       course.select,
@@ -842,16 +949,37 @@ const ScheduleTable: React.FC = () => {
       render: (content: ReactNode, record: ScheduleTableRow) => {
         const timeSlotKey = record.key;
         const isSelected = isTimeSlotSelected(index, timeSlotKey);
-        const hasContent = content !== null;
 
         return (
           <TimeSlotCell
             $isSelected={isSelected}
-            $hasContent={hasContent}
-            onClick={() => {
-              if (!isMobile) {
-                handleTimeSlotClick(index, timeSlotKey);
+            onMouseDown={(e) => {
+              if (isMobile || e.button !== 0) return;
+              if (e.target !== e.currentTarget) return;
+              e.preventDefault(); // Prevent text selection while dragging
+              isDraggingRef.current = true;
+              dragActionRef.current = isSelected ? 'remove' : 'add';
+              if (isSelected) {
+                dispatch(
+                  removeTimeSlotFilter({ day: index, timeSlot: timeSlotKey }),
+                );
+              } else {
+                dispatch(
+                  addTimeSlotFilter({ day: index, timeSlot: timeSlotKey }),
+                );
               }
+            }}
+            onMouseEnter={() => {
+              if (isMobile || !isDraggingRef.current || !dragActionRef.current)
+                return;
+              const action = dragActionRef.current;
+              if (action === 'add' && isSelected) return;
+              if (action === 'remove' && !isSelected) return;
+              dispatch(
+                action === 'add'
+                  ? addTimeSlotFilter({ day: index, timeSlot: timeSlotKey })
+                  : removeTimeSlotFilter({ day: index, timeSlot: timeSlotKey }),
+              );
             }}
             onTouchStart={(e) => {
               if (isMobile) {
