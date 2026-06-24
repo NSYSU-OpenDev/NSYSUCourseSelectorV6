@@ -1,5 +1,5 @@
 {
-  "version": "v6.1.3 beta",
+  "version": "v6.2.1",
   "feedbackFormUrl": "https://forms.gle/gFBZDgkSbj85zukP6",
   "githubUrl": "https://github.com/CelleryLin/selector_helper_react",
   "loading": "Loading...",
@@ -40,6 +40,9 @@
     "mobileDetails": {
       "title": "Course Details",
       "close": "Close",
+      "removeCourse": "Remove Course",
+      "removedCourse": "Removed \"{{courseName}}\"",
+      "undo": "Undo",
       "viewCourse": "View Course",
       "name": "Course Name",
       "teacher": "Teacher",

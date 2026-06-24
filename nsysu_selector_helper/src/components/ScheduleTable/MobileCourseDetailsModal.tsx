@@ -1,8 +1,9 @@
 import React from 'react';
-import { Button, Modal } from 'antd';
-import { EyeOutlined } from '@ant-design/icons';
+import { Button, Modal, notification } from 'antd';
+import { EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 
 import {
+  selectCourse,
   setActiveCollapseKey,
   setScrollToCourseId,
   setSelectedTabKey,
@@ -42,6 +43,41 @@ const MobileCourseDetailsModal: React.FC<MobileCourseDetailsModalProps> = ({
     }
   };
 
+  const handleRemoveCourse = () => {
+    if (!selectedCourse) return;
+
+    const courseName = getLocalizedCourseName(
+      selectedCourse.name,
+      i18n.language,
+    );
+    const notificationKey = `remove-course-${selectedCourse.id}`;
+
+    dispatch(selectCourse({ course: selectedCourse, isSelected: false }));
+    setModalVisible(false);
+
+    notification.open({
+      key: notificationKey,
+      message: t('scheduleTable.mobileDetails.removedCourse', {
+        courseName,
+      }),
+      btn: (
+        <Button
+          type='link'
+          size='small'
+          onClick={() => {
+            dispatch(
+              selectCourse({ course: selectedCourse, isSelected: true }),
+            );
+            notification.destroy(notificationKey);
+          }}
+        >
+          {t('scheduleTable.mobileDetails.undo')}
+        </Button>
+      ),
+      placement: 'bottomRight',
+    });
+  };
+
   return (
     <Modal
       title={t('scheduleTable.mobileDetails.title')}
@@ -50,6 +86,15 @@ const MobileCourseDetailsModal: React.FC<MobileCourseDetailsModalProps> = ({
       footer={[
         <Button key='cancel' onClick={() => setModalVisible(false)}>
           {t('scheduleTable.mobileDetails.close')}
+        </Button>,
+        <Button
+          key='remove'
+          danger
+          icon={<DeleteOutlined />}
+          disabled={!selectedCourse}
+          onClick={handleRemoveCourse}
+        >
+          {t('scheduleTable.mobileDetails.removeCourse')}
         </Button>,
         <Button
           key='navigate'
@@ -87,8 +132,7 @@ const MobileCourseDetailsModal: React.FC<MobileCourseDetailsModalProps> = ({
           </div>
           <div style={{ marginBottom: '12px' }}>
             <strong>{t('scheduleTable.mobileDetails.room')}：</strong>
-            {selectedCourse.roomForThisSlot ||
-              t('scheduleTable.unknownRoom')}
+            {selectedCourse.roomForThisSlot || t('scheduleTable.unknownRoom')}
           </div>
           <div style={{ marginBottom: '12px' }}>
             <strong>{t('scheduleTable.mobileDetails.department')}：</strong>

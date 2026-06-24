@@ -7,6 +7,7 @@ import {
   Switch,
   Flex,
   Button,
+  notification,
   message,
 } from 'antd';
 import { ColumnsType } from 'antd/es/table';
@@ -272,8 +273,8 @@ const CourseTagContent = styled.div`
 
 const DeleteButton = styled.button`
   position: absolute;
-  top: -2px;
-  right: -2px;
+  top: -6px;
+  right: -6px;
   width: 16px;
   height: 16px;
   background: #ff4d4f;
@@ -800,18 +801,49 @@ const ScheduleTable: React.FC = () => {
                     dispatch(setHoveredCourseId(''));
                   }}
                 >
-                  <DeleteButton
-                    type='button'
-                    aria-label='移除課程'
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onTouchEnd={(e) => e.stopPropagation()}
-                    onClick={(e) => {
-                      e.stopPropagation(); // 【關鍵】防止點擊刪除時觸發導航或 Modal
-                      dispatch(selectCourse({ course, isSelected: false }));
-                    }}
-                  >
-                    <CloseOutlined />
-                  </DeleteButton>
+                  {!isMobile && (
+                    <DeleteButton
+                      type='button'
+                      aria-label={t('scheduleTable.mobileDetails.removeCourse')}
+                      onMouseDown={(e) => e.stopPropagation()}
+                      onTouchEnd={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const courseName = getLocalizedCourseName(
+                          course.name,
+                          i18n.language,
+                        );
+                        const notificationKey = `remove-course-${course.id}`;
+                        dispatch(selectCourse({ course, isSelected: false }));
+                        notification.open({
+                          key: notificationKey,
+                          message: t(
+                            'scheduleTable.mobileDetails.removedCourse',
+                            {
+                              courseName,
+                            },
+                          ),
+                          btn: (
+                            <Button
+                              type='link'
+                              size='small'
+                              onClick={() => {
+                                dispatch(
+                                  selectCourse({ course, isSelected: true }),
+                                );
+                                notification.destroy(notificationKey);
+                              }}
+                            >
+                              {t('scheduleTable.mobileDetails.undo')}
+                            </Button>
+                          ),
+                          placement: 'bottomRight',
+                        });
+                      }}
+                    >
+                      <CloseOutlined />
+                    </DeleteButton>
+                  )}
 
                   <ProbabilityIndicator
                     $probability={GetProbability.getSuccessProbability(
