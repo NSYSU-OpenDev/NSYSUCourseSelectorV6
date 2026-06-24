@@ -940,17 +940,16 @@ const ScheduleTable: React.FC = () => {
               }
             }}
             onMouseEnter={() => {
-              if (!isMobile && isDraggingRef.current && dragActionRef.current) {
-                if (dragActionRef.current === 'remove') {
-                  dispatch(
-                    removeTimeSlotFilter({ day: index, timeSlot: timeSlotKey }),
-                  );
-                } else {
-                  dispatch(
-                    addTimeSlotFilter({ day: index, timeSlot: timeSlotKey }),
-                  );
-                }
-              }
+              if (isMobile || !isDraggingRef.current || !dragActionRef.current)
+                return;
+              const action = dragActionRef.current;
+              if (action === 'add' && isSelected) return;
+              if (action === 'remove' && !isSelected) return;
+              dispatch(
+                action === 'add'
+                  ? addTimeSlotFilter({ day: index, timeSlot: timeSlotKey })
+                  : removeTimeSlotFilter({ day: index, timeSlot: timeSlotKey }),
+              );
             }}
             onTouchStart={(e) => {
               if (isMobile) {
