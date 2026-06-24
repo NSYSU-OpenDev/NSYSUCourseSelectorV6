@@ -799,6 +799,10 @@ const ScheduleTable: React.FC = () => {
                   }}
                 >
                   <DeleteButton
+                    type='button'
+                    aria-label='移除課程'
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onTouchEnd={(e) => e.stopPropagation()}
                     onClick={(e) => {
                       e.stopPropagation(); // 【關鍵】防止點擊刪除時觸發導航或 Modal
                       dispatch(selectCourse({ course, isSelected: false }));
