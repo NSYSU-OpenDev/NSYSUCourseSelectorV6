@@ -917,7 +917,6 @@ const ScheduleTable: React.FC = () => {
       render: (content: ReactNode, record: ScheduleTableRow) => {
         const timeSlotKey = record.key;
         const isSelected = isTimeSlotSelected(index, timeSlotKey);
-        const hasContent = content !== null;
 
         return (
           <TimeSlotCell
