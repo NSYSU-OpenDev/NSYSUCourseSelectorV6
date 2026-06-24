@@ -336,7 +336,7 @@ const SimpleFilterDrawer: React.FC = () => {
         setFilterPeriods([]);
       }
     }
-  }, [open, simpleFilterMode]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open, simpleFilterMode, selectedTimeSlots]);
 
   // 從 filterDays + filterPeriods 計算出 selectedTimeSlots（cross product）
   const syncTimeFilterToRedux = useCallback(
