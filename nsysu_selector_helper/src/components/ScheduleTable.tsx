@@ -270,7 +270,7 @@ const CourseTagContent = styled.div`
   z-index: 2;
 `;
 
-const DeleteButton = styled.div`
+const DeleteButton = styled.button`
   position: absolute;
   top: -2px;
   right: -2px;
@@ -278,6 +278,8 @@ const DeleteButton = styled.div`
   height: 16px;
   background: #ff4d4f;
   color: white;
+  border: none;
+  padding: 0;
   border-radius: 50%;
   display: flex;
   align-items: center;
