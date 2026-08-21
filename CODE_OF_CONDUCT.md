@@ -36,7 +36,13 @@
 
 ## 檢舉與處理
 
-如遭遇辱罵、騷擾或其他不可接受的行為，請向專案維護者提出檢舉：**<!-- TODO: 請填入聯絡信箱或檢舉管道 -->**
+如遭遇辱罵、騷擾或其他不可接受的行為，請透過下列任一管道向專案維護者提出檢舉：
+
+- 在 [NSYSU-OpenDev/NSYSUCourseSelectorV6](https://github.com/NSYSU-OpenDev/NSYSUCourseSelectorV6) 使用 GitHub 的 **Report content** 功能（於留言或 Issue 右上角選單），直接向 GitHub 與專案維護者提出檢舉
+- 透過 GitHub 私訊 [NSYSU-OpenDev](https://github.com/NSYSU-OpenDev) 組織的擁有者
+- 若涉及安全性或隱私疑慮，請使用 GitHub 的 [Private vulnerability reporting](https://github.com/NSYSU-OpenDev/NSYSUCourseSelectorV6/security/advisories/new)
+
+為保護檢舉人隱私，請**不要**在公開的 Issue 或 Pull Request 中揭露事件細節。
 
 所有檢舉都會被迅速且公正地審視與調查。所有社群維護者均有義務尊重檢舉人的隱私與人身安全。
 
