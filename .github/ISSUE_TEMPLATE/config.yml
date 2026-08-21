@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 使用說明與專案介紹
+    url: https://github.com/NSYSU-OpenDev/NSYSUCourseSelectorV6#readme
+    about: 開 Issue 前，請先確認 README 是否已經回答了你的問題。
+  - name: 開發規範
+    url: https://github.com/NSYSU-OpenDev/NSYSUCourseSelectorV6/blob/main/CONTRIBUTING.md
+    about: 想參與開發？請先閱讀貢獻指南。
