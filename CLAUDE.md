@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development guide
 
-The day-to-day conventions for this repo live in @AGENTS.md — yarn only, always work inside `nsysu_selector_helper/`, Traditional Chinese code comments, `@`/`#` path aliases, `NSYSUCourseSelector.` localStorage prefix, and the i18n rules. Read those first; this file only adds the big-picture context and the commands not covered there.
+The day-to-day conventions for this repo live in @AGENTS.md — yarn only, always work inside `nsysu_selector_helper/`, Traditional Chinese code comments, `@`/`#` path aliases, `NSYSUCourseSelector.` localStorage prefix, and the i18n rules. Read those first — including its **Git Workflow** section, which governs when work needs a branch. This file only adds the big-picture context and the commands not covered there.
 
 ## Additional commands
 

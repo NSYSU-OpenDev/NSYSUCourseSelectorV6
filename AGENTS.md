@@ -38,6 +38,53 @@ nsysu_selector_helper/src/
 └── i18n/               # Internationalization
 ```
 
+## Git Workflow
+
+### Branch Policy
+
+| Change | Where |
+| --- | --- |
+| **Feature or bug fix** — anything under `nsysu_selector_helper/src/` | **Feature branch + pull request.** Never commit directly to `main`. |
+| Dependency bumps, build/CI config | Feature branch + pull request |
+| Docs only — `README.md`, `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md` | May be committed directly to `main` |
+
+CI (`.github/workflows/ci.yaml`) only runs on pull requests touching `nsysu_selector_helper/**`. Committing a feature or fix straight to `main` therefore skips the type check, tests and build entirely — and `main` auto-deploys to GitHub Pages, so a broken direct commit ships to users. That is the reason for the rule, not ceremony.
+
+### Branch Naming
+
+`<type>/<kebab-summary>`, reusing the same type vocabulary as commit subjects:
+
+```powershell
+git switch -c feat/course-review-panel
+git switch -c fix/drag-selection-trigger
+git switch -c i18n/filter-options
+git switch -c ui-ux/improve-button-interaction
+```
+
+### Commit Messages
+
+Conventional Commits **with a scope** — `<type>(<scope>): <description>`:
+
+```
+feat(schedule): add drag selection for time slots
+fix(filter): correct the time slot toggle condition
+i18n(sort-panel): translate sort rule labels
+perf(course-list): reduce per-row work on scroll
+docs(agents): document the branch policy
+build(deps): bump ws
+```
+
+- **Types**: `feat`, `fix`, `docs`, `i18n`, `perf`, `style`, `refactor`, `test`, `build`, `ci`
+- **Scopes**: the affected area — `schedule`, `selector`, `filter`, `sort`, `labels`, `export`, `theme`, `store`, `services`, `api`, `deps`, `ci`. Drop the scope only when a change genuinely spans the whole app.
+
+### Before Opening a Pull Request
+
+Run the same gates CI will, from `nsysu_selector_helper/`:
+
+```powershell
+yarn lint; yarn tsc -b --noEmit; yarn test; yarn build
+```
+
 ## Development Standards
 
 ### State Management
