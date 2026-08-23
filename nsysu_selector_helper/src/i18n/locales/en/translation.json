@@ -37,6 +37,10 @@
     "filtering": "Filtering",
     "filteringCount": "Filtering ({{count}})",
     "unknownRoom": "Unknown",
+    "tagHint": {
+      "viewCourse": "Click to view course",
+      "removeCourse": "Remove course"
+    },
     "mobileDetails": {
       "title": "Course Details",
       "close": "Close",

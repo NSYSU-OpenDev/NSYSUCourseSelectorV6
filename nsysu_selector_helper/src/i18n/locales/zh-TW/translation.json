@@ -37,6 +37,10 @@
     "filtering": "篩選中",
     "filteringCount": "篩選中 ({{count}})",
     "unknownRoom": "未知",
+    "tagHint": {
+      "viewCourse": "點擊查看課程",
+      "removeCourse": "移除課程"
+    },
     "mobileDetails": {
       "title": "課程詳情",
       "close": "關閉",

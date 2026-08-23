@@ -10,6 +10,7 @@ import {
   notification,
   message,
   theme,
+  Tooltip,
 } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import styled from 'styled-components';
@@ -202,6 +203,7 @@ const CourseTag = styled(Tag)<{
   $isActive?: boolean;
   $isDark: boolean;
   $isEnglish?: boolean;
+  $isPendingRemove?: boolean;
 }>`
   width: 100%;
   margin: 1px 0;
@@ -214,7 +216,11 @@ const CourseTag = styled(Tag)<{
   border-radius: 4px;
   font-weight: 500;
   transform: ${(props) =>
-    props.$isHovered || props.$isActive ? 'scale(1.02)' : 'none'};
+    props.$isPendingRemove
+      ? 'none'
+      : props.$isHovered || props.$isActive
+        ? 'scale(1.02)'
+        : 'none'};
   box-shadow: ${(props) =>
     props.$isHovered || props.$isActive
       ? props.$isDark
@@ -226,11 +232,14 @@ const CourseTag = styled(Tag)<{
   transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
   position: relative;
   overflow: visible;
+  border-style: ${(props) => (props.$isPendingRemove ? 'dashed' : 'solid')};
 
   // 只在非觸摸設備上啟用 hover 效果
   @media (hover: hover) {
+    // 預覽移除時不要再抬起來，否則跟「即將消失」的訊息互相矛盾
     &:hover {
-      transform: scale(1.02);
+      transform: ${(props) =>
+        props.$isPendingRemove ? 'none' : 'scale(1.02)'};
       box-shadow: ${(props) =>
         props.$isDark
           ? '0 2px 8px rgba(24, 144, 255, 0.5)'
@@ -250,7 +259,9 @@ const CourseTag = styled(Tag)<{
 const ProbabilityIndicator = styled.div<{
   $probability: number;
   $status: 'full' | 'overbooked' | 'normal';
+  $isPendingRemove?: boolean;
 }>`
+  opacity: ${(props) => (props.$isPendingRemove ? 0.2 : 1)};
   position: absolute;
   bottom: 0;
   left: 0;
@@ -263,13 +274,24 @@ const ProbabilityIndicator = styled.div<{
     if (props.$probability >= 50) return '#faad14'; // 橙色 - 中等機率
     return '#ff7875'; // 淺紅 - 困難
   }};
-  transition: width 0.3s ease;
+  transition:
+    width 0.3s ease,
+    opacity 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
   z-index: 1;
 `;
 
-const CourseTagContent = styled.div`
+const CourseTagContent = styled.div<{ $isPendingRemove?: boolean }>`
   position: relative;
   z-index: 2;
+  /*
+   * 只讓內容去飽和淡出，不動整個 CourseTag：
+   * 父層的 opacity/filter 子層蓋不掉，會連刪除鈕一起吃到。
+   */
+  opacity: ${(props) => (props.$isPendingRemove ? 0.35 : 1)};
+  filter: ${(props) => (props.$isPendingRemove ? 'grayscale(1)' : 'none')};
+  transition:
+    opacity 0.2s cubic-bezier(0.645, 0.045, 0.355, 1),
+    filter 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
 `;
 
 const DeleteButton = styled.button<{
@@ -301,10 +323,19 @@ const DeleteButton = styled.button<{
   opacity: 0; /* 平常隱藏 */
   /* 隱藏時不攔截點擊，否則會誤刪到看不見的按鈕 */
   pointer-events: none;
-  /* 與 CourseTag 使用同一組緩動曲線，避免兩種動態語彙並存 */
+  /* 從標籤自己的角落長出來，讓視線能把按鈕連回它所屬的標籤 */
+  transform: scale(0.6);
+  transform-origin: top right;
   transition:
-    opacity 0.2s cubic-bezier(0.645, 0.045, 0.355, 1),
+    opacity 0.16s cubic-bezier(0.645, 0.045, 0.355, 1),
+    transform 0.16s cubic-bezier(0.645, 0.045, 0.355, 1),
     background-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+
+  /* 讓 svg 自己撐版面，避免 inline 基線把叉叉推歪 */
+  .anticon,
+  .anticon svg {
+    display: block;
+  }
 
   /*
    * 不用 @media (hover: hover) 包住：寬度 > 768px 的觸控裝置仍走桌機版渲染，
@@ -313,6 +344,7 @@ const DeleteButton = styled.button<{
    */
   ${CourseTag}:hover & {
     opacity: 1;
+    transform: scale(1);
     pointer-events: auto;
   }
 
@@ -323,10 +355,21 @@ const DeleteButton = styled.button<{
   // 鍵盤操作時必須看得見，否則 tab 會停在透明元素上
   &:focus-visible {
     opacity: 1;
+    transform: scale(1);
     pointer-events: auto;
     background: ${(props) => props.$colorErrorHover};
     outline: 2px solid ${(props) => props.$colorError};
     outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transform: none;
+    transition: opacity 0.16s linear;
+
+    ${CourseTag}:hover &,
+    &:focus-visible {
+      transform: none;
+    }
   }
 `;
 
@@ -602,6 +645,8 @@ const ScheduleTable: React.FC = () => {
       false,
   );
   const [isExporting, setIsExporting] = useState(false);
+  // 游標停在刪除鈕上時，讓該課程的所有時段一起預覽被移除後的樣子
+  const [pendingRemoveCourseId, setPendingRemoveCourseId] = useState('');
 
   // 計算每個欄位的固定寬度 - 為手機優化
   const timeColumnWidth = isMobile ? 36 : 60;
@@ -753,9 +798,9 @@ const ScheduleTable: React.FC = () => {
               const firstLabel = course.labels?.[0];
               const labelStyle = labels.find((l) => l.id === firstLabel);
               const isHovered = hoveredCourseId === course.id;
-              return (
+              const isPendingRemove = pendingRemoveCourseId === course.id;
+              const tag = (
                 <CourseTag
-                  key={`${course.id}-${day}-${slot.key}`}
                   color={labelStyle ? undefined : departmentColor}
                   style={
                     labelStyle
@@ -769,6 +814,7 @@ const ScheduleTable: React.FC = () => {
                   $isHovered={isHovered}
                   $isDark={isDark}
                   $isEnglish={i18n.language.toLowerCase().startsWith('en')}
+                  $isPendingRemove={isPendingRemove}
                   onClick={(e) => {
                     if (isMobile) {
                       // 手機版：阻止事件冒泡，但不執行課程點擊
@@ -825,15 +871,20 @@ const ScheduleTable: React.FC = () => {
                   {!isMobile && (
                     <DeleteButton
                       type='button'
-                      aria-label={t('scheduleTable.mobileDetails.removeCourse')}
+                      aria-label={t('scheduleTable.tagHint.removeCourse')}
                       $colorError={token.colorError}
                       $colorErrorHover={token.colorErrorHover}
                       $colorTextLightSolid={token.colorTextLightSolid}
                       $borderRadius={token.borderRadius}
                       onMouseDown={(e) => e.stopPropagation()}
                       onTouchEnd={(e) => e.stopPropagation()}
+                      onMouseEnter={() => setPendingRemoveCourseId(course.id)}
+                      onMouseLeave={() => setPendingRemoveCourseId('')}
+                      onFocus={() => setPendingRemoveCourseId(course.id)}
+                      onBlur={() => setPendingRemoveCourseId('')}
                       onClick={(e) => {
                         e.stopPropagation();
+                        setPendingRemoveCourseId('');
                         const courseName = getLocalizedCourseName(
                           course.name,
                           i18n.language,
@@ -878,8 +929,9 @@ const ScheduleTable: React.FC = () => {
                     $status={GetProbability.getProbabilityStatus(
                       course.remaining,
                     )}
+                    $isPendingRemove={isPendingRemove}
                   />
-                  <CourseTagContent>
+                  <CourseTagContent $isPendingRemove={isPendingRemove}>
                     {(() => {
                       const localizedName = getLocalizedCourseName(
                         course.name,
@@ -909,6 +961,30 @@ const ScheduleTable: React.FC = () => {
                     </ProbabilityText>
                   </CourseTagContent>
                 </CourseTag>
+              );
+
+              // 手機版靠長按開詳情，不需要也不該跳 tooltip
+              if (isMobile) {
+                return (
+                  <React.Fragment key={`${course.id}-${day}-${slot.key}`}>
+                    {tag}
+                  </React.Fragment>
+                );
+              }
+
+              return (
+                <Tooltip
+                  key={`${course.id}-${day}-${slot.key}`}
+                  title={t(
+                    isPendingRemove
+                      ? 'scheduleTable.tagHint.removeCourse'
+                      : 'scheduleTable.tagHint.viewCourse',
+                  )}
+                  mouseEnterDelay={0.5}
+                  placement='top'
+                >
+                  {tag}
+                </Tooltip>
               );
             })}
           </>
