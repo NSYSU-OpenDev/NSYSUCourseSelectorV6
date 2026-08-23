@@ -143,6 +143,42 @@ const MyComponent = () => {
 
 **Important**: Always add new translation keys to `zh-TW.json` first for type safety.
 
+### Ant Design Feedback APIs (message / notification / Modal)
+
+**Never call the static helpers** — `message.success()`, `notification.open()`,
+`Modal.confirm()`. They mount their own React root *outside* `ConfigProvider`,
+so they cannot read the theme context and always paint with default light
+tokens. In dark mode they come out wrong.
+
+Use the hook form and render the returned `contextHolder`:
+
+```tsx
+const [messageApi, contextHolder] = message.useMessage();
+const [notificationApi, notificationContextHolder] =
+  notification.useNotification();
+const [modalApi, modalContextHolder] = Modal.useModal();
+
+return (
+  <>
+    {contextHolder}
+    {notificationContextHolder}
+    {modalContextHolder}
+    {/* ... */}
+  </>
+);
+```
+
+Two traps:
+
+- **Forgetting `contextHolder` fails silently.** The api call still resolves and
+  nothing appears — no warning, no error.
+- **Never put a holder in a list row.** `CoursesList/Item` is a react-virtuoso
+  `itemContent`, so a holder there would instantiate one message system per
+  visible row. Hoist the api up to the list component and pass it down.
+
+Existing examples to copy: `CustomFilterModal`, `CustomQuickFilters`,
+`DepartmentCourses` (message + modal), `SelectedExport`, `Settings`.
+
 ### Code Comments
 - **All code comments must be in Traditional Chinese (繁體中文)**
 - Function documentation, inline comments, and TODO comments should use Traditional Chinese
