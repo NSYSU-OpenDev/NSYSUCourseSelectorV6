@@ -86,6 +86,7 @@ const Settings: FC = () => {
   const isDarkModeFromStore = useAppSelector(selectIsDarkMode);
   const currentBorderRadiusFromStore = useAppSelector(selectBorderRadius);
   const [messageApi, contextHolder] = message.useMessage();
+  const [modalApi, modalContextHolder] = Modal.useModal();
 
   // 本地狀態
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
@@ -134,7 +135,7 @@ const Settings: FC = () => {
   };
   // 重置所有設定
   const handleResetSettings = () => {
-    Modal.confirm({
+    modalApi.confirm({
       title: t('settings.reset.confirm'),
       onOk: () => {
         // 重置語言
@@ -165,6 +166,7 @@ const Settings: FC = () => {
     <StyledCard title={CardTitle}>
       <SettingsContainer>
         {contextHolder}
+        {modalContextHolder}
         {/* 設定 */}
         <SettingCard
           title={

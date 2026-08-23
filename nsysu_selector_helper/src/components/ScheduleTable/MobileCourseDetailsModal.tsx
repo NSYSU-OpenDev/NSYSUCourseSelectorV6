@@ -28,6 +28,9 @@ const MobileCourseDetailsModal: React.FC<MobileCourseDetailsModalProps> = ({
   const dispatch = useAppDispatch();
   const { width } = useWindowSize();
   const isMobile = width <= 768;
+  // 靜態 notification 會在 ConfigProvider 外自建 root，拿不到主題 token
+  const [notificationApi, notificationContextHolder] =
+    notification.useNotification();
 
   // 處理課程標籤點擊 - 導航到課程列表
   const handleCourseNavigate = (courseId: string) => {
@@ -55,7 +58,7 @@ const MobileCourseDetailsModal: React.FC<MobileCourseDetailsModalProps> = ({
     dispatch(selectCourse({ course: selectedCourse, isSelected: false }));
     setModalVisible(false);
 
-    notification.open({
+    notificationApi.open({
       key: notificationKey,
       message: t('scheduleTable.mobileDetails.removedCourse', {
         courseName,
@@ -68,7 +71,7 @@ const MobileCourseDetailsModal: React.FC<MobileCourseDetailsModalProps> = ({
             dispatch(
               selectCourse({ course: selectedCourse, isSelected: true }),
             );
-            notification.destroy(notificationKey);
+            notificationApi.destroy(notificationKey);
           }}
         >
           {t('scheduleTable.mobileDetails.undo')}
@@ -79,68 +82,71 @@ const MobileCourseDetailsModal: React.FC<MobileCourseDetailsModalProps> = ({
   };
 
   return (
-    <Modal
-      title={t('scheduleTable.mobileDetails.title')}
-      open={modalVisible}
-      onCancel={() => setModalVisible(false)}
-      footer={[
-        <Button key='cancel' onClick={() => setModalVisible(false)}>
-          {t('scheduleTable.mobileDetails.close')}
-        </Button>,
-        <Button
-          key='remove'
-          danger
-          icon={<DeleteOutlined />}
-          disabled={!selectedCourse}
-          onClick={handleRemoveCourse}
-        >
-          {t('scheduleTable.mobileDetails.removeCourse')}
-        </Button>,
-        <Button
-          key='navigate'
-          type='primary'
-          icon={<EyeOutlined />}
-          onClick={() => {
-            if (selectedCourse) {
-              handleCourseNavigate(selectedCourse.id);
-              setModalVisible(false);
-            }
-          }}
-        >
-          {t('scheduleTable.mobileDetails.viewCourse')}
-        </Button>,
-      ]}
-      centered
-    >
-      {selectedCourse && (
-        <div>
-          <div style={{ marginBottom: '12px' }}>
-            <strong>{t('scheduleTable.mobileDetails.name')}：</strong>
-            {getLocalizedCourseName(selectedCourse.name, i18n.language)}
+    <>
+      {notificationContextHolder}
+      <Modal
+        title={t('scheduleTable.mobileDetails.title')}
+        open={modalVisible}
+        onCancel={() => setModalVisible(false)}
+        footer={[
+          <Button key='cancel' onClick={() => setModalVisible(false)}>
+            {t('scheduleTable.mobileDetails.close')}
+          </Button>,
+          <Button
+            key='remove'
+            danger
+            icon={<DeleteOutlined />}
+            disabled={!selectedCourse}
+            onClick={handleRemoveCourse}
+          >
+            {t('scheduleTable.mobileDetails.removeCourse')}
+          </Button>,
+          <Button
+            key='navigate'
+            type='primary'
+            icon={<EyeOutlined />}
+            onClick={() => {
+              if (selectedCourse) {
+                handleCourseNavigate(selectedCourse.id);
+                setModalVisible(false);
+              }
+            }}
+          >
+            {t('scheduleTable.mobileDetails.viewCourse')}
+          </Button>,
+        ]}
+        centered
+      >
+        {selectedCourse && (
+          <div>
+            <div style={{ marginBottom: '12px' }}>
+              <strong>{t('scheduleTable.mobileDetails.name')}：</strong>
+              {getLocalizedCourseName(selectedCourse.name, i18n.language)}
+            </div>
+            <div style={{ marginBottom: '12px' }}>
+              <strong>{t('scheduleTable.mobileDetails.teacher')}：</strong>
+              {selectedCourse.teacher}
+            </div>
+            <div style={{ marginBottom: '12px' }}>
+              <strong>{t('scheduleTable.mobileDetails.courseId')}：</strong>
+              {selectedCourse.id}
+            </div>
+            <div style={{ marginBottom: '12px' }}>
+              <strong>{t('scheduleTable.mobileDetails.credit')}：</strong>
+              {selectedCourse.credit}
+            </div>
+            <div style={{ marginBottom: '12px' }}>
+              <strong>{t('scheduleTable.mobileDetails.room')}：</strong>
+              {selectedCourse.roomForThisSlot || t('scheduleTable.unknownRoom')}
+            </div>
+            <div style={{ marginBottom: '12px' }}>
+              <strong>{t('scheduleTable.mobileDetails.department')}：</strong>
+              {selectedCourse.department}
+            </div>
           </div>
-          <div style={{ marginBottom: '12px' }}>
-            <strong>{t('scheduleTable.mobileDetails.teacher')}：</strong>
-            {selectedCourse.teacher}
-          </div>
-          <div style={{ marginBottom: '12px' }}>
-            <strong>{t('scheduleTable.mobileDetails.courseId')}：</strong>
-            {selectedCourse.id}
-          </div>
-          <div style={{ marginBottom: '12px' }}>
-            <strong>{t('scheduleTable.mobileDetails.credit')}：</strong>
-            {selectedCourse.credit}
-          </div>
-          <div style={{ marginBottom: '12px' }}>
-            <strong>{t('scheduleTable.mobileDetails.room')}：</strong>
-            {selectedCourse.roomForThisSlot || t('scheduleTable.unknownRoom')}
-          </div>
-          <div style={{ marginBottom: '12px' }}>
-            <strong>{t('scheduleTable.mobileDetails.department')}：</strong>
-            {selectedCourse.department}
-          </div>
-        </div>
-      )}
-    </Modal>
+        )}
+      </Modal>
+    </>
   );
 };
 

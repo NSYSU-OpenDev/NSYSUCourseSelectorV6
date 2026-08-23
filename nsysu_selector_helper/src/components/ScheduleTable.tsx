@@ -533,6 +533,10 @@ const ScheduleTable: React.FC = () => {
   const dispatch = useAppDispatch();
   const isDark = useAppSelector(selectIsDarkMode);
   const { token } = theme.useToken();
+  // 靜態 notification/message 會在 ConfigProvider 外自建 root，拿不到主題 token
+  const [notificationApi, notificationContextHolder] =
+    notification.useNotification();
+  const [messageApi, messageContextHolder] = message.useMessage();
 
   // Redux state
   const selectedCourses = useAppSelector(selectSelectedCourses);
@@ -678,7 +682,7 @@ const ScheduleTable: React.FC = () => {
   // Handle export as image
   const handleExportImage = async () => {
     if (selectedCourses.length === 0) {
-      message.warning(t('scheduleExport.noCoursesToExport'));
+      messageApi.warning(t('scheduleExport.noCoursesToExport'));
       return;
     }
 
@@ -689,10 +693,10 @@ const ScheduleTable: React.FC = () => {
         title: t('課程時間表'),
         language: i18n.language,
       });
-      message.success(t('scheduleExport.exportSuccess'));
+      messageApi.success(t('scheduleExport.exportSuccess'));
     } catch (error) {
       console.error('Export failed:', error);
-      message.error(t('scheduleExport.exportFailed'));
+      messageApi.error(t('scheduleExport.exportFailed'));
     } finally {
       setIsExporting(false);
     }
@@ -898,7 +902,7 @@ const ScheduleTable: React.FC = () => {
                         );
                         const notificationKey = `remove-course-${course.id}`;
                         dispatch(selectCourse({ course, isSelected: false }));
-                        notification.open({
+                        notificationApi.open({
                           key: notificationKey,
                           message: t(
                             'scheduleTable.mobileDetails.removedCourse',
@@ -914,7 +918,7 @@ const ScheduleTable: React.FC = () => {
                                 dispatch(
                                   selectCourse({ course, isSelected: true }),
                                 );
-                                notification.destroy(notificationKey);
+                                notificationApi.destroy(notificationKey);
                               }}
                             >
                               {t('scheduleTable.mobileDetails.undo')}
@@ -1169,6 +1173,8 @@ const ScheduleTable: React.FC = () => {
 
   return (
     <>
+      {notificationContextHolder}
+      {messageContextHolder}
       <StyledCard title={<TitleComponent />} $isDark={isDark}>
         <TableWrapper $isDark={isDark}>
           <StyledTable
