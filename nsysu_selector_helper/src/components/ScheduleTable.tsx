@@ -9,6 +9,7 @@ import {
   Button,
   notification,
   message,
+  theme,
 } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import styled from 'styled-components';
@@ -271,42 +272,61 @@ const CourseTagContent = styled.div`
   z-index: 2;
 `;
 
-const DeleteButton = styled.button`
+const DeleteButton = styled.button<{
+  $colorError: string;
+  $colorErrorHover: string;
+  $colorTextLightSolid: string;
+  $borderRadius: number;
+}>`
   position: absolute;
   top: -6px;
   right: -6px;
   width: 16px;
   height: 16px;
-  background: #ff4d4f;
-  color: white;
-  border: none;
-  padding: 0;
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
+  border: none;
+  /* 走 antd 的 danger token，深色模式與主題調色都會跟著變 */
+  background: ${(props) => props.$colorError};
+  color: ${(props) => props.$colorTextLightSolid};
+  /* 跟隨主題的圓角設定，不再寫死正圓 */
+  border-radius: ${(props) => props.$borderRadius}px;
   font-size: 10px;
+  line-height: 1;
   cursor: pointer;
   z-index: 10;
-  opacity: 0; /* 平常隱藏 */
-  transition: all 0.2s;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  opacity: 0; /* 平常隱藏 */
+  /* 隱藏時不攔截點擊，否則會誤刪到看不見的按鈕 */
+  pointer-events: none;
+  /* 與 CourseTag 使用同一組緩動曲線，避免兩種動態語彙並存 */
+  transition:
+    opacity 0.2s cubic-bezier(0.645, 0.045, 0.355, 1),
+    background-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
 
-  // 當滑鼠移入課程方塊時才顯示
+  /*
+   * 不用 @media (hover: hover) 包住：寬度 > 768px 的觸控裝置仍走桌機版渲染，
+   * 包住的話刪除鈕會永遠出不來。刪除鈕是標籤的子節點，
+   * 所以游標移到溢出標籤外的那一截時，標籤仍維持 :hover。
+   */
   ${CourseTag}:hover & {
     opacity: 1;
+    pointer-events: auto;
   }
 
   &:hover {
-    transform: scale(1.2);
-    background: #ff7875;
+    background: ${(props) => props.$colorErrorHover};
   }
 
-  @media screen and (max-width: 768px) {
-    opacity: 1; // 手機版直接顯示，因為沒有 hover
-    width: 14px;
-    height: 14px;
-    font-size: 8px;
+  // 鍵盤操作時必須看得見，否則 tab 會停在透明元素上
+  &:focus-visible {
+    opacity: 1;
+    pointer-events: auto;
+    background: ${(props) => props.$colorErrorHover};
+    outline: 2px solid ${(props) => props.$colorError};
+    outline-offset: 2px;
   }
 `;
 
@@ -465,6 +485,7 @@ const ScheduleTable: React.FC = () => {
   const { width } = useWindowSize();
   const dispatch = useAppDispatch();
   const isDark = useAppSelector(selectIsDarkMode);
+  const { token } = theme.useToken();
 
   // Redux state
   const selectedCourses = useAppSelector(selectSelectedCourses);
@@ -805,6 +826,10 @@ const ScheduleTable: React.FC = () => {
                     <DeleteButton
                       type='button'
                       aria-label={t('scheduleTable.mobileDetails.removeCourse')}
+                      $colorError={token.colorError}
+                      $colorErrorHover={token.colorErrorHover}
+                      $colorTextLightSolid={token.colorTextLightSolid}
+                      $borderRadius={token.borderRadius}
                       onMouseDown={(e) => e.stopPropagation()}
                       onTouchEnd={(e) => e.stopPropagation()}
                       onClick={(e) => {
