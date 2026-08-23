@@ -10,7 +10,6 @@ import {
   notification,
   message,
   theme,
-  Tooltip,
 } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import styled from 'styled-components';
@@ -799,8 +798,9 @@ const ScheduleTable: React.FC = () => {
               const labelStyle = labels.find((l) => l.id === firstLabel);
               const isHovered = hoveredCourseId === course.id;
               const isPendingRemove = pendingRemoveCourseId === course.id;
-              const tag = (
+              return (
                 <CourseTag
+                  key={`${course.id}-${day}-${slot.key}`}
                   color={labelStyle ? undefined : departmentColor}
                   style={
                     labelStyle
@@ -815,6 +815,7 @@ const ScheduleTable: React.FC = () => {
                   $isDark={isDark}
                   $isEnglish={i18n.language.toLowerCase().startsWith('en')}
                   $isPendingRemove={isPendingRemove}
+                  title={t('scheduleTable.tagHint.viewCourse')}
                   onClick={(e) => {
                     if (isMobile) {
                       // 手機版：阻止事件冒泡，但不執行課程點擊
@@ -872,6 +873,7 @@ const ScheduleTable: React.FC = () => {
                     <DeleteButton
                       type='button'
                       aria-label={t('scheduleTable.tagHint.removeCourse')}
+                      title={t('scheduleTable.tagHint.removeCourse')}
                       $colorError={token.colorError}
                       $colorErrorHover={token.colorErrorHover}
                       $colorTextLightSolid={token.colorTextLightSolid}
@@ -961,30 +963,6 @@ const ScheduleTable: React.FC = () => {
                     </ProbabilityText>
                   </CourseTagContent>
                 </CourseTag>
-              );
-
-              // 手機版靠長按開詳情，不需要也不該跳 tooltip
-              if (isMobile) {
-                return (
-                  <React.Fragment key={`${course.id}-${day}-${slot.key}`}>
-                    {tag}
-                  </React.Fragment>
-                );
-              }
-
-              return (
-                <Tooltip
-                  key={`${course.id}-${day}-${slot.key}`}
-                  title={t(
-                    isPendingRemove
-                      ? 'scheduleTable.tagHint.removeCourse'
-                      : 'scheduleTable.tagHint.viewCourse',
-                  )}
-                  mouseEnterDelay={0.5}
-                  placement='top'
-                >
-                  {tag}
-                </Tooltip>
               );
             })}
           </>
