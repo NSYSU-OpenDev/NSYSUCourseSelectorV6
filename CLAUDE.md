@@ -65,6 +65,12 @@ Inside components, read tokens with `theme.useToken()` (see `SectionHeader`, `He
 
 Vite `base` is `/NSYSUCourseSelectorV6/`. Runtime asset paths must go through Vite imports or `import.meta.env.BASE_URL` (see `AnnouncementService.getFullPath`); hardcoded `/`-rooted URLs break in production.
 
+### The release version is duplicated six times
+
+There is no single source of truth for the version. `package.json` holds it without a `v` prefix; `public/announcements.json`, `public/announcements_en.json` and both `translation.json` files hold it with one; [CHANGELOG.md](CHANGELOG.md) carries the developer-facing history. Nothing cross-checks them and nothing fails when they drift — the app just shows a stale release note. AGENTS.md has the checklist that finishing a branch is expected to run through.
+
+The announcement files are what `AnnouncementService` fetches at runtime (`/announcements.json` or `/announcements_en.json` via `getFullPath`), so the newest entry there is what users actually read in the app — CHANGELOG.md is not. `dist/` holds built copies; never hand-edit those.
+
 ### Testing notes
 
 Jest + ts-jest + jsdom; `@/` and `#/` aliases are re-declared in [jest.config.ts](nsysu_selector_helper/jest.config.ts). [setupTests.ts](nsysu_selector_helper/src/setupTests.ts) mocks `AnnouncementService` wholesale because it uses `import.meta.env`, which ts-jest cannot transform — any new module reading `import.meta` needs the same treatment or it will break the suite.

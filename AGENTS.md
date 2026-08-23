@@ -46,7 +46,7 @@ nsysu_selector_helper/src/
 | --- | --- |
 | **Feature or bug fix** — anything under `nsysu_selector_helper/src/` | **Feature branch + pull request.** Never commit directly to `main`. |
 | Dependency bumps, build/CI config | Feature branch + pull request |
-| Docs only — `README.md`, `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md` | May be committed directly to `main` |
+| Docs only — `README.md`, `CHANGELOG.md`, `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md` | May be committed directly to `main` |
 
 CI (`.github/workflows/ci.yaml`) only runs on pull requests touching `nsysu_selector_helper/**`. Committing a feature or fix straight to `main` therefore skips the type check, tests and build entirely — and `main` auto-deploys to GitHub Pages, so a broken direct commit ships to users. That is the reason for the rule, not ceremony.
 
@@ -76,6 +76,35 @@ build(deps): bump ws
 
 - **Types**: `feat`, `fix`, `docs`, `i18n`, `perf`, `style`, `refactor`, `test`, `build`, `ci`
 - **Scopes**: the affected area — `schedule`, `selector`, `filter`, `sort`, `labels`, `export`, `theme`, `store`, `services`, `api`, `deps`, `ci`. Drop the scope only when a change genuinely spans the whole app.
+
+### Finishing a Branch: Version and Changelog
+
+Anything user-facing — a feature, a fix someone would notice, a visible
+behaviour change — bumps the version and gets a changelog entry **before the
+pull request goes up**. `main` auto-deploys, so a merge without this ships a
+build whose in-app announcement still describes the previous release.
+
+The version lives in six places and they must agree. Missing one is the usual
+failure, because nothing validates them against each other:
+
+| File | Form |
+| --- | --- |
+| `nsysu_selector_helper/package.json` | `"version": "6.3.0"` |
+| `nsysu_selector_helper/public/announcements.json` | new `v6.3.0` entry, newest first |
+| `nsysu_selector_helper/public/announcements_en.json` | same entry, translated |
+| `nsysu_selector_helper/src/i18n/locales/zh-TW/translation.json` | `"version": "v6.3.0"` |
+| `nsysu_selector_helper/src/i18n/locales/en/translation.json` | `"version": "v6.3.0"` |
+| `CHANGELOG.md` | new section at the top, newest first |
+
+Note the two shapes: `package.json` has no `v` prefix, everything else does.
+
+Pick the bump from the commits on the branch — any `feat:` makes it a minor,
+otherwise a patch. Write the announcement for students, not for developers:
+say what changed on screen, not which component was refactored. Keep the
+`updates` prefixes already in use (`新增:` / `優化:` / `修正:`).
+
+`nsysu_selector_helper/dist/` also contains announcement files. That is build
+output — never edit it by hand.
 
 ### Before Opening a Pull Request
 
