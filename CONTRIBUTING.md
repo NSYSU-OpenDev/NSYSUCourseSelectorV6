@@ -56,18 +56,48 @@ build(deps): bump ws
 
 ## 送出 Pull Request 前
 
-請在 `nsysu_selector_helper/` 目錄下跑完與 CI 相同的檢查：
+請在 `nsysu_selector_helper/` 目錄下跑完下列檢查：
 
 ```powershell
-yarn lint; yarn tsc -b --noEmit; yarn test; yarn build
+yarn format; yarn lint; yarn tsc -b --noEmit; yarn test; yarn build
 ```
+
+`yarn format` 放在最前面，因為 prettier 同時是一條 eslint 規則，沒格式化的檔案
+也會讓 `yarn lint` 失敗。它只涵蓋 `nsysu_selector_helper/`，專案根目錄的 markdown
+不在 prettier 管轄範圍內。
 
 接著：
 
 1. 從 `main` 開一個分支
 2. 完成變更並提交
-3. 推送分支並開啟 Pull Request，填寫 PR 範本
-4. 等待 CI 通過與維護者審查
+3. **如果變更是使用者看得到的**，更新版本號與更新日誌（見下節）
+4. 推送分支並開啟 Pull Request，填寫 PR 範本
+5. 等待 CI 通過與維護者審查
+
+## 版本號與更新日誌
+
+任何使用者看得到的變更 — 新功能、會被注意到的修正、可見的行為改變 — 都要在開 PR
+前更新版本號並補上更新日誌。`main` 會自動部署，漏掉的話上線後 app 內顯示的仍是上
+一版的公告。
+
+版本號散在六個檔案，而且沒有任何東西會交叉檢查，漏改不會報錯：
+
+| 檔案 | 形式 |
+| --- | --- |
+| `nsysu_selector_helper/package.json` | `"version": "6.3.0"`（不加 `v`） |
+| `nsysu_selector_helper/public/announcements.json` | 新增 `v6.3.0` 條目，放最前面 |
+| `nsysu_selector_helper/public/announcements_en.json` | 同上，英文版 |
+| `nsysu_selector_helper/src/i18n/locales/zh-TW/translation.json` | `"version": "v6.3.0"` |
+| `nsysu_selector_helper/src/i18n/locales/en/translation.json` | `"version": "v6.3.0"` |
+| `CHANGELOG.md` | 新增章節放最上面 |
+
+版號依分支上的 commit 決定：有 `feat:` 就進 minor，否則 patch。
+
+`announcements*.json` 與 `CHANGELOG.md` 不是重複的：前者是 app 執行時抓下來、使用者
+真的會讀到的公告，後者是給開發者看的歷史，兩邊都要更新。公告請寫給學生看 — 描述畫面上
+變了什麼，而不是重構了哪個元件，並沿用現有的 `新增:` / `優化:` / `修正:` 前綴。
+
+`nsysu_selector_helper/dist/` 底下也有公告檔，那是建置產物，不要手改。
 
 ## 程式碼規範重點
 

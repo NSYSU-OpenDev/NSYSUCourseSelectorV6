@@ -108,11 +108,21 @@ output — never edit it by hand.
 
 ### Before Opening a Pull Request
 
-Run the same gates CI will, from `nsysu_selector_helper/`:
+Run these from `nsysu_selector_helper/`:
 
 ```powershell
-yarn lint; yarn tsc -b --noEmit; yarn test; yarn build
+yarn format; yarn lint; yarn tsc -b --noEmit; yarn test; yarn build
 ```
+
+`yarn format` goes first because prettier also runs as an eslint rule, so an
+unformatted file fails `yarn lint` too. Note it only covers
+`nsysu_selector_helper/` — the markdown at the repo root (`README.md`,
+`CHANGELOG.md`, `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`) is not prettier
+managed, so leave its existing formatting alone rather than reflowing whole
+files.
+
+CI itself only runs the last three (`ci.yaml` has no lint or format step), so
+formatting and lint problems will not be caught for you.
 
 ## Development Standards
 
