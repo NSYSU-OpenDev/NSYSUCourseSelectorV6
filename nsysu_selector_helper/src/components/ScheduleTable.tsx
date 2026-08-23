@@ -999,25 +999,22 @@ const ScheduleTable: React.FC = () => {
         const [start, end] = text.split('~').map((part) => part.trim());
         return (
           <Flex vertical={true} align='center'>
+            {/* 時間在上且不縮小：課表最常回答的是「幾點上課」，
+                沒有人會記得代號對應到幾點 */}
             <Text
-              strong={true}
-              style={{ fontSize: isMobile ? '12px' : '14px', lineHeight: 1.2 }}
+              style={{ fontSize: isMobile ? '10px' : '12px', lineHeight: 1.25 }}
             >
-              {record.key}
+              {start}
+              <br />
+              {end}
             </Text>
+            {/* 代號略小但加粗，在小字級下仍然清楚，供跟課程列表對照 */}
             <Text
               type='secondary'
-              style={{ fontSize: isMobile ? '8px' : '10px', lineHeight: 1.2 }}
+              strong={true}
+              style={{ fontSize: isMobile ? '9px' : '11px', lineHeight: 1.25 }}
             >
-              {isMobile ? (
-                <>
-                  {start}
-                  <br />
-                  {end}
-                </>
-              ) : (
-                `${start}~${end}`
-              )}
+              {record.key}
             </Text>
           </Flex>
         );
