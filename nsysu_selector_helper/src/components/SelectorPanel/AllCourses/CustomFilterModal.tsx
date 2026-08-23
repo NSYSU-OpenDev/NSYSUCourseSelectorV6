@@ -194,9 +194,7 @@ const CustomFilterModal: React.FC<CustomFilterModalProps> = ({
         <Form.Item
           name='field'
           label={t('customFilter.fieldLabel')}
-          rules={[
-            { required: true, message: t('customFilter.fieldRequired') },
-          ]}
+          rules={[{ required: true, message: t('customFilter.fieldRequired') }]}
         >
           <Select
             placeholder={t('customFilter.fieldPlaceholder')}
@@ -223,9 +221,7 @@ const CustomFilterModal: React.FC<CustomFilterModalProps> = ({
         <Form.Item
           name='value'
           label={t('customFilter.valueLabel')}
-          rules={[
-            { required: true, message: t('customFilter.valueRequired') },
-          ]}
+          rules={[{ required: true, message: t('customFilter.valueRequired') }]}
         >
           {currentFieldOption?.searchable ? (
             <Select
