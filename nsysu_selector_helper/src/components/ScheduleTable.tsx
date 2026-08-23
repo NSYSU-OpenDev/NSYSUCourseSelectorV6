@@ -430,9 +430,14 @@ const TimeSlotCell = styled.div<{
   transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
   user-select: none;
 
-  // 只在非觸摸設備上啟用 hover 效果
+  /*
+   * 只在非觸摸設備上啟用 hover 效果。
+   * 課程標籤是格子的子節點，游標停在標籤上時格子也會被拖進 :hover。
+   * onMouseDown 已經用 e.target !== e.currentTarget 把標籤排除在拖曳選取之外，
+   * 這裡讓視覺跟行為一致：指著課程時不要再暗示可以篩選這個時段。
+   */
   @media (hover: hover) {
-    &:hover {
+    &:hover:not(:has(${CourseTag}:hover)) {
       background-color: ${(props) => {
         if (props.$isSelected)
           return props.$isDark
