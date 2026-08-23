@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useMemo } from 'react';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
-import { Empty } from 'antd';
+import { Empty, message } from 'antd';
 
 import { type Course } from '@/types';
 import { CourseService } from '@/services';
@@ -32,6 +32,8 @@ const CoursesList: React.FC<CoursesListProps> = ({
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const virtuosoRef = useRef<VirtuosoHandle>(null);
+  // holder 放在列表層，才不會跟著捲出畫面的 row 一起卸載
+  const [messageApi, messageContextHolder] = message.useMessage();
   // Redux state
   const selectedCourses = useAppSelector(selectSelectedCourses);
   const hoveredCourseId = useAppSelector(selectHoveredCourseId);
@@ -114,6 +116,7 @@ const CoursesList: React.FC<CoursesListProps> = ({
         isSelected={isSelected}
         isConflict={isConflict}
         isHovered={isHovered}
+        messageApi={messageApi}
       />
     );
   };
@@ -121,6 +124,7 @@ const CoursesList: React.FC<CoursesListProps> = ({
   if (displayCourses.length === 0) {
     return (
       <>
+        {messageContextHolder}
         <Header />
         <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('noData')} />
       </>
@@ -129,13 +133,16 @@ const CoursesList: React.FC<CoursesListProps> = ({
 
   const dataWithHeader = [{}, ...displayCourses];
   return (
-    <Virtuoso
-      ref={virtuosoRef}
-      style={{ height }}
-      data={dataWithHeader}
-      itemContent={renderItem}
-      topItemCount={1}
-    />
+    <>
+      {messageContextHolder}
+      <Virtuoso
+        ref={virtuosoRef}
+        style={{ height }}
+        data={dataWithHeader}
+        itemContent={renderItem}
+        topItemCount={1}
+      />
+    </>
   );
 };
 

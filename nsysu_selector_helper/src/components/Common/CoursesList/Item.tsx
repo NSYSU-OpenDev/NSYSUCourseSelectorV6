@@ -6,7 +6,6 @@ import {
   Checkbox,
   Flex,
   InputNumber,
-  message,
   Modal,
   Popover,
   Progress,
@@ -16,6 +15,7 @@ import {
   Tooltip,
 } from 'antd';
 import { CopyOutlined, TagsOutlined } from '@ant-design/icons';
+import type { MessageInstance } from 'antd/es/message/interface';
 
 import type { Course } from '@/types';
 import type { CourseLabel } from '@/services';
@@ -210,6 +210,12 @@ type ItemProps = {
   isConflict: boolean;
   isHovered: boolean;
   displayMode?: 'all' | 'selected';
+  /*
+   * 由列表層傳入，不在這裡呼叫 message.useMessage()：
+   * Item 是 virtuoso 的 row，捲出畫面就會卸載，contextHolder 會把還在顯示的
+   * 提示一起帶走。提示本來就該活得比觸發它的那一列久。
+   */
+  messageApi: MessageInstance;
 };
 
 const Item: React.FC<ItemProps> = ({
@@ -218,6 +224,7 @@ const Item: React.FC<ItemProps> = ({
   isConflict,
   isHovered,
   displayMode = 'all',
+  messageApi,
 }) => {
   const { t, i18n } = useTranslation();
   const displayName = getLocalizedCourseName(course.name, i18n.language);
@@ -276,7 +283,7 @@ const Item: React.FC<ItemProps> = ({
     e.preventDefault();
     try {
       await navigator.clipboard.writeText(course.id);
-      void message.success(
+      void messageApi.success(
         t('selectedExportMessages.courseIdCopied', { id: course.id }),
       );
     } catch {
@@ -287,7 +294,7 @@ const Item: React.FC<ItemProps> = ({
       textArea.select();
       void document.execCommand('copy');
       document.body.removeChild(textArea);
-      void message.success(
+      void messageApi.success(
         t('selectedExportMessages.courseIdCopied', { id: course.id }),
       );
     }
