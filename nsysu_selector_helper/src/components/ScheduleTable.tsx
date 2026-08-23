@@ -992,9 +992,9 @@ const ScheduleTable: React.FC = () => {
       render: (text: string, record: ScheduleTableRow) => {
         /*
          * 課程列表顯示的是節次代號（classTime 就是代號串），課表這裡也要印，
-         * 兩邊才對得起來。排版沿用匯出圖的做法：代號為主、時間為輔。
-         * 時間常數的格式是起訖時間夾一個 ~，拆開後桌機併一行、手機拆兩行，
-         * 總行數與原本相同，所以列高不變。
+         * 兩邊才對得起來。時間常數的格式是起訖時間夾一個 ~，拆成兩行後
+         * 加上代號共三行，與原本的「時間 / ~ / 時間」相同，所以列高不變。
+         * 兩者的主次關係見下方各自的註解。
          */
         const [start, end] = text.split('~').map((part) => part.trim());
         return (
