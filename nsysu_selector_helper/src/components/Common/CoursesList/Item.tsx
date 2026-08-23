@@ -563,77 +563,81 @@ const Item: React.FC<ItemProps> = ({
                 </CourseCodeContainer>
               </div>
               {isModalVisible && (
-              <Modal
-                title={`${displayName} (${id})`}
-                open={isModalVisible}
-                onCancel={hideModal}
-                footer={null}
-                width='90%'
-                style={{ maxWidth: 400 }}
-              >
-                <Space style={{ width: '100%' }} direction='vertical'>
-                  <Card size='small'>
-                    <div style={{ fontSize: '14px', lineHeight: 1.6 }}>
-                      {description}
-                    </div>
-                  </Card>
-                  {displayTags && displayTags.length > 0 && (
+                <Modal
+                  title={`${displayName} (${id})`}
+                  open={isModalVisible}
+                  onCancel={hideModal}
+                  footer={null}
+                  width='90%'
+                  style={{ maxWidth: 400 }}
+                >
+                  <Space style={{ width: '100%' }} direction='vertical'>
                     <Card size='small'>
-                      <Space
-                        style={{ width: '100%' }}
-                        direction='vertical'
-                        size={'small'}
-                      >
-                        <Flex>{displayTags}</Flex>
-                      </Space>
+                      <div style={{ fontSize: '14px', lineHeight: 1.6 }}>
+                        {description}
+                      </div>
                     </Card>
-                  )}
-                  <Card size='small'>
-                    <Flex justify='space-between' gap={10}>
-                      <Flex vertical align='center'>
-                        <span style={{ fontSize: '12px', marginBottom: 8 }}>
-                          {t('course.item.selectRemaining', {
-                            select,
-                            remaining,
-                          })}
-                        </span>
-                        <Progress
-                          type='circle'
-                          percent={Math.round((select / remaining) * 100)}
-                          size={60}
-                          status={select >= remaining ? 'exception' : 'normal'}
-                        />
+                    {displayTags && displayTags.length > 0 && (
+                      <Card size='small'>
+                        <Space
+                          style={{ width: '100%' }}
+                          direction='vertical'
+                          size={'small'}
+                        >
+                          <Flex>{displayTags}</Flex>
+                        </Space>
+                      </Card>
+                    )}
+                    <Card size='small'>
+                      <Flex justify='space-between' gap={10}>
+                        <Flex vertical align='center'>
+                          <span style={{ fontSize: '12px', marginBottom: 8 }}>
+                            {t('course.item.selectRemaining', {
+                              select,
+                              remaining,
+                            })}
+                          </span>
+                          <Progress
+                            type='circle'
+                            percent={Math.round((select / remaining) * 100)}
+                            size={60}
+                            status={
+                              select >= remaining ? 'exception' : 'normal'
+                            }
+                          />
+                        </Flex>
+                        <Flex vertical align='center'>
+                          <span style={{ fontSize: '12px', marginBottom: 8 }}>
+                            {t('course.item.selectedRestrict', {
+                              selected,
+                              restrict,
+                            })}
+                          </span>
+                          <Progress
+                            type='circle'
+                            percent={Math.round((selected / restrict) * 100)}
+                            size={60}
+                            status={
+                              selected >= restrict ? 'exception' : 'normal'
+                            }
+                          />
+                        </Flex>
                       </Flex>
-                      <Flex vertical align='center'>
-                        <span style={{ fontSize: '12px', marginBottom: 8 }}>
-                          {t('course.item.selectedRestrict', {
-                            selected,
-                            restrict,
-                          })}
-                        </span>
-                        <Progress
-                          type='circle'
-                          percent={Math.round((selected / restrict) * 100)}
-                          size={60}
-                          status={selected >= restrict ? 'exception' : 'normal'}
-                        />
-                      </Flex>
-                    </Flex>
-                  </Card>
-                  <Card size='small'>
-                    <div style={{ textAlign: 'center', marginTop: 10 }}>
-                      <StyledLink
-                        href={url}
-                        target='_blank'
-                        rel='noreferrer'
-                        $isDark={isDarkMode}
-                      >
-                        {t('course.item.viewDetails')}
-                      </StyledLink>
-                    </div>
-                  </Card>
-                </Space>
-              </Modal>
+                    </Card>
+                    <Card size='small'>
+                      <div style={{ textAlign: 'center', marginTop: 10 }}>
+                        <StyledLink
+                          href={url}
+                          target='_blank'
+                          rel='noreferrer'
+                          $isDark={isDarkMode}
+                        >
+                          {t('course.item.viewDetails')}
+                        </StyledLink>
+                      </div>
+                    </Card>
+                  </Space>
+                </Modal>
               )}
             </>
           ) : (
