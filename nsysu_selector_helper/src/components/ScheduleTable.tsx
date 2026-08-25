@@ -9,6 +9,7 @@ import {
   Button,
   notification,
   message,
+  theme,
 } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import styled from 'styled-components';
@@ -201,6 +202,7 @@ const CourseTag = styled(Tag)<{
   $isActive?: boolean;
   $isDark: boolean;
   $isEnglish?: boolean;
+  $isPendingRemove?: boolean;
 }>`
   width: 100%;
   margin: 1px 0;
@@ -213,7 +215,11 @@ const CourseTag = styled(Tag)<{
   border-radius: 4px;
   font-weight: 500;
   transform: ${(props) =>
-    props.$isHovered || props.$isActive ? 'scale(1.02)' : 'none'};
+    props.$isPendingRemove
+      ? 'none'
+      : props.$isHovered || props.$isActive
+        ? 'scale(1.02)'
+        : 'none'};
   box-shadow: ${(props) =>
     props.$isHovered || props.$isActive
       ? props.$isDark
@@ -225,11 +231,14 @@ const CourseTag = styled(Tag)<{
   transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
   position: relative;
   overflow: visible;
+  border-style: ${(props) => (props.$isPendingRemove ? 'dashed' : 'solid')};
 
   // 只在非觸摸設備上啟用 hover 效果
   @media (hover: hover) {
+    // 預覽移除時不要再抬起來，否則跟「即將消失」的訊息互相矛盾
     &:hover {
-      transform: scale(1.02);
+      transform: ${(props) =>
+        props.$isPendingRemove ? 'none' : 'scale(1.02)'};
       box-shadow: ${(props) =>
         props.$isDark
           ? '0 2px 8px rgba(24, 144, 255, 0.5)'
@@ -249,7 +258,9 @@ const CourseTag = styled(Tag)<{
 const ProbabilityIndicator = styled.div<{
   $probability: number;
   $status: 'full' | 'overbooked' | 'normal';
+  $isPendingRemove?: boolean;
 }>`
+  opacity: ${(props) => (props.$isPendingRemove ? 0.2 : 1)};
   position: absolute;
   bottom: 0;
   left: 0;
@@ -262,51 +273,102 @@ const ProbabilityIndicator = styled.div<{
     if (props.$probability >= 50) return '#faad14'; // 橙色 - 中等機率
     return '#ff7875'; // 淺紅 - 困難
   }};
-  transition: width 0.3s ease;
+  transition:
+    width 0.3s ease,
+    opacity 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
   z-index: 1;
 `;
 
-const CourseTagContent = styled.div`
+const CourseTagContent = styled.div<{ $isPendingRemove?: boolean }>`
   position: relative;
   z-index: 2;
+  /*
+   * 只讓內容去飽和淡出，不動整個 CourseTag：
+   * 父層的 opacity/filter 子層蓋不掉，會連刪除鈕一起吃到。
+   */
+  opacity: ${(props) => (props.$isPendingRemove ? 0.35 : 1)};
+  filter: ${(props) => (props.$isPendingRemove ? 'grayscale(1)' : 'none')};
+  transition:
+    opacity 0.2s cubic-bezier(0.645, 0.045, 0.355, 1),
+    filter 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
 `;
 
-const DeleteButton = styled.button`
+const DeleteButton = styled.button<{
+  $colorError: string;
+  $colorErrorHover: string;
+  $colorTextLightSolid: string;
+  $borderRadius: number;
+}>`
   position: absolute;
   top: -6px;
   right: -6px;
   width: 16px;
   height: 16px;
-  background: #ff4d4f;
-  color: white;
-  border: none;
-  padding: 0;
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
+  border: none;
+  /* 走 antd 的 danger token，深色模式與主題調色都會跟著變 */
+  background: ${(props) => props.$colorError};
+  color: ${(props) => props.$colorTextLightSolid};
+  /* 跟隨主題的圓角設定，不再寫死正圓 */
+  border-radius: ${(props) => props.$borderRadius}px;
   font-size: 10px;
+  line-height: 1;
   cursor: pointer;
   z-index: 10;
-  opacity: 0; /* 平常隱藏 */
-  transition: all 0.2s;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  opacity: 0; /* 平常隱藏 */
+  /* 隱藏時不攔截點擊，否則會誤刪到看不見的按鈕 */
+  pointer-events: none;
+  /* 從標籤自己的角落長出來，讓視線能把按鈕連回它所屬的標籤 */
+  transform: scale(0.6);
+  transform-origin: top right;
+  transition:
+    opacity 0.16s cubic-bezier(0.645, 0.045, 0.355, 1),
+    transform 0.16s cubic-bezier(0.645, 0.045, 0.355, 1),
+    background-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
 
-  // 當滑鼠移入課程方塊時才顯示
+  /* 讓 svg 自己撐版面，避免 inline 基線把叉叉推歪 */
+  .anticon,
+  .anticon svg {
+    display: block;
+  }
+
+  /*
+   * 不用 @media (hover: hover) 包住：寬度 > 768px 的觸控裝置仍走桌機版渲染，
+   * 包住的話刪除鈕會永遠出不來。刪除鈕是標籤的子節點，
+   * 所以游標移到溢出標籤外的那一截時，標籤仍維持 :hover。
+   */
   ${CourseTag}:hover & {
     opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
   }
 
   &:hover {
-    transform: scale(1.2);
-    background: #ff7875;
+    background: ${(props) => props.$colorErrorHover};
   }
 
-  @media screen and (max-width: 768px) {
-    opacity: 1; // 手機版直接顯示，因為沒有 hover
-    width: 14px;
-    height: 14px;
-    font-size: 8px;
+  // 鍵盤操作時必須看得見，否則 tab 會停在透明元素上
+  &:focus-visible {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+    background: ${(props) => props.$colorErrorHover};
+    outline: 2px solid ${(props) => props.$colorError};
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transform: none;
+    transition: opacity 0.16s linear;
+
+    ${CourseTag}:hover &,
+    &:focus-visible {
+      transform: none;
+    }
   }
 `;
 
@@ -368,9 +430,14 @@ const TimeSlotCell = styled.div<{
   transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
   user-select: none;
 
-  // 只在非觸摸設備上啟用 hover 效果
+  /*
+   * 只在非觸摸設備上啟用 hover 效果。
+   * 課程標籤是格子的子節點，游標停在標籤上時格子也會被拖進 :hover。
+   * onMouseDown 已經用 e.target !== e.currentTarget 把標籤排除在拖曳選取之外，
+   * 這裡讓視覺跟行為一致：指著課程時不要再暗示可以篩選這個時段。
+   */
   @media (hover: hover) {
-    &:hover {
+    &:hover:not(:has(${CourseTag}:hover)) {
       background-color: ${(props) => {
         if (props.$isSelected)
           return props.$isDark
@@ -465,6 +532,11 @@ const ScheduleTable: React.FC = () => {
   const { width } = useWindowSize();
   const dispatch = useAppDispatch();
   const isDark = useAppSelector(selectIsDarkMode);
+  const { token } = theme.useToken();
+  // 靜態 notification/message 會在 ConfigProvider 外自建 root，拿不到主題 token
+  const [notificationApi, notificationContextHolder] =
+    notification.useNotification();
+  const [messageApi, messageContextHolder] = message.useMessage();
 
   // Redux state
   const selectedCourses = useAppSelector(selectSelectedCourses);
@@ -581,6 +653,8 @@ const ScheduleTable: React.FC = () => {
       false,
   );
   const [isExporting, setIsExporting] = useState(false);
+  // 游標停在刪除鈕上時，讓該課程的所有時段一起預覽被移除後的樣子
+  const [pendingRemoveCourseId, setPendingRemoveCourseId] = useState('');
 
   // 計算每個欄位的固定寬度 - 為手機優化
   const timeColumnWidth = isMobile ? 36 : 60;
@@ -608,7 +682,7 @@ const ScheduleTable: React.FC = () => {
   // Handle export as image
   const handleExportImage = async () => {
     if (selectedCourses.length === 0) {
-      message.warning(t('scheduleExport.noCoursesToExport'));
+      messageApi.warning(t('scheduleExport.noCoursesToExport'));
       return;
     }
 
@@ -619,10 +693,10 @@ const ScheduleTable: React.FC = () => {
         title: t('課程時間表'),
         language: i18n.language,
       });
-      message.success(t('scheduleExport.exportSuccess'));
+      messageApi.success(t('scheduleExport.exportSuccess'));
     } catch (error) {
       console.error('Export failed:', error);
-      message.error(t('scheduleExport.exportFailed'));
+      messageApi.error(t('scheduleExport.exportFailed'));
     } finally {
       setIsExporting(false);
     }
@@ -732,6 +806,7 @@ const ScheduleTable: React.FC = () => {
               const firstLabel = course.labels?.[0];
               const labelStyle = labels.find((l) => l.id === firstLabel);
               const isHovered = hoveredCourseId === course.id;
+              const isPendingRemove = pendingRemoveCourseId === course.id;
               return (
                 <CourseTag
                   key={`${course.id}-${day}-${slot.key}`}
@@ -748,6 +823,8 @@ const ScheduleTable: React.FC = () => {
                   $isHovered={isHovered}
                   $isDark={isDark}
                   $isEnglish={i18n.language.toLowerCase().startsWith('en')}
+                  $isPendingRemove={isPendingRemove}
+                  title={t('scheduleTable.tagHint.viewCourse')}
                   onClick={(e) => {
                     if (isMobile) {
                       // 手機版：阻止事件冒泡，但不執行課程點擊
@@ -804,18 +881,28 @@ const ScheduleTable: React.FC = () => {
                   {!isMobile && (
                     <DeleteButton
                       type='button'
-                      aria-label={t('scheduleTable.mobileDetails.removeCourse')}
+                      aria-label={t('scheduleTable.tagHint.removeCourse')}
+                      title={t('scheduleTable.tagHint.removeCourse')}
+                      $colorError={token.colorError}
+                      $colorErrorHover={token.colorErrorHover}
+                      $colorTextLightSolid={token.colorTextLightSolid}
+                      $borderRadius={token.borderRadius}
                       onMouseDown={(e) => e.stopPropagation()}
                       onTouchEnd={(e) => e.stopPropagation()}
+                      onMouseEnter={() => setPendingRemoveCourseId(course.id)}
+                      onMouseLeave={() => setPendingRemoveCourseId('')}
+                      onFocus={() => setPendingRemoveCourseId(course.id)}
+                      onBlur={() => setPendingRemoveCourseId('')}
                       onClick={(e) => {
                         e.stopPropagation();
+                        setPendingRemoveCourseId('');
                         const courseName = getLocalizedCourseName(
                           course.name,
                           i18n.language,
                         );
                         const notificationKey = `remove-course-${course.id}`;
                         dispatch(selectCourse({ course, isSelected: false }));
-                        notification.open({
+                        notificationApi.open({
                           key: notificationKey,
                           message: t(
                             'scheduleTable.mobileDetails.removedCourse',
@@ -831,7 +918,7 @@ const ScheduleTable: React.FC = () => {
                                 dispatch(
                                   selectCourse({ course, isSelected: true }),
                                 );
-                                notification.destroy(notificationKey);
+                                notificationApi.destroy(notificationKey);
                               }}
                             >
                               {t('scheduleTable.mobileDetails.undo')}
@@ -853,8 +940,9 @@ const ScheduleTable: React.FC = () => {
                     $status={GetProbability.getProbabilityStatus(
                       course.remaining,
                     )}
+                    $isPendingRemove={isPendingRemove}
                   />
-                  <CourseTagContent>
+                  <CourseTagContent $isPendingRemove={isPendingRemove}>
                     {(() => {
                       const localizedName = getLocalizedCourseName(
                         course.name,
@@ -901,16 +989,36 @@ const ScheduleTable: React.FC = () => {
       dataIndex: 'time',
       key: 'time',
       width: timeColumnWidth,
-      render: (text: string) => (
-        <Text
-          style={{
-            fontSize: isMobile ? '10px' : '12px',
-            whiteSpace: 'pre-line',
-          }}
-        >
-          {text}
-        </Text>
-      ),
+      render: (text: string, record: ScheduleTableRow) => {
+        /*
+         * 課程列表顯示的是節次代號（classTime 就是代號串），課表這裡也要印，
+         * 兩邊才對得起來。時間常數的格式是起訖時間夾一個 ~，拆成兩行後
+         * 加上代號共三行，與原本的「時間 / ~ / 時間」相同，所以列高不變。
+         * 兩者的主次關係見下方各自的註解。
+         */
+        const [start, end] = text.split('~').map((part) => part.trim());
+        return (
+          <Flex vertical={true} align='center'>
+            {/* 時間在上且不縮小：課表最常回答的是「幾點上課」，
+                沒有人會記得代號對應到幾點 */}
+            <Text
+              style={{ fontSize: isMobile ? '10px' : '12px', lineHeight: 1.25 }}
+            >
+              {start}
+              <br />
+              {end}
+            </Text>
+            {/* 代號略小但加粗，在小字級下仍然清楚，供跟課程列表對照 */}
+            <Text
+              type='secondary'
+              strong={true}
+              style={{ fontSize: isMobile ? '9px' : '11px', lineHeight: 1.25 }}
+            >
+              {record.key}
+            </Text>
+          </Flex>
+        );
+      },
     },
     ...visibleDays.map((day, index) => ({
       title: (
@@ -1085,6 +1193,8 @@ const ScheduleTable: React.FC = () => {
 
   return (
     <>
+      {notificationContextHolder}
+      {messageContextHolder}
       <StyledCard title={<TitleComponent />} $isDark={isDark}>
         <TableWrapper $isDark={isDark}>
           <StyledTable

@@ -1,6 +1,30 @@
 {
   "announcements": [
     {
+      "version": "v6.3.0",
+      "date": "2026-08-24",
+      "title": "課表看得更清楚，深色模式也修好了！",
+      "feedbackFormUrl": "https://forms.gle/gFBZDgkSbj85zukP6",
+      "dcForumUrl": "https://discord.gg/Md4x9frrHf",
+      "githubUrl": "https://github.com/NSYSU-OpenDev/NSYSUCourseSelectorV6/",
+      "contactEmail": "yochen0123@gmail.com",
+      "description": "這次更新讓課表上的操作更容易看懂，並修好了幾個深色模式下的配色問題。",
+      "updates": [
+        "新增: 課表時間欄同時顯示時間與節次代號，可直接對照課程列表",
+        "優化: 課程移除鈕重新設計，移到鈕上會先預覽該課程被移除後的樣子",
+        "修正: 指著課程時不再誤亮時段篩選的提示",
+        "修正: 深色模式下通知、複製提示與重置對話框的配色"
+      ],
+      "features": [
+        "移除課程前先看到結果",
+        "時間欄同時看得到時間與節次代號",
+        "深色模式配色一致"
+      ],
+      "knownIssues": ["如果有任何問題請回報給我們"],
+      "termsOfUse": "當您使用本網站時，即表示您同意 [使用條款](https://github.com/NSYSU-OpenDev/NSYSUSelectorHelper/blob/main/term_of_use.md)",
+      "copyright": ["版權所有 © 2026 中山開源社群，保留一切權利。"]
+    },
+    {
       "version": "v6.2.1",
       "date": "2026-06-24",
       "title": "課表互動與篩選操作再升級！",

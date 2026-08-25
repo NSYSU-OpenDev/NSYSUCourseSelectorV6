@@ -131,7 +131,9 @@ const DepartmentCourses: React.FC = () => {
   const gradeOptions = useMemo(() => {
     return DepartmentCourseService.extractGrades(courses).map((grade) => ({
       label:
-        grade === '0' ? t('department.allGrades') : t('department.gradeLabel', { grade }),
+        grade === '0'
+          ? t('department.allGrades')
+          : t('department.gradeLabel', { grade }),
       value: grade,
     }));
   }, [courses, t]);
@@ -148,9 +150,8 @@ const DepartmentCourses: React.FC = () => {
     elective: t('department.typeElective'),
     multipleCompulsory: t('department.typeMultipleCompulsory'),
   };
-  const compulsoryTypeOptions = DepartmentCourseService
-    .getCompulsoryTypeOptions()
-    .map((opt) => ({
+  const compulsoryTypeOptions =
+    DepartmentCourseService.getCompulsoryTypeOptions().map((opt) => ({
       ...opt,
       label: COMPULSORY_TYPE_LABELS[opt.value] ?? opt.label,
     }));

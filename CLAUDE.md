@@ -53,9 +53,23 @@ Always wrap reads in `try/catch` with a safe default: stored JSON may be stale o
 
 `TranslationKey` is derived structurally from `zh-TW/translation.json` ([i18n.d.ts](nsysu_selector_helper/src/types/i18n.d.ts)), so `t()` only accepts keys that exist in the Traditional Chinese file. A key missing from `zh-TW` is a *compile* error, not a runtime fallback — add it there first. `en/translation.json` is an in-progress translation and is not the type source.
 
+### Theming travels by context, so anything outside the tree loses it
+
+[App.tsx](nsysu_selector_helper/src/App.tsx) wraps everything in antd's `ConfigProvider`, fed by `themeSlice` (dark mode, border radius). Rendering *outside* that tree silently drops the theme, and antd's static `message`/`notification`/`Modal` helpers do exactly that — they mount their own root, so they always render light. AGENTS.md requires their hook forms instead; the failure is invisible in light mode, which is why it keeps getting reintroduced.
+
+Inside components, read tokens with `theme.useToken()` (see `SectionHeader`, `HelpModal`) rather than hardcoding hex. Fixed hex is only correct for values that are *meant* to ignore the theme — the probability-bar status colours in `ScheduleTable`, for instance.
+
+`scheduleExportService` is the deliberate exception: it paints to a canvas with no React tree at all, so it takes `isDark` as an argument and branches on it explicitly.
+
 ### GitHub Pages base path
 
 Vite `base` is `/NSYSUCourseSelectorV6/`. Runtime asset paths must go through Vite imports or `import.meta.env.BASE_URL` (see `AnnouncementService.getFullPath`); hardcoded `/`-rooted URLs break in production.
+
+### The release version is duplicated six times
+
+There is no single source of truth for the version. `package.json` holds it without a `v` prefix; `public/announcements.json`, `public/announcements_en.json` and both `translation.json` files hold it with one; [CHANGELOG.md](CHANGELOG.md) carries the developer-facing history. Nothing cross-checks them and nothing fails when they drift — the app just shows a stale release note. AGENTS.md has the checklist that finishing a branch is expected to run through.
+
+The announcement files are what `AnnouncementService` fetches at runtime (`/announcements.json` or `/announcements_en.json` via `getFullPath`), so the newest entry there is what users actually read in the app — CHANGELOG.md is not. `dist/` holds built copies; never hand-edit those.
 
 ### Testing notes
 

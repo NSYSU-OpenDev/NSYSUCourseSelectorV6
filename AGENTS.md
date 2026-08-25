@@ -46,7 +46,7 @@ nsysu_selector_helper/src/
 | --- | --- |
 | **Feature or bug fix** — anything under `nsysu_selector_helper/src/` | **Feature branch + pull request.** Never commit directly to `main`. |
 | Dependency bumps, build/CI config | Feature branch + pull request |
-| Docs only — `README.md`, `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md` | May be committed directly to `main` |
+| Docs only — `README.md`, `CHANGELOG.md`, `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md` | May be committed directly to `main` |
 
 CI (`.github/workflows/ci.yaml`) only runs on pull requests touching `nsysu_selector_helper/**`. Committing a feature or fix straight to `main` therefore skips the type check, tests and build entirely — and `main` auto-deploys to GitHub Pages, so a broken direct commit ships to users. That is the reason for the rule, not ceremony.
 
@@ -77,13 +77,52 @@ build(deps): bump ws
 - **Types**: `feat`, `fix`, `docs`, `i18n`, `perf`, `style`, `refactor`, `test`, `build`, `ci`
 - **Scopes**: the affected area — `schedule`, `selector`, `filter`, `sort`, `labels`, `export`, `theme`, `store`, `services`, `api`, `deps`, `ci`. Drop the scope only when a change genuinely spans the whole app.
 
+### Finishing a Branch: Version and Changelog
+
+Anything user-facing — a feature, a fix someone would notice, a visible
+behaviour change — bumps the version and gets a changelog entry **before the
+pull request goes up**. `main` auto-deploys, so a merge without this ships a
+build whose in-app announcement still describes the previous release.
+
+The version lives in six places and they must agree. Missing one is the usual
+failure, because nothing validates them against each other:
+
+| File | Form |
+| --- | --- |
+| `nsysu_selector_helper/package.json` | `"version": "6.3.0"` |
+| `nsysu_selector_helper/public/announcements.json` | new `v6.3.0` entry, newest first |
+| `nsysu_selector_helper/public/announcements_en.json` | same entry, translated |
+| `nsysu_selector_helper/src/i18n/locales/zh-TW/translation.json` | `"version": "v6.3.0"` |
+| `nsysu_selector_helper/src/i18n/locales/en/translation.json` | `"version": "v6.3.0"` |
+| `CHANGELOG.md` | new section at the top, newest first |
+
+Note the two shapes: `package.json` has no `v` prefix, everything else does.
+
+Pick the bump from the commits on the branch — any `feat:` makes it a minor,
+otherwise a patch. Write the announcement for students, not for developers:
+say what changed on screen, not which component was refactored. Keep the
+`updates` prefixes already in use (`新增:` / `優化:` / `修正:`).
+
+`nsysu_selector_helper/dist/` also contains announcement files. That is build
+output — never edit it by hand.
+
 ### Before Opening a Pull Request
 
-Run the same gates CI will, from `nsysu_selector_helper/`:
+Run these from `nsysu_selector_helper/`:
 
 ```powershell
-yarn lint; yarn tsc -b --noEmit; yarn test; yarn build
+yarn format; yarn lint; yarn tsc -b --noEmit; yarn test; yarn build
 ```
+
+`yarn format` goes first because prettier also runs as an eslint rule, so an
+unformatted file fails `yarn lint` too. Note it only covers
+`nsysu_selector_helper/` — the markdown at the repo root (`README.md`,
+`CHANGELOG.md`, `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`) is not prettier
+managed, so leave its existing formatting alone rather than reflowing whole
+files.
+
+CI itself only runs the last three (`ci.yaml` has no lint or format step), so
+formatting and lint problems will not be caught for you.
 
 ## Development Standards
 
@@ -142,6 +181,42 @@ const MyComponent = () => {
 ```
 
 **Important**: Always add new translation keys to `zh-TW.json` first for type safety.
+
+### Ant Design Feedback APIs (message / notification / Modal)
+
+**Never call the static helpers** — `message.success()`, `notification.open()`,
+`Modal.confirm()`. They mount their own React root *outside* `ConfigProvider`,
+so they cannot read the theme context and always paint with default light
+tokens. In dark mode they come out wrong.
+
+Use the hook form and render the returned `contextHolder`:
+
+```tsx
+const [messageApi, contextHolder] = message.useMessage();
+const [notificationApi, notificationContextHolder] =
+  notification.useNotification();
+const [modalApi, modalContextHolder] = Modal.useModal();
+
+return (
+  <>
+    {contextHolder}
+    {notificationContextHolder}
+    {modalContextHolder}
+    {/* ... */}
+  </>
+);
+```
+
+Two traps:
+
+- **Forgetting `contextHolder` fails silently.** The api call still resolves and
+  nothing appears — no warning, no error.
+- **Never put a holder in a list row.** `CoursesList/Item` is a react-virtuoso
+  `itemContent`, so a holder there would instantiate one message system per
+  visible row. Hoist the api up to the list component and pass it down.
+
+Existing examples to copy: `CustomFilterModal`, `CustomQuickFilters`,
+`DepartmentCourses` (message + modal), `SelectedExport`, `Settings`.
 
 ### Code Comments
 - **All code comments must be in Traditional Chinese (繁體中文)**

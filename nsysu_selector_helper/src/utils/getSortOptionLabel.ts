@@ -23,10 +23,8 @@ const DESCRIPTION_KEYS: Record<AvailableSortOptions, TranslationKey> = {
   compulsory: 'sort.options.compulsory.description',
 };
 
-export const getSortOptionLabel = (
-  key: AvailableSortOptions,
-  t: TFn,
-): string => t(LABEL_KEYS[key]);
+export const getSortOptionLabel = (key: AvailableSortOptions, t: TFn): string =>
+  t(LABEL_KEYS[key]);
 
 export const getSortOptionDescription = (
   key: AvailableSortOptions,

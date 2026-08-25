@@ -1,6 +1,32 @@
 {
   "announcements": [
     {
+      "version": "v6.3.0",
+      "date": "2026-08-24",
+      "title": "A clearer schedule, and dark mode fixed!",
+      "feedbackFormUrl": "https://forms.gle/gFBZDgkSbj85zukP6",
+      "dcForumUrl": "https://discord.gg/Md4x9frrHf",
+      "githubUrl": "https://github.com/NSYSU-OpenDev/NSYSUCourseSelectorV6/",
+      "contactEmail": "yochen0123@gmail.com",
+      "description": "This update makes actions on the schedule easier to read, and fixes several colours that ignored dark mode.",
+      "updates": [
+        "New: The schedule time column now shows the period code alongside the time, so it matches the course list",
+        "Improvement: Redesigned remove button — hovering it previews how the schedule looks without that course",
+        "Fix: Pointing at a course no longer lights up the time slot filter hint",
+        "Fix: Notifications, the copy toast and the reset dialog now follow dark mode"
+      ],
+      "features": [
+        "See the result before removing a course",
+        "Time and period code side by side",
+        "Consistent dark mode colours"
+      ],
+      "knownIssues": ["Please report any issues to us"],
+      "termsOfUse": "By using this website, you agree to the [Terms of Use](https://github.com/NSYSU-OpenDev/NSYSUSelectorHelper/blob/main/term_of_use.md)",
+      "copyright": [
+        "Copyright © 2026 NSYSU Open Development Community. All rights reserved."
+      ]
+    },
+    {
       "version": "v6.2.1",
       "date": "2026-06-24",
       "title": "Schedule and filter interactions improved!",

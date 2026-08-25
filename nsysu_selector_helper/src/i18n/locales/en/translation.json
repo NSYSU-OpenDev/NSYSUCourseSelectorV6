@@ -1,5 +1,5 @@
 {
-  "version": "v6.2.1",
+  "version": "v6.3.0",
   "feedbackFormUrl": "https://forms.gle/gFBZDgkSbj85zukP6",
   "githubUrl": "https://github.com/CelleryLin/selector_helper_react",
   "loading": "Loading...",
@@ -37,6 +37,10 @@
     "filtering": "Filtering",
     "filteringCount": "Filtering ({{count}})",
     "unknownRoom": "Unknown",
+    "tagHint": {
+      "viewCourse": "Click to view course",
+      "removeCourse": "Remove course"
+    },
     "mobileDetails": {
       "title": "Course Details",
       "close": "Close",

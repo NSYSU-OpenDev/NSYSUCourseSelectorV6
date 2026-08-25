@@ -6,7 +6,6 @@ import {
   Checkbox,
   Flex,
   InputNumber,
-  message,
   Modal,
   Popover,
   Progress,
@@ -16,6 +15,7 @@ import {
   Tooltip,
 } from 'antd';
 import { CopyOutlined, TagsOutlined } from '@ant-design/icons';
+import type { MessageInstance } from 'antd/es/message/interface';
 
 import type { Course } from '@/types';
 import type { CourseLabel } from '@/services';
@@ -210,6 +210,12 @@ type ItemProps = {
   isConflict: boolean;
   isHovered: boolean;
   displayMode?: 'all' | 'selected';
+  /*
+   * 由列表層傳入，不在這裡呼叫 message.useMessage()：
+   * Item 是 virtuoso 的 row，捲出畫面就會卸載，contextHolder 會把還在顯示的
+   * 提示一起帶走。提示本來就該活得比觸發它的那一列久。
+   */
+  messageApi: MessageInstance;
 };
 
 const Item: React.FC<ItemProps> = ({
@@ -218,6 +224,7 @@ const Item: React.FC<ItemProps> = ({
   isConflict,
   isHovered,
   displayMode = 'all',
+  messageApi,
 }) => {
   const { t, i18n } = useTranslation();
   const displayName = getLocalizedCourseName(course.name, i18n.language);
@@ -276,7 +283,7 @@ const Item: React.FC<ItemProps> = ({
     e.preventDefault();
     try {
       await navigator.clipboard.writeText(course.id);
-      void message.success(
+      void messageApi.success(
         t('selectedExportMessages.courseIdCopied', { id: course.id }),
       );
     } catch {
@@ -287,7 +294,7 @@ const Item: React.FC<ItemProps> = ({
       textArea.select();
       void document.execCommand('copy');
       document.body.removeChild(textArea);
-      void message.success(
+      void messageApi.success(
         t('selectedExportMessages.courseIdCopied', { id: course.id }),
       );
     }
@@ -563,77 +570,81 @@ const Item: React.FC<ItemProps> = ({
                 </CourseCodeContainer>
               </div>
               {isModalVisible && (
-              <Modal
-                title={`${displayName} (${id})`}
-                open={isModalVisible}
-                onCancel={hideModal}
-                footer={null}
-                width='90%'
-                style={{ maxWidth: 400 }}
-              >
-                <Space style={{ width: '100%' }} direction='vertical'>
-                  <Card size='small'>
-                    <div style={{ fontSize: '14px', lineHeight: 1.6 }}>
-                      {description}
-                    </div>
-                  </Card>
-                  {displayTags && displayTags.length > 0 && (
+                <Modal
+                  title={`${displayName} (${id})`}
+                  open={isModalVisible}
+                  onCancel={hideModal}
+                  footer={null}
+                  width='90%'
+                  style={{ maxWidth: 400 }}
+                >
+                  <Space style={{ width: '100%' }} direction='vertical'>
                     <Card size='small'>
-                      <Space
-                        style={{ width: '100%' }}
-                        direction='vertical'
-                        size={'small'}
-                      >
-                        <Flex>{displayTags}</Flex>
-                      </Space>
+                      <div style={{ fontSize: '14px', lineHeight: 1.6 }}>
+                        {description}
+                      </div>
                     </Card>
-                  )}
-                  <Card size='small'>
-                    <Flex justify='space-between' gap={10}>
-                      <Flex vertical align='center'>
-                        <span style={{ fontSize: '12px', marginBottom: 8 }}>
-                          {t('course.item.selectRemaining', {
-                            select,
-                            remaining,
-                          })}
-                        </span>
-                        <Progress
-                          type='circle'
-                          percent={Math.round((select / remaining) * 100)}
-                          size={60}
-                          status={select >= remaining ? 'exception' : 'normal'}
-                        />
+                    {displayTags && displayTags.length > 0 && (
+                      <Card size='small'>
+                        <Space
+                          style={{ width: '100%' }}
+                          direction='vertical'
+                          size={'small'}
+                        >
+                          <Flex>{displayTags}</Flex>
+                        </Space>
+                      </Card>
+                    )}
+                    <Card size='small'>
+                      <Flex justify='space-between' gap={10}>
+                        <Flex vertical align='center'>
+                          <span style={{ fontSize: '12px', marginBottom: 8 }}>
+                            {t('course.item.selectRemaining', {
+                              select,
+                              remaining,
+                            })}
+                          </span>
+                          <Progress
+                            type='circle'
+                            percent={Math.round((select / remaining) * 100)}
+                            size={60}
+                            status={
+                              select >= remaining ? 'exception' : 'normal'
+                            }
+                          />
+                        </Flex>
+                        <Flex vertical align='center'>
+                          <span style={{ fontSize: '12px', marginBottom: 8 }}>
+                            {t('course.item.selectedRestrict', {
+                              selected,
+                              restrict,
+                            })}
+                          </span>
+                          <Progress
+                            type='circle'
+                            percent={Math.round((selected / restrict) * 100)}
+                            size={60}
+                            status={
+                              selected >= restrict ? 'exception' : 'normal'
+                            }
+                          />
+                        </Flex>
                       </Flex>
-                      <Flex vertical align='center'>
-                        <span style={{ fontSize: '12px', marginBottom: 8 }}>
-                          {t('course.item.selectedRestrict', {
-                            selected,
-                            restrict,
-                          })}
-                        </span>
-                        <Progress
-                          type='circle'
-                          percent={Math.round((selected / restrict) * 100)}
-                          size={60}
-                          status={selected >= restrict ? 'exception' : 'normal'}
-                        />
-                      </Flex>
-                    </Flex>
-                  </Card>
-                  <Card size='small'>
-                    <div style={{ textAlign: 'center', marginTop: 10 }}>
-                      <StyledLink
-                        href={url}
-                        target='_blank'
-                        rel='noreferrer'
-                        $isDark={isDarkMode}
-                      >
-                        {t('course.item.viewDetails')}
-                      </StyledLink>
-                    </div>
-                  </Card>
-                </Space>
-              </Modal>
+                    </Card>
+                    <Card size='small'>
+                      <div style={{ textAlign: 'center', marginTop: 10 }}>
+                        <StyledLink
+                          href={url}
+                          target='_blank'
+                          rel='noreferrer'
+                          $isDark={isDarkMode}
+                        >
+                          {t('course.item.viewDetails')}
+                        </StyledLink>
+                      </div>
+                    </Card>
+                  </Space>
+                </Modal>
               )}
             </>
           ) : (

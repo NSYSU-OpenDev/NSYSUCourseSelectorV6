@@ -281,6 +281,7 @@ try {
         isSelected={false}
         isConflict={false}
         displayMode={'selected'}
+        messageApi={messageApi}
       />
     );
   };

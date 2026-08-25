@@ -1,5 +1,5 @@
 {
-  "version": "v6.2.1",
+  "version": "v6.3.0",
   "feedbackFormUrl": "https://forms.gle/gFBZDgkSbj85zukP6",
   "githubUrl": "https://github.com/CelleryLin/selector_helper_react",
   "loading": "載入中...",
@@ -37,6 +37,10 @@
     "filtering": "篩選中",
     "filteringCount": "篩選中 ({{count}})",
     "unknownRoom": "未知",
+    "tagHint": {
+      "viewCourse": "點擊查看課程",
+      "removeCourse": "移除課程"
+    },
     "mobileDetails": {
       "title": "課程詳情",
       "close": "關閉",
