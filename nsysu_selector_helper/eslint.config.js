@@ -22,7 +22,8 @@ export default defineConfig([
     ],
     languageOptions: {
       ecmaVersion: 2020,
-      globals: globals.browser,
+      // 對應舊設定的 env: { browser: true, es2020: true }
+      globals: { ...globals.browser, ...globals.es2020 },
     },
     plugins: {
       'react-refresh': reactRefresh,
