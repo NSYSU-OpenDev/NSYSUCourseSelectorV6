@@ -17,6 +17,10 @@ export default defineConfig([
       js.configs.recommended,
       tsEslint.configs['flat/recommended'],
       react.configs.flat.recommended,
+      // eslint-plugin-react-hooks@5 沒有 configs.flat，
+      // 'recommended-latest' 才是這個版本唯一的 flat config，
+      // 'recommended' 與 'recommended-legacy' 都還是 eslintrc 格式。
+      // 三者啟用的規則完全相同，等同舊的 plugin:react-hooks/recommended。
       reactHooks.configs['recommended-latest'],
       prettierRecommended,
     ],
